@@ -34,9 +34,9 @@ Para ejecutar este proyecto localmente, sigue estos pasos:
 
 2.  **Instala las dependencias:**
     ```bash
-    npm install
-    # o yarn install
-    # o pnpm install
+    npm install react react-dom
+    npm install -D typescript vite @types/react @types/react-dom @vitejs/plugin-react
+    npm install lucide-react
     ```
 
 3.  **Configuración de variables de entorno (si aplica):**
