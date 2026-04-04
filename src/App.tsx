@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import ProfilePage from './pages/ProfilePage';
 import './App.css';
 import LoginPage from './pages/auth/LoginPage';//Este es tu login oe milton
+import Navbar from './components/ui/Navbar';
 
 function App() {
   const HomePage = () => (
@@ -18,11 +19,14 @@ function App() {
 
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-      </Routes>
+      <Navbar />
+      <div style={{ flexGrow: 1 }}>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+        </Routes>
+      </div>
     </Router>
   );
 }
