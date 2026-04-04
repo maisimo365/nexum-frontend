@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
-import Navbar from "../../components/ui/Navbar";
 import { loginService } from "../../services/auth.service";
 
 const LoginPage = () => {
@@ -50,9 +49,6 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      {/* Navbar */}
-      <Navbar />
-
       {/* Contenido principal */}
       <div className="flex-1 flex items-center justify-center px-4 py-10">
         <div className="w-full max-w-4xl bg-surface rounded-lg shadow-lg overflow-hidden flex">
