@@ -3,6 +3,7 @@ import ProfilePage from './pages/ProfilePage';
 import './App.css';
 import LoginPage from './pages/auth/LoginPage';//Este es tu login oe milton
 import Navbar from './components/ui/Navbar';
+import Footer from './components/ui/Footer';
 
 function App() {
   const HomePage = () => (
@@ -27,6 +28,7 @@ function App() {
           <Route path="/profile" element={<ProfilePage />} />
         </Routes>
       </div>
+      <Footer /> {/* Agrega el Footer aquí */}
     </Router>
   );
 }
