@@ -28,8 +28,7 @@ Para ejecutar este proyecto localmente, sigue estos pasos:
 
 1.  **Clona el repositorio:**
     ```bash
-    git clone https://github.com/tu-usuario/nexum-frontend.git
-    cd nexum-frontend
+        git clone https://github.com/ACmilton12/nexum-frontend.git
     ```
 
 2.  **Instala las dependencias:**
