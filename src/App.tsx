@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import ProfilePage from './pages/ProfilePage';
 import './App.css';
+import LoginPage from './pages/auth/LoginPage';//Este es tu login oe milton
 
 function App() {
   const HomePage = () => (
@@ -19,6 +20,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<LoginPage />} />
         <Route path="/profile" element={<ProfilePage />} />
       </Routes>
     </Router>
