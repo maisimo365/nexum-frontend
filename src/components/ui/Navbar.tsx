@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import logoUmss from "../../assets/logoUmss.png";
 
 const Navbar = () => {
   return (
@@ -6,7 +7,7 @@ const Navbar = () => {
       {/* Logo */}
       <div className="flex items-center gap-2">
         <img
-              src="/src/assets/logoUmss.png"
+              src={logoUmss}
               alt="Logo UMSS"
                className="w-8 h-8 object-contain"
              />
