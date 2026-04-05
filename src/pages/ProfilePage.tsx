@@ -36,8 +36,8 @@ function ProfilePage() {
   return (
     <div style={{ display: 'flex', flex: 1, minHeight: 'calc(100vh - 120px)' }}>
       
-      {/* 1. LADO IZQUIERDO: Sidebar */}
-      <Sidebar activeItem="Perfil" />
+      {/* 1. LADO IZQUIERDO: Sidebar con submenú de Perfil activo */}
+      <Sidebar activeItem="Datos Personales" />
 
       {/* 2. CENTRO: Contenedor del Formulario */}
       <div style={{ flex: 1, padding: '40px 20px', display: 'flex', justifyContent: 'center', overflowY: 'auto' }}>
