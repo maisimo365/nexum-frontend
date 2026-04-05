@@ -7,13 +7,13 @@ function ProfilePage() {
   const navigate = useNavigate();
 
   // Estados para los campos del formulario
-  const [nombre, setNombre] = useState('');
-  const [apellido, setApellido] = useState('');
-  const [tituloProfesional, setTituloProfesional] = useState('');
-  const [correoElectronico, setCorreoElectronico] = useState('');
-  const [telefono, setTelefono] = useState('');
-  const [ubicacion, setUbicacion] = useState('');
-  const [biografia, setBiografia] = useState('');
+  const [nombre, setNombre] = useState('Milton');
+  const [apellido, setApellido] = useState('Quispe');
+  const [tituloProfesional, setTituloProfesional] = useState('Ingeniero de Sistemas');
+  const [correoElectronico, setCorreoElectronico] = useState('milton@gmail.com');
+  const [telefono, setTelefono] = useState('66666666');
+  const [ubicacion, setUbicacion] = useState('Cochabamba, Bolivia');
+  const [biografia, setBiografia] = useState('Desempleado.');
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -30,139 +30,142 @@ function ProfilePage() {
   };
 
   const handleCancel = () => {
-    navigate('/'); // Navega de vuelta a la página de inicio
+    navigate('/');
   };
 
   return (
-    <div style={{ display: 'flex', flex: 1, minHeight: 'calc(100vh - 120px)' }}>
+    <div style={{ display: 'flex', flex: 1, minHeight: 'calc(100vh - 120px)', backgroundColor: '#e9eef5' }}>
       
-      {/* 1. LADO IZQUIERDO: Sidebar con submenú de Perfil activo */}
+      {/* 1. LADO IZQUIERDO: Sidebar */}
       <Sidebar activeItem="Datos Personales" />
 
-      {/* 2. CENTRO: Contenedor del Formulario */}
-      <div style={{ flex: 1, padding: '40px 20px', display: 'flex', justifyContent: 'center', overflowY: 'auto' }}>
+      {/* 2. CENTRO: Contenido del área de trabajo */}
+      <div style={{ flex: 1, padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px', overflowY: 'auto' }}>
+        
+        <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1a1a2e', margin: 0 }}>
+          Datos Personales
+        </h2>
+
+        {/* Tarjeta Blanca Principal */}
         <div style={{ 
-          width: '100%',
-          maxWidth: '600px', 
+          width: '100%', 
+          maxWidth: '1000px', 
           backgroundColor: '#fff', 
-          padding: '30px', 
+          padding: '32px', 
           borderRadius: '12px', 
-          boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
-          height: 'fit-content'
+          boxShadow: '0 6px 18px rgba(0, 26, 94, 0.06)',
+          display: 'flex',
+          flexDirection: 'row',
+          gap: '32px',
+          alignItems: 'flex-start'
         }}>
-          <h2 style={{ marginBottom: '20px', color: '#1a1a2e', fontSize: '24px' }}>Datos Personales</h2>
-          <form onSubmit={handleSubmit}>
-            <div style={{ marginBottom: '15px' }}>
-              <label htmlFor="nombre" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Nombres:</label>
-              <input
-                type="text"
-                id="nombre"
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box' }}
+          
+          {/* Panel de Foto (Lado Izquierdo) */}
+          <div style={{ width: '144px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+            <div style={{ 
+              width: '120px', 
+              height: '120px', 
+              borderRadius: '999px', 
+              overflow: 'hidden', 
+              boxShadow: '0 0 0 4px #fff, 0 0 0 5px #00000014' 
+            }}>
+              <img 
+                src="https://storage.googleapis.com/banani-avatars/avatar%2Fmale%2F25-35%2FHispanic%2F0" 
+                alt="Profile Preview" 
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
             </div>
+            <div style={{ fontSize: '12px', color: '#5b6472', textAlign: 'center', lineHeight: '1.4' }}>
+              Vista previa de imagen al seleccionar o arrastrar una nueva foto.
+            </div>
+            <button type="button" style={{ 
+              minHeight: '36px', padding: '0 14px', borderRadius: '8px', 
+              border: '1px solid #00000014', background: '#fff', fontSize: '14px', cursor: 'pointer', fontWeight: '600'
+            }}>
+              Cambiar foto
+            </button>
+          </div>
 
-            <div style={{ marginBottom: '15px' }}>
-              <label htmlFor="apellido" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Apellidos:</label>
-              <input
-                type="text"
-                id="apellido"
-                value={apellido}
-                onChange={(e) => setApellido(e.target.value)}
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box' }}
-              />
+          {/* Campos del Formulario (Lado Derecho) */}
+          <form onSubmit={handleSubmit} style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            
+            {/* Banner de Ayuda */}
+            <div style={{ padding: '16px', background: '#e7edf5', borderRadius: '12px' }}>
+              <div style={{ fontSize: '13px', fontWeight: '600', color: '#1a1a2e' }}>Ruta visible dentro del módulo Perfil</div>
+              <div style={{ fontSize: '12px', color: '#5b6472' }}>Estás editando la sección Datos Personales del perfil profesional.</div>
             </div>
 
-            <div style={{ marginBottom: '15px' }}>
-              <label htmlFor="tituloProfesional" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Título Profesional:</label>
-              <input
-                type="text"
-                id="tituloProfesional"
-                value={tituloProfesional}
-                onChange={(e) => setTituloProfesional(e.target.value)}
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box' }}
-              />
+            {/* Grid de Entradas */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <label style={{ fontSize: '13px', fontWeight: '600', color: '#1a1a2e' }}>Nombre</label>
+                <input type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} 
+                       style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #00000014', fontSize: '14px', boxSizing: 'border-box' }} />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <label style={{ fontSize: '13px', fontWeight: '600', color: '#1a1a2e' }}>Apellido</label>
+                <input type="text" value={apellido} onChange={(e) => setApellido(e.target.value)} 
+                       style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #00000014', fontSize: '14px', boxSizing: 'border-box' }} />
+              </div>
             </div>
 
-            <div style={{ marginBottom: '15px' }}>
-              <label htmlFor="correoElectronico" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Correo:</label>
-              <input
-                type="email"
-                id="correoElectronico"
-                value={correoElectronico}
-                onChange={(e) => setCorreoElectronico(e.target.value)}
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box' }}
-              />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <label style={{ fontSize: '13px', fontWeight: '600', color: '#1a1a2e' }}>Título Profesional</label>
+                <input type="text" value={tituloProfesional} onChange={(e) => setTituloProfesional(e.target.value)} 
+                       style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #00000014', fontSize: '14px', boxSizing: 'border-box' }} />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <label style={{ fontSize: '13px', fontWeight: '600', color: '#1a1a2e' }}>Correo</label>
+                <input type="email" value={correoElectronico} onChange={(e) => setCorreoElectronico(e.target.value)} 
+                       style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #00000014', fontSize: '14px', boxSizing: 'border-box' }} />
+              </div>
             </div>
 
-            <div style={{ marginBottom: '15px' }}>
-              <label htmlFor="telefono" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Teléfono:</label>
-              <input
-                type="tel"
-                id="telefono"
-                value={telefono}
-                onChange={(e) => setTelefono(e.target.value)}
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box' }}
-              />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <label style={{ fontSize: '13px', fontWeight: '600', color: '#1a1a2e' }}>Teléfono</label>
+                <input type="tel" value={telefono} onChange={(e) => setTelefono(e.target.value)} 
+                       style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #00000014', fontSize: '14px', boxSizing: 'border-box' }} />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <label style={{ fontSize: '13px', fontWeight: '600', color: '#1a1a2e' }}>Ubicación</label>
+                <input type="text" value={ubicacion} onChange={(e) => setUbicacion(e.target.value)} 
+                       style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #00000014', fontSize: '14px', boxSizing: 'border-box' }} />
+              </div>
             </div>
 
-            <div style={{ marginBottom: '15px' }}>
-              <label htmlFor="ubicacion" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Ubicación:</label>
-              <input 
-                type="text" 
-                id="ubicacion" 
-                value={ubicacion} 
-                onChange={(e) => setUbicacion(e.target.value)} 
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box' }} 
-              />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <label style={{ fontSize: '13px', fontWeight: '600', color: '#1a1a2e' }}>Biografía</label>
+              <textarea value={biografia} onChange={(e) => setBiografia(e.target.value)} rows={4} 
+                        style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #00000014', fontSize: '14px', resize: 'none', boxSizing: 'border-box', lineHeight: '1.5' }} />
             </div>
 
-            <div style={{ marginBottom: '15px' }}>
-              <label htmlFor="biografia" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Biografía:</label>
-              <textarea 
-                id="biografia" 
-                value={biografia} 
-                onChange={(e) => setBiografia(e.target.value)} 
-                rows={5} 
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', resize: 'none', boxSizing: 'border-box' }}
-              ></textarea>
-            </div>
-
-            <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-              <button 
-                type="submit" 
-                style={{ 
-                  padding: '10px 20px', 
-                  cursor: 'pointer', 
-                  backgroundColor: '#c8102e', 
-                  color: 'white', 
-                  border: 'none', 
-                  borderRadius: '4px', 
-                  fontWeight: 'bold' 
-                }}
-              >
-                Guardar Cambios
-              </button>
-              <button 
-                type="button" 
-                onClick={handleCancel} 
-                style={{ 
-                  padding: '10px 20px', 
-                  cursor: 'pointer', 
-                  backgroundColor: '#f4f4f4', 
-                  border: '1px solid #ccc', 
-                  borderRadius: '4px' 
-                }}
-              >
-                Cancelar
-              </button>
+            {/* Acciones del Formulario */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px', paddingTop: '20px', borderTop: '1px solid #0000000a' }}>
+              <div style={{ fontSize: '12px', color: '#5b6472', maxWidth: '320px' }}>
+                Alerta de cambios sin guardar al intentar cancelar. Manejo de errores en subida de imagen sin borrar cambios de texto.
+              </div>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button type="button" onClick={handleCancel} style={{ 
+                  minHeight: '38px', padding: '0 20px', borderRadius: '8px', 
+                  border: '1px solid #00000014', background: '#fff', fontSize: '14px', cursor: 'pointer', fontWeight: '600'
+                }}>
+                  Cancelar
+                </button>
+                <button type="submit" style={{ 
+                  minHeight: '38px', padding: '0 20px', borderRadius: '8px', 
+                  border: 'none', background: '#c8102e', color: '#fff', fontSize: '14px', fontWeight: '600', cursor: 'pointer' 
+                }}>
+                  Guardar cambios
+                </button>
+              </div>
             </div>
           </form>
         </div>
       </div>
 
-      {/* 3. LADO DERECHO: Widgets (Calendario, Notificaciones y Enlaces) */}
+      {/* 3. LADO DERECHO: Widgets */}
       <RightWidgets type="profile" />
     </div>
   );
