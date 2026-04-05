@@ -162,7 +162,6 @@ const DashboardProfessional = () => {
         {/* Panel derecho */}
         <div className="w-56 p-4 bg-white border-l border-gray-200 overflow-y-auto">
           {/* Calendario */}
-          
           <Calendar />
 
           {/* Notificaciones */}
