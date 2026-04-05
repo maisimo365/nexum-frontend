@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Mail } from "lucide-react";
+import { forgotPasswordService } from "../../services/auth.service";
 
 export default function ForgotPasswordPage() {
   const navigate = useNavigate();
@@ -31,7 +32,7 @@ export default function ForgotPasswordPage() {
     return `${prefix}***${suffix}@${domain}`;
   };
 
-  const handleSendLink = (e: React.FormEvent) => {
+  const handleSendLink = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!email) {
@@ -46,11 +47,16 @@ export default function ForgotPasswordPage() {
       return;
     }
 
-    // Mock API call / Success scenario
-    setError("");
-    setMaskedEmail(maskEmailAddress(email));
-    setIsSuccess(true);
-    setCountdown(60);
+    try {
+      await forgotPasswordService({ email });
+      setError("");
+      setMaskedEmail(maskEmailAddress(email));
+      setIsSuccess(true);
+      setCountdown(60);
+    } catch (err: any) {
+      setError(err.message || "Error al enviar el enlace de recuperación.");
+      setIsSuccess(false);
+    }
   };
 
   return (

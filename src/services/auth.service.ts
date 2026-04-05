@@ -89,3 +89,59 @@ export const registerService = async (
 
   return data;
 };
+
+interface ForgotPasswordCredentials {
+  email: string;
+}
+
+export const forgotPasswordService = async (
+  credentials: ForgotPasswordCredentials
+): Promise<{ message: string }> => {
+  const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify(credentials),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    if (response.status === 429) {
+      throw new Error("Demasiados intentos. Por favor, intenta más tarde.");
+    }
+    throw new Error(data.message || "Error al enviar el enlace de recuperación.");
+  }
+
+  return data;
+};
+
+interface ResetPasswordCredentials {
+  email: string;
+  token: string;
+  password: string;
+  password_confirmation: string;
+}
+
+export const resetPasswordService = async (
+  credentials: ResetPasswordCredentials
+): Promise<{ message: string }> => {
+  const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify(credentials),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Error al restablecer la contraseña.");
+  }
+
+  return data;
+};

@@ -1,14 +1,21 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
+import { resetPasswordService } from "../../services/auth.service";
 
 export default function ResetPasswordPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get("token") || "";
+  const email = searchParams.get("email") || "";
+
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [generalError, setGeneralError] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const validate = () => {
     const newErrors: { [key: string]: string } = {};
@@ -31,14 +38,31 @@ export default function ResetPasswordPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleConfirm = (e: React.FormEvent) => {
+  const handleConfirm = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate()) return;
+    setGeneralError("");
 
-    // Aquí iría la lógica para enviar la nueva contraseña al backend
-    console.log("Contraseña actualizada con éxito");
-    // Simulamos que todo salió bien y redirigimos al login
-    navigate("/login");
+    if (!validate()) return;
+    
+    if (!token || !email) {
+      setGeneralError("Enlace de recuperación inválido o expirado. Por favor, solicita uno nuevo.");
+      return;
+    }
+
+    try {
+      await resetPasswordService({
+        email,
+        token,
+        password,
+        password_confirmation: confirmPassword
+      });
+      setIsSuccess(true);
+      setTimeout(() => {
+        navigate("/login");
+      }, 3000);
+    } catch (err: any) {
+      setGeneralError(err.message || "Error al restablecer la contraseña.");
+    }
   };
 
   return (
@@ -48,6 +72,16 @@ export default function ResetPasswordPage() {
           
           <div className="text-center mb-8">
             <h1 className="text-2xl font-bold text-textMain mb-2">Nueva Contraseña</h1>
+            {generalError && (
+              <div className="mt-4 bg-red-50 text-action p-3 rounded-md text-sm">
+                {generalError}
+              </div>
+            )}
+            {isSuccess && (
+              <div className="mt-4 bg-[#E6F4EA] text-[#2E7D32] p-3 rounded-md text-sm animate-fadeIn">
+                Contraseña actualizada con éxito. Redirigiendo al login...
+              </div>
+            )}
           </div>
 
           <form onSubmit={handleConfirm} className="space-y-6">
