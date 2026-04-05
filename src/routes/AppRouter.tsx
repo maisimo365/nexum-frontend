@@ -37,6 +37,10 @@ const ROUTES_WITHOUT_LAYOUT = [
   "/proyectos",
   "/habilidades",
   "/experiencia",
+  "admin/dashboard",
+  "admin",
+  "dashboard",
+  "usuarios",
 ];
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
