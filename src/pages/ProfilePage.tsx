@@ -4,6 +4,8 @@ import RightWidgets from '../components/ui/RightWidgets';
 
 function ProfilePage() {
   const navigate = useNavigate();
+
+  // Estados para los campos del formulario
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
   const [tituloProfesional, setTituloProfesional] = useState('');
@@ -31,11 +33,19 @@ function ProfilePage() {
   };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100-screen', backgroundColor: '#f5f7fa' }}>
+    <div style={{ display: 'flex', flex: 1, minHeight: 'calc(100vh - 120px)' }}>
       {/* Contenedor del Formulario (Centro/Izquierda) */}
-      <div style={{ flex: 1, padding: '40px 20px' }}>
-        <div style={{ maxWidth: '600px', margin: '0 auto', backgroundColor: '#fff', padding: '30px', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
-          <h1 style={{ marginBottom: '20px', color: '#1a1a2e' }}>Datos Personales</h1>
+      <div style={{ flex: 1, padding: '40px 20px', display: 'flex', justifyContent: 'center' }}>
+        <div style={{ 
+          width: '100%',
+          maxWidth: '600px', 
+          backgroundColor: '#fff', 
+          padding: '30px', 
+          borderRadius: '12px', 
+          boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
+          height: 'fit-content'
+        }}>
+          <h2 style={{ marginBottom: '20px', color: '#1a1a2e', fontSize: '24px' }}>Datos Personales</h2>
           <form onSubmit={handleSubmit}>
             <div style={{ marginBottom: '15px' }}>
               <label htmlFor="nombre" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Nombres:</label>
@@ -44,7 +54,7 @@ function ProfilePage() {
                 id="nombre"
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
+                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box' }}
               />
             </div>
 
@@ -55,7 +65,7 @@ function ProfilePage() {
                 id="apellido"
                 value={apellido}
                 onChange={(e) => setApellido(e.target.value)}
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
+                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box' }}
               />
             </div>
 
@@ -66,7 +76,7 @@ function ProfilePage() {
                 id="tituloProfesional"
                 value={tituloProfesional}
                 onChange={(e) => setTituloProfesional(e.target.value)}
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
+                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box' }}
               />
             </div>
 
@@ -77,7 +87,7 @@ function ProfilePage() {
                 id="correoElectronico"
                 value={correoElectronico}
                 onChange={(e) => setCorreoElectronico(e.target.value)}
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
+                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box' }}
               />
             </div>
 
@@ -88,7 +98,7 @@ function ProfilePage() {
                 id="telefono"
                 value={telefono}
                 onChange={(e) => setTelefono(e.target.value)}
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
+                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box' }}
               />
             </div>
 
@@ -99,7 +109,7 @@ function ProfilePage() {
                 id="ubicacion" 
                 value={ubicacion} 
                 onChange={(e) => setUbicacion(e.target.value)} 
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} 
+                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box' }} 
               />
             </div>
 
@@ -110,19 +120,44 @@ function ProfilePage() {
                 value={biografia} 
                 onChange={(e) => setBiografia(e.target.value)} 
                 rows={5} 
-                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', resize: 'none' }}
+                style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', resize: 'none', boxSizing: 'border-box' }}
               ></textarea>
             </div>
 
             <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-              <button type="submit" style={{ padding: '10px 20px', cursor: 'pointer', backgroundColor: '#c8102e', color: 'white', border: 'none', borderRadius: '4px', fontWeight: 'bold' }}>Guardar Cambios</button>
-              <button type="button" onClick={handleCancel} style={{ padding: '10px 20px', cursor: 'pointer', backgroundColor: '#f4f4f4', border: '1px solid #ccc', borderRadius: '4px' }}>Cancelar</button>
+              <button 
+                type="submit" 
+                style={{ 
+                  padding: '10px 20px', 
+                  cursor: 'pointer', 
+                  backgroundColor: '#c8102e', 
+                  color: 'white', 
+                  border: 'none', 
+                  borderRadius: '4px', 
+                  fontWeight: 'bold' 
+                }}
+              >
+                Guardar Cambios
+              </button>
+              <button 
+                type="button" 
+                onClick={handleCancel} 
+                style={{ 
+                  padding: '10px 20px', 
+                  cursor: 'pointer', 
+                  backgroundColor: '#f4f4f4', 
+                  border: '1px solid #ccc', 
+                  borderRadius: '4px' 
+                }}
+              >
+                Cancelar
+              </button>
             </div>
           </form>
         </div>
       </div>
 
-      {/* COMPONENTE LADO DERECHO */}
+      {/* COMPONENTE LADO DERECHO (Calendario, Notificaciones y Enlaces) */}
       <RightWidgets />
     </div>
   );
