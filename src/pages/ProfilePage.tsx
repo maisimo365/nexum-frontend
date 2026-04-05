@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Sidebar from './admin/components/Sidebar';
 import RightWidgets from '../components/ui/RightWidgets';
 
 function ProfilePage() {
@@ -34,8 +35,12 @@ function ProfilePage() {
 
   return (
     <div style={{ display: 'flex', flex: 1, minHeight: 'calc(100vh - 120px)' }}>
-      {/* Contenedor del Formulario (Centro/Izquierda) */}
-      <div style={{ flex: 1, padding: '40px 20px', display: 'flex', justifyContent: 'center' }}>
+      
+      {/* 1. LADO IZQUIERDO: Sidebar */}
+      <Sidebar activeItem="Perfil" />
+
+      {/* 2. CENTRO: Contenedor del Formulario */}
+      <div style={{ flex: 1, padding: '40px 20px', display: 'flex', justifyContent: 'center', overflowY: 'auto' }}>
         <div style={{ 
           width: '100%',
           maxWidth: '600px', 
@@ -157,8 +162,8 @@ function ProfilePage() {
         </div>
       </div>
 
-      {/* COMPONENTE LADO DERECHO (Calendario, Notificaciones y Enlaces) */}
-      <RightWidgets />
+      {/* 3. LADO DERECHO: Widgets (Calendario, Notificaciones y Enlaces) */}
+      <RightWidgets type="profile" />
     </div>
   );
 }
