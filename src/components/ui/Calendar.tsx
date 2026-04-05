@@ -1,0 +1,72 @@
+const Calendar = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.getMonth();
+  const todayDate = today.getDate();
+
+  const monthNames = [
+    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+  ];
+
+  // Primer día del mes (0=domingo, 1=lunes...)
+  const firstDay = new Date(year, month, 1).getDay();
+  // Ajustar para que lunes sea 0
+  const startDay = firstDay === 0 ? 6 : firstDay - 1;
+
+  // Total de días del mes
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  // Días del mes anterior para rellenar
+  const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+  const days: { day: number; currentMonth: boolean }[] = [];
+
+  // Días del mes anterior
+  for (let i = startDay - 1; i >= 0; i--) {
+    days.push({ day: daysInPrevMonth - i, currentMonth: false });
+  }
+
+  // Días del mes actual
+  for (let i = 1; i <= daysInMonth; i++) {
+    days.push({ day: i, currentMonth: true });
+  }
+
+  // Rellenar hasta completar la grilla
+  const remaining = 42 - days.length;
+  for (let i = 1; i <= remaining; i++) {
+    days.push({ day: i, currentMonth: false });
+  }
+
+  return (
+    <div>
+      <h3 className="font-semibold text-textMain mb-2">Calendario</h3>
+      <p className="text-xs text-gray-400 mb-3">
+        {monthNames[month]} {year}
+      </p>
+      <div className="grid grid-cols-7 text-xs text-center text-gray-400 mb-1">
+        {["L", "M", "M", "J", "V", "S", "D"].map((d, i) => (
+          <span key={i}>{d}</span>
+        ))}
+      </div>
+      <div className="grid grid-cols-7 text-xs text-center gap-y-1">
+        {days.map((d, i) => (
+          <span
+            key={i}
+            className={`py-0.5 rounded-full ${
+              d.day === todayDate && d.currentMonth
+                ? "bg-primary text-white font-bold"
+                : !d.currentMonth
+                ? "text-gray-300"
+                : "text-textMain"
+            }`}
+          >
+            {d.day}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default Calendar;

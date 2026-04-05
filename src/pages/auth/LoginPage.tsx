@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { loginService } from "../../services/auth.service";
+import Navbar from "../../components/ui/Navbar";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -49,6 +50,7 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <Navbar />
       {/* Contenido principal */}
       <div className="flex-1 flex items-center justify-center px-4 py-10">
         <div className="w-full max-w-4xl bg-surface rounded-lg shadow-lg overflow-hidden flex">

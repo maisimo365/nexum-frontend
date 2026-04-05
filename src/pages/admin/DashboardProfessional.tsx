@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Eye, FolderOpen, CheckCircle, AlertTriangle } from "lucide-react";
 import Sidebar from "./components/Sidebar";
 import useAuth from "../../hooks/useAuth";
+import Calendar from "../../components/ui/Calendar";
 
 const DashboardProfessional = () => {
   const { user } = useAuth();
@@ -161,29 +162,8 @@ const DashboardProfessional = () => {
         {/* Panel derecho */}
         <div className="w-56 p-4 bg-white border-l border-gray-200 overflow-y-auto">
           {/* Calendario */}
-          <h3 className="font-semibold text-textMain mb-2">Calendario</h3>
-          <p className="text-xs text-gray-400 mb-3">Octubre 2026</p>
-          <div className="grid grid-cols-7 text-xs text-center text-gray-400 mb-1">
-            {["L", "M", "M", "J", "V", "S", "D"].map((d, i) => (
-              <span key={i}>{d}</span>
-            ))}
-          </div>
-          <div className="grid grid-cols-7 text-xs text-center gap-y-1">
-            {[28,29,30,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18].map((d, i) => (
-              <span
-                key={i}
-                className={`py-0.5 rounded-full ${
-                  d === 15 && i > 6
-                    ? "bg-primary text-white font-bold"
-                    : d < 5 && i < 7
-                    ? "text-gray-300"
-                    : "text-textMain"
-                }`}
-              >
-                {d}
-              </span>
-            ))}
-          </div>
+          
+          <Calendar />
 
           {/* Notificaciones */}
           <h3 className="font-semibold text-textMain mt-5 mb-2">NOTIFICACIONES</h3>
