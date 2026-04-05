@@ -52,29 +52,43 @@ const Breadcrumbs = () => {
       fontSize: '13px', 
       color: '#666' 
     }}>
+      {/* Caso especial: Home / Menú Principal */}
       {pathname === "/" ? (
         <span style={{ fontWeight: 'bold', color: '#003087' }}>Menú principal</span>
       ) : (
         <>
           <Link to="/" style={{ color: '#666', textDecoration: 'none' }}>Menú principal</Link>
-          {pathnames.map((name, index) => {
-            const routeTo = `/${pathnames.slice(0, index + 1).join("/")}`;
-            const isLast = index === pathnames.length - 1;
-            
-            const displayName = routeLabels[name.toLowerCase()] || 
-                                name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g, ' ');
+          
+          {/* Lógica específica para Profile solicitado: Menú principal > Configuración de perfil > Perfil > Datos Personales */}
+          {pathname === "/profile" ? (
+            <>
+              <span style={{ margin: '0 8px', color: '#999' }}>&gt;</span>
+              <span style={{ color: '#666' }}>Configuración de perfil</span>
+              <span style={{ margin: '0 8px', color: '#999' }}>&gt;</span>
+              <span style={{ color: '#666' }}>Perfil</span>
+              <span style={{ margin: '0 8px', color: '#999' }}>&gt;</span>
+              <span style={{ fontWeight: 'bold', color: '#003087' }}>Datos Personales</span>
+            </>
+          ) : (
+            /* Lógica genérica para otras rutas */
+            pathnames.map((name, index) => {
+              const routeTo = `/${pathnames.slice(0, index + 1).join("/")}`;
+              const isLast = index === pathnames.length - 1;
+              const displayName = routeLabels[name.toLowerCase()] || 
+                                  name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g, ' ');
 
-            return (
-              <span key={name}>
-                <span style={{ margin: '0 8px', color: '#999' }}>&gt;</span>
-                {isLast ? (
-                  <span style={{ fontWeight: 'bold', color: '#003087' }}>{displayName}</span>
-                ) : (
-                  <Link to={routeTo} style={{ color: '#666', textDecoration: 'none' }}>{displayName}</Link>
-                )}
-              </span>
-            );
-          })}
+              return (
+                <span key={name}>
+                  <span style={{ margin: '0 8px', color: '#999' }}>&gt;</span>
+                  {isLast ? (
+                    <span style={{ fontWeight: 'bold', color: '#003087' }}>{displayName}</span>
+                  ) : (
+                    <Link to={routeTo} style={{ color: '#666', textDecoration: 'none' }}>{displayName}</Link>
+                  )}
+                </span>
+              );
+            })
+          )}
         </>
       )}
     </div>
