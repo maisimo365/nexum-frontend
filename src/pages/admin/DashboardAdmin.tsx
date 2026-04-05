@@ -8,27 +8,7 @@ const DashboardAdmin = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Navbar */}
-      <nav className="w-full bg-navbar px-6 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <img
-            src="/src/assets/logoUmss.png"
-            alt="Logo UMSS"
-            className="w-8 h-8 object-contain"
-          />
-          <span className="text-white font-bold text-lg tracking-wide">
-            NEXUM
-          </span>
-        </div>
-        <div className="w-10 h-10 rounded-full bg-gray-300 overflow-hidden">
-          <img
-            src="https://ui-avatars.com/api/?name=Admin&background=003087&color=fff"
-            alt="Avatar"
-            className="w-full h-full object-cover"
-          />
-        </div>
-      </nav>
-
+      
       {/* Breadcrumb */}
       <div className="px-6 py-2 text-sm text-gray-500">
         Home &gt; Mi Perfil &gt; <span className="font-semibold text-textMain">Dashboard</span>
@@ -168,9 +148,7 @@ const DashboardAdmin = () => {
       </div>
 
       {/* Footer */}
-      <footer className="text-center text-sm text-gray-500 py-4 bg-white border-t border-gray-200">
-        Copyright © 2026 CODI
-      </footer>
+      
     </div>
   );
 };

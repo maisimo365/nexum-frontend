@@ -1,6 +1,9 @@
 import { BrowserRouter, Routes, Route, Link, useLocation } from "react-router-dom";
 import React from "react";
 import LoginPage from "../pages/auth/LoginPage";
+import ForgotPasswordPage from "../pages/auth/ForgotPasswordPage";
+import ResetPasswordPage from "../pages/auth/ResetPasswordPage";
+import RegisterPage from "../pages/auth/RegisterPage";
 import RolesPage from "../pages/admin/RolesPage";
 import ProfilePage from "../pages/ProfilePage";
 import AccountsPage from "../pages/admin/AccountsPage";
@@ -31,12 +34,6 @@ const HomePage = () => (
 // Rutas que manejan su propio layout completo (sin Navbar/Footer global)
 const ROUTES_WITHOUT_LAYOUT = [
   "/login",
-  "/register",
-  "/forgot-password",
-  "/admin",
-  "/dashboard",
-  "/portfolio",
-  "/profile",
   "/proyectos",
   "/habilidades",
   "/experiencia",
@@ -67,6 +64,9 @@ const AppRouter = () => {
       <Layout>
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/admin/roles" element={<RolesPage />} />
           <Route path="/admin/dashboard" element={<RolesPage />} />
