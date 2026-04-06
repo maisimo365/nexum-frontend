@@ -189,6 +189,10 @@ const LoginPage = () => {
         </div>
       </div>
 
+      {/* Footer */}
+      <footer className="text-center text-sm text-gray-500 py-4 bg-white">
+        Copyright © 2026 CODI
+      </footer>
     </div>
   );
 };
