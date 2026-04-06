@@ -1,14 +1,14 @@
-import { BrowserRouter, Routes, Route, Link, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link, useLocation, Navigate } from "react-router-dom";
 import React from "react";
 import LoginPage from "../pages/auth/LoginPage";
 import ForgotPasswordPage from "../pages/auth/ForgotPasswordPage";
 import ResetPasswordPage from "../pages/auth/ResetPasswordPage";
 import RegisterPage from "../pages/auth/RegisterPage";
 import RolesPage from "../pages/admin/RolesPage";
-import ProfilePage from "../pages/ProfilePage";
 import AccountsPage from "../pages/admin/AccountsPage";
 import Navbar from "../components/ui/Navbar";
 import Footer from "../components/ui/Footer";
+import PersonalData from "../pages/professional/profile-settings/PersonalData";
 
 const HomePage = () => (
   <div style={{ textAlign: "center", padding: "50px" }}>
@@ -16,7 +16,7 @@ const HomePage = () => (
     <p>Este es un ejemplo de la página de inicio.</p>
     <nav style={{ marginTop: "20px" }}>
       <Link
-        to="/profile"
+        to="/profile/personal-data"
         style={{
           padding: "10px 20px",
           border: "1px solid blue",
@@ -41,7 +41,8 @@ const Breadcrumbs = () => {
     "admin": "Administración",
     "usuarios": "Gestión de Usuarios",
     "roles": "Roles",
-    "dashboard": "Panel de Control"
+    "dashboard": "Panel de Control",
+    "personal-data": "Datos Personales"
   };
 
   return (
@@ -60,7 +61,7 @@ const Breadcrumbs = () => {
           <Link to="/" style={{ color: '#666', textDecoration: 'none' }}>Menú principal</Link>
           
           {/* Lógica específica para Profile solicitado: Menú principal > Configuración de perfil > Perfil > Datos Personales */}
-          {pathname === "/profile" ? (
+          {pathname.startsWith("/profile") ? (
             <>
               <span style={{ margin: '0 8px', color: '#999' }}>&gt;</span>
               <span style={{ color: '#666' }}>Configuración de perfil</span>
@@ -129,7 +130,11 @@ const AppRouter = () => {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/admin/roles" element={<RolesPage />} />
           <Route path="/admin/usuarios" element={<AccountsPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
+          
+          {/* CAMBIO DE RUTA PROFILE QUE SE BORRO POR UNA NUEVA ESTRUCTURA DE RUTAS A PERSONAL DATA */}
+          <Route path="/profile" element={<Navigate to="/profile/personal-data" replace />} />
+          <Route path="/profile/personal-data" element={<PersonalData />} />
+          
           <Route path="*" element={<LoginPage />} />
         </Routes>
       </Layout>

@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Sidebar from './admin/components/Sidebar';
-import RightWidgets from '../components/ui/RightWidgets';
+import Sidebar from '../../admin/components/Sidebar';
+import RightWidgets from '../../../components/ui/RightWidgets';
 
-function ProfilePage() {
+function PersonalData() {
   const navigate = useNavigate();
 
   // Estados para los campos del formulario
@@ -89,7 +89,6 @@ function ProfilePage() {
           {/* Campos del Formulario (Lado Derecho) */}
           <form onSubmit={handleSubmit} style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '20px' }}>
             
-            {/* Banner de Ayuda */}
             <div style={{ padding: '16px', background: '#e7edf5', borderRadius: '12px' }}>
               <div style={{ fontSize: '13px', fontWeight: '600', color: '#1a1a2e' }}>Ruta visible dentro del módulo Perfil</div>
               <div style={{ fontSize: '12px', color: '#5b6472' }}>Estás editando la sección Datos Personales del perfil profesional.</div>
@@ -165,10 +164,10 @@ function ProfilePage() {
         </div>
       </div>
 
-      {/* 3. LADO DERECHO: Widgets */}
+      {/* 3. LADO DERECHO: Calendario, Notificaciones y Enlaces */}
       <RightWidgets type="profile" />
     </div>
   );
 }
 
-export default ProfilePage;
+export default PersonalData;

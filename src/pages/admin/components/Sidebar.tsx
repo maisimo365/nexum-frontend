@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   Users,
@@ -26,9 +26,15 @@ interface SidebarProps {
 const Sidebar = ({ activeItem = "Dashboard" }: SidebarProps) => {
   const { isAdmin } = useAuth();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   
   // Estado para controlar si el menú de perfil está abierto
-  const [isProfileOpen, setIsProfileOpen] = useState(activeItem.includes("Perfil") ||["Datos Personales", "Enlaces", "Apariencia", "Notificaciones"].includes(activeItem));
+  // Se mantiene abierto si el activeItem es parte del perfil o si la ruta actual es de perfil
+  const [isProfileOpen, setIsProfileOpen] = useState(
+    activeItem.includes("Perfil") || 
+    ["Datos Personales", "Enlaces", "Apariencia", "Notificaciones"].includes(activeItem) ||
+    pathname.startsWith("/profile")
+  );
 
   const adminItems = [
     { label: "Dashboard", icon: <LayoutDashboard size={18} />, path: "/admin/dashboard" },
@@ -107,11 +113,11 @@ const Sidebar = ({ activeItem = "Dashboard" }: SidebarProps) => {
               <ChevronDown size={16} className={`transition-transform ${isProfileOpen ? "rotate-180" : ""}`} />
             </button>
 
-            {/* SUBMENÚ DE PERFIL */}
+            {/* SUBMENÚ DE PERFIL - RUTAS ACTUALIZADAS */}
             {isProfileOpen && (
               <div className="bg-gray-50 flex flex-col border-l-4 border-primary/20 ml-2 animate-fadeIn">
                 <Link
-                  to="/profile"
+                  to="/profile/personal-data"
                   className={`flex items-center gap-3 pl-8 pr-4 py-2.5 text-xs ${activeItem === "Datos Personales" ? "text-primary font-bold bg-primary/5" : "text-gray-500 hover:bg-gray-100"}`}
                 >
                   <IdCard size={14} /> Datos Personales
