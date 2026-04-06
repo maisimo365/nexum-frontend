@@ -94,8 +94,7 @@ const Breadcrumbs = () => {
 
 const ROUTES_WITHOUT_LAYOUT = [
   "/login", "/register", "/forgot-password", "/reset-password", 
-  "/proyectos", "/habilidades", "/experiencia",
-  "/admin", "/dashboard",
+  "/proyectos", "/habilidades", "/experiencia", "/dashboard",
 ];
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
