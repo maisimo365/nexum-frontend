@@ -4,6 +4,59 @@ import Sidebar from '../../admin/components/Sidebar'
 import RightWidgets from '../../../components/ui/RightWidgets'
 import { getPersonalData, updatePersonalData, uploadAvatar } from '../../../services/datapersonal.service'
 
+// Función para comprimir y convertir imagen a WebP
+const compressAndConvertToWebP = async (file: File, quality: number = 0.8): Promise<Blob> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+
+    reader.onload = (e) => {
+      const img = new Image()
+
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+
+        if (!ctx) {
+          reject(new Error('No se pudo obtener el contexto del canvas'))
+          return
+        }
+
+        // Establecer dimensiones del canvas
+        canvas.width = img.width
+        canvas.height = img.height
+
+        // Dibujar imagen en el canvas
+        ctx.drawImage(img, 0, 0)
+
+        // Convertir a WebP con compresión
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              resolve(blob)
+            } else {
+              reject(new Error('No se pudo convertir la imagen a WebP'))
+            }
+          },
+          'image/webp',
+          quality
+        )
+      }
+
+      img.onerror = () => {
+        reject(new Error('No se pudo cargar la imagen'))
+      }
+
+      img.src = e.target?.result as string
+    }
+
+    reader.onerror = () => {
+      reject(new Error('Error al leer el archivo'))
+    }
+
+    reader.readAsDataURL(file)
+  })
+}
+
 function PersonalData() {
   const navigate = useNavigate()
 
@@ -84,7 +137,13 @@ function PersonalData() {
     const file = event.target.files?.[0]
     if (file) {
       try {
-        const result = await uploadAvatar(file)
+        // Comprimir y convertir a WebP
+        const compressedBlob = await compressAndConvertToWebP(file, 0.8)
+        const webpFile = new File([compressedBlob], `${file.name.split('.')[0]}.webp`, {
+          type: 'image/webp'
+        })
+
+        const result = await uploadAvatar(webpFile)
         setAvatarUrl(result.data.avatar_url)
         alert('Avatar actualizado con éxito')
       } catch (error: any) {
