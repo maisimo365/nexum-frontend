@@ -220,14 +220,22 @@ function PersonalData() {
                 height: '120px',
                 borderRadius: '999px',
                 overflow: 'hidden',
-                boxShadow: '0 0 0 4px #fff, 0 0 0 5px #00000014'
+                boxShadow: '0 0 0 4px #fff, 0 0 0 5px #00000014',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: '#f5f5f5'
               }}
             >
-              <img
-                src={avatarUrl || "https://storage.googleapis.com/banani-avatars/avatar%2Fmale%2F25-35%2FHispanic%2F0"} // Usa avatarUrl o el default
-                alt="Profile"
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt="Profile"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              ) : (
+                <span style={{ fontSize: '12px', fontWeight: '600', color: '#999' }}>Sin foto</span>
+              )}
             </div>
             {/* Input oculto */}
             <input
