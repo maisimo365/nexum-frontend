@@ -9,6 +9,7 @@ import ProfilePage from "../pages/ProfilePage";
 import AccountsPage from "../pages/admin/AccountsPage";
 import Navbar from "../components/ui/Navbar";
 import Footer from "../components/ui/Footer";
+import AuditPage from "../pages/admin/AuditPage";
 
 const HomePage = () => (
   <div style={{ textAlign: "center", padding: "50px" }}>
@@ -71,6 +72,7 @@ const AppRouter = () => {
           <Route path="/admin/roles" element={<RolesPage />} />
           <Route path="/admin/dashboard" element={<RolesPage />} />
           <Route path="/admin/usuarios" element={<AccountsPage />} />
+          <Route path="/admin/auditoria" element={<AuditPage />} />
           <Route path="/dashboard" element={<RolesPage />} />
           <Route path="/portfolio" element={<RolesPage />} />
           <Route path="/profile" element={<ProfilePage />} />

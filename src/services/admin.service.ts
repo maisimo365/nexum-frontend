@@ -68,3 +68,138 @@ export const toggleUserStatus = async (userId: number): Promise<void> => {
 
   return data;
 };
+
+export const getActivityLogs = async (params: { user_id?: number; per_page?: number } = {}) => {
+  const token = getToken();
+  const queryParams = new URLSearchParams();
+  if (params.user_id) queryParams.append("user_id", params.user_id.toString());
+  if (params.per_page) queryParams.append("per_page", params.per_page.toString());
+
+  const response = await fetch(`${API_BASE_URL}/admin/activity-log?${queryParams.toString()}`, {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (response.status === 401) {
+    handleUnauthorized();
+    return { data: [], meta: { current_page: 1, per_page: 20, total: 0 } };
+  }
+
+  const data = await response.json();
+  console.log("Activity logs data:", data);
+
+  if (!response.ok) {
+
+    throw new Error(data.message || "Error al obtener el historial de actividad.");
+  }
+
+  return {
+    data: data.data.map((log: any) => {
+      const attributes = log.properties?.attributes || {};
+      const old = log.properties?.old || {};
+      
+      let displayName = "Sistema";
+      
+      if (log.causer) {
+        displayName = (log.causer.first_name || log.causer.last_name)
+          ? `${log.causer.first_name || ""} ${log.causer.last_name || ""}`.trim()
+          : log.causer.email || "Usuario";
+      } else if (attributes.first_name || attributes.last_name) {
+        displayName = `${attributes.first_name || ""} ${attributes.last_name || ""}`.trim();
+      } else if (old.first_name || old.last_name) {
+        displayName = `${old.first_name || ""} ${old.last_name || ""}`.trim();
+      } else if (attributes.email || old.email) {
+        displayName = attributes.email || old.email;
+      }
+
+      return {
+        id: log.id,
+        user_name: displayName,
+        event: log.event,
+        timestamp: new Date(log.created_at).toLocaleString("es-ES", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        detail: formatLogDetail(log),
+        raw_date: log.created_at,
+      };
+    }),
+
+    meta: data.meta,
+  };
+};
+
+const formatLogDetail = (log: any) => {
+  const props = log.properties || {};
+  const attributes = props.attributes || {};
+  const old = props.old || {};
+
+  switch (log.event) {
+    case "login":
+      return "Inicio de sesión exitoso.";
+    case "login_failed":
+      return "Intento de sesión fallido por credenciales incorrectas.";
+    case "logout":
+      return "Cierre de sesión del sistema.";
+    case "created":
+      const importantFields = ["first_name", "last_name", "email"];
+      const userFields = Object.keys(attributes)
+        .filter(key => importantFields.includes(key))
+        .map(key => `${translateKey(key)}: ${String(attributes[key])}`)
+        .join(", ");
+      
+      if (userFields) return `Usuario registrado: ${userFields}`;
+
+      const otherFields = Object.keys(attributes)
+        .filter(key => !["created_at", "updated_at", "id", "password"].includes(key))
+        .map(key => `${translateKey(key)}: ${String(attributes[key])}`)
+        .join(", ");
+      return otherFields ? `Registrado: ${otherFields}` : `Nuevo registro en ${log.log_name}.`;
+
+
+    case "updated":
+      const changes = Object.keys(attributes)
+        .filter(key => key !== 'updated_at')
+        .map(key => {
+          const oldVal = old[key] !== undefined && old[key] !== null ? String(old[key]) : "Ø";
+          const newVal = attributes[key] !== undefined && attributes[key] !== null ? String(attributes[key]) : "Ø";
+          return `${translateKey(key)}: ${oldVal} → ${newVal}`;
+        })
+        .join(", ");
+      return changes ? changes : `Actualización en ${log.log_name}.`;
+
+    case "deleted":
+      return `Eliminación de registro en ${log.log_name}.`;
+    case "profile_updated":
+      return "Actualización del perfil de usuario.";
+    case "portfolio_edit":
+      return "Cambio en experiencia y habilidades del portafolio.";
+    default:
+      return log.description || `Evento ${log.event} registrado.`;
+  }
+};
+
+const translateKey = (key: string) => {
+  const map: Record<string, string> = {
+    first_name: "Nombre",
+    last_name: "Apellido",
+    email: "Email",
+    role: "Rol",
+    is_active: "Estado",
+    password: "Contraseña",
+    biography: "Biografía",
+    phone: "Teléfono",
+    location: "Ubicación",
+    github_url: "GitHub",
+    linkedin_url: "LinkedIn",
+    global_privacy: "Privacidad",
+  };
+  return map[key] || key;
+};
+
