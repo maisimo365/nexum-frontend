@@ -37,10 +37,13 @@ export const getPersonalData = async () => {
 
 /**
  * Función para guardar cambios de Datos Personales
- * Se reemplazó 'any' por la interfaz 'PersonalDataUpdate'
+ * Recupera datos actuales y los fusiona para preservar campos de otros formularios
  */
 export const updatePersonalData = async (data: PersonalDataUpdate) => {
   const token = getToken()
+
+  // Recuperar datos actuales para preservar enlaces y privacidad
+  const currentData = await getPersonalData()
 
   const response = await fetch(`${API_BASE_URL}/portfolio`, {
     method: 'PUT',
@@ -55,7 +58,11 @@ export const updatePersonalData = async (data: PersonalDataUpdate) => {
       profession: data.tituloProfesional,
       phone: data.telefono,
       location: data.ubicacion,
-      biography: data.biografia
+      biography: data.biografia,
+      // Preservar datos de enlaces que ya existen
+      linkedin_url: currentData?.linkedin_url,
+      github_url: currentData?.github_url,
+      global_privacy: currentData?.global_privacy
     })
   })
 

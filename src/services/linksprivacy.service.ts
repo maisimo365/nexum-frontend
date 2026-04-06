@@ -26,13 +26,21 @@ export const getLinksPrivacyData = async () => {
 export const updateLinksPrivacyData = async (payload: any) => {
   const token = getToken()
 
-  // Preparamos el cuerpo con TODOS los campos que el PortfolioRequest valida
+  // Recuperar datos actuales para preservar datos personales
+  const currentData = await getLinksPrivacyData()
+
+  // Preparamos el cuerpo fusionando datos actuales con los nuevos
   const body = {
     first_name: payload.nombre,
     last_name: payload.apellido,
     linkedin_url: payload.linkedin?.trim() || null,
     github_url: payload.github?.trim() || null,
-    global_privacy: payload.global_privacy
+    global_privacy: payload.global_privacy,
+    // Se preserva datos personales que ya existen
+    profession: currentData?.profession,
+    phone: currentData?.phone,
+    location: currentData?.location,
+    biography: currentData?.biography
   }
 
   const response = await fetch(`${API_BASE_URL}/portfolio`, {
