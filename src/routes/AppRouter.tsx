@@ -14,7 +14,7 @@ import LinksPrivacy from "../pages/professional/profile-settings/LinksPrivacy";
 const HomePage = () => (
   <div style={{ textAlign: "center", padding: "50px" }}>
     <h1>Bienvenido a Nexum Frontend</h1>
-    <p>Este es un ejemplo de la página de inicio.</p>
+    <p>Este es la página de inicio.</p>
     <nav style={{ marginTop: "20px" }}>
       <Link
         to="/profile/personal-data"
