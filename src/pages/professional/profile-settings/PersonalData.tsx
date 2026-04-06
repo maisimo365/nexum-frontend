@@ -1,9 +1,8 @@
-
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Sidebar from '../../admin/components/Sidebar'
 import RightWidgets from '../../../components/ui/RightWidgets'
-import { getPersonalData, updatePersonalData } from '../../../services/datapersonal.service'
+import { getPersonalData, updatePersonalData, uploadAvatar } from '../../../services/datapersonal.service'
 
 function PersonalData() {
   const navigate = useNavigate()
@@ -15,9 +14,12 @@ function PersonalData() {
   const [telefono, setTelefono] = useState('')
   const [ubicacion, setUbicacion] = useState('')
   const [biografia, setBiografia] = useState('')
+  const [avatarUrl, setAvatarUrl] = useState('')
 
   const [loading, setLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
+
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     const loadData = async () => {
@@ -32,6 +34,7 @@ function PersonalData() {
           setTelefono(data.phone || '')
           setUbicacion(data.location || '')
           setBiografia(data.biography || '')
+          setAvatarUrl(data.avatar_url || '') // Se carga el avatar de la BD
         } else {
           const storedUser = JSON.parse(
             localStorage.getItem('user') || sessionStorage.getItem('user') || '{}'
@@ -74,6 +77,20 @@ function PersonalData() {
 
   const handleCancel = () => {
     navigate('/')
+  }
+
+  // Nueva función para manejar el cambio de avatar
+  const handleAvatarChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      try {
+        const result = await uploadAvatar(file)
+        setAvatarUrl(result.data.avatar_url)
+        alert('Avatar actualizado con éxito')
+      } catch (error: any) {
+        alert(error.message)
+      }
+    }
   }
 
   if (loading) {
@@ -148,13 +165,22 @@ function PersonalData() {
               }}
             >
               <img
-                src="https://storage.googleapis.com/banani-avatars/avatar%2Fmale%2F25-35%2FHispanic%2F0"
+                src={avatarUrl || "https://storage.googleapis.com/banani-avatars/avatar%2Fmale%2F25-35%2FHispanic%2F0"} // Usa avatarUrl o el default
                 alt="Profile"
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
             </div>
+            {/* Input oculto */}
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleAvatarChange}
+              accept="image/*"
+              style={{ display: 'none' }}
+            />
             <button
               type="button"
+              onClick={() => fileInputRef.current?.click()} // Activa el input de archivo
               style={{
                 minHeight: '36px',
                 padding: '0 14px',
