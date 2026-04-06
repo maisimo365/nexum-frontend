@@ -36,6 +36,7 @@ Para ejecutar este proyecto localmente, sigue estos pasos:
     npm install react react-dom
     npm install -D typescript vite @types/react @types/react-dom @vitejs/plugin-react
     npm install lucide-react
+    npm install -D tailwindcss postcss autoprefixer
     ```
 
 3.  **Configuración de variables de entorno (si aplica):**

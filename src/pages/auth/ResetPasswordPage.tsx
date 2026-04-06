@@ -166,9 +166,7 @@ export default function ResetPasswordPage() {
       </div>
       
       {/* Footer */}
-      <footer className="text-center text-xs text-gray-500 py-4 bg-white border-t border-gray-200 border-dashed">
-        Copyright © 2026 CODI
-      </footer>
+     
     </div>
   );
 }
