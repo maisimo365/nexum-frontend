@@ -9,6 +9,7 @@ import AccountsPage from "../pages/admin/AccountsPage";
 import Navbar from "../components/ui/Navbar";
 import Footer from "../components/ui/Footer";
 import PersonalData from "../pages/professional/profile-settings/PersonalData";
+import LinksPrivacy from "../pages/professional/profile-settings/LinksPrivacy";
 
 const HomePage = () => (
   <div style={{ textAlign: "center", padding: "50px" }}>
@@ -134,6 +135,7 @@ const AppRouter = () => {
           {/* CAMBIO DE RUTA PROFILE QUE SE BORRO POR UNA NUEVA ESTRUCTURA DE RUTAS A PERSONAL DATA */}
           <Route path="/profile" element={<Navigate to="/profile/personal-data" replace />} />
           <Route path="/profile/personal-data" element={<PersonalData />} />
+          <Route path="/profile/links" element={<LinksPrivacy />} />
           
           <Route path="*" element={<LoginPage />} />
         </Routes>
