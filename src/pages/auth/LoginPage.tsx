@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { loginService } from "../../services/auth.service";
-import Navbar from "../../components/ui/Navbar";
+
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -37,9 +37,9 @@ const LoginPage = () => {
         setPassword("");
         setRememberMe(false);
       if (data.user.role === "admin") {
-        navigate("/admin/roles");
+        navigate("/admin");
       } else {
-        navigate("/portfolio");
+        navigate("/profile/personal-data");
       }
     } catch (err: any) {
       setError(err.message || "Credenciales inválidas. Verifica tus datos e inténtalo nuevamente.");
@@ -50,7 +50,20 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navbar />
+      {/*Navbar*/}
+      <nav className="w-full bg-navbar px-6 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <img
+            src="/src/assets/logoUmss.png"
+            alt="Logo UMSS"
+            className="w-8 h-8 object-contain"
+          />
+          <span className="text-white font-bold text-lg tracking-wide">
+            NEXUM
+          </span>
+        </div>
+      </nav>
+
       {/* Contenido principal */}
       <div className="flex-1 flex items-center justify-center px-4 py-10">
         <div className="w-full max-w-4xl bg-surface rounded-lg shadow-lg overflow-hidden flex">

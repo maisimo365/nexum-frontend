@@ -1,38 +1,73 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import Modal from './Modal';
+import { useNavigate } from "react-router-dom";
+import { UserCog, LogOut, Mail } from "lucide-react";
 
 interface UserMenuModalProps {
   isOpen: boolean;
   onClose: () => void;
-  userName: string;
-  userProfession: string;
-  userPhoto: string;
 }
 
-const UserMenuModal: React.FC<UserMenuModalProps> = ({ isOpen, onClose, userName, userProfession, userPhoto }) => {
+const UserMenuModal = ({ isOpen, onClose }: UserMenuModalProps) => {
+  
+  if (!isOpen) return null;
+  const navigate = useNavigate();
+
+  const user = {
+    name: "Milton",
+    email: "milton@gmail.com",
+    photo: "https://storage.googleapis.com/banani-avatars/avatar%2Fmale%2F25-35%2FHispanic%2F0"
+  };
+
+  const handleGoToProfile = () => {
+    onClose();
+    navigate("/profile");
+  };
+   
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("user");
+    navigate("/login");
+  };
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Mi Perfil" positioning="top-right">
-        <img
-          src={userPhoto}
-          alt="Foto de Perfil"
-          style={{
-            width: '80px',
-            height: '80px',
-            borderRadius: '50%',
-            objectFit: 'cover',
-            marginBottom: '15px',
-            border: '2px solid #001A5E',
-          }}
-        />
-        <h3 style={{ margin: '0 0 5px 0', fontSize: '1.2rem', color: '#1A1A2E' }}>{userName}</h3>
-        <p style={{ margin: '0 0 15px 0', fontSize: '0.9rem', color: '#6B7280' }}>{userProfession}</p>
-        <Link to="/profile" onClick={onClose} style={{
-          display: 'block', padding: '10px 15px', backgroundColor: '#C8102E', color: 'white', textDecoration: 'none', borderRadius: '5px', marginTop: '20px', fontWeight: 'bold', transition: 'background-color 0.3s ease',
-        }}>
-          Configura tu cuenta
-        </Link>
-    </Modal>
+    <div className="absolute top-14 right-0 w-72 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 text-[#1a1a2e] animate-in fade-in zoom-in duration-200">
+      {/* Cabecera: Info del usuario */}
+      <div className="p-5 border-b border-gray-100 flex flex-col items-center gap-3">
+        <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-[#003087]">
+          <img 
+            src={user.photo} 
+            alt="Avatar" 
+            className="w-full h-full object-cover" 
+          />
+        </div>
+        <div className="text-center">
+          <p className="font-bold text-sm">{user.name}</p>
+          <p className="text-xs text-gray-500 flex items-center justify-center gap-1">
+            <Mail size={12} /> {user.email}
+          </p>
+        </div>
+      </div>
+
+      {/* Opciones */}
+      <div className="p-2">
+        <button 
+          onClick={handleGoToProfile}
+          className="w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50 rounded-lg transition-colors text-left"
+        >
+          <UserCog size={18} className="text-[#003087]" />
+          <span>Configuración de Perfil</span>
+        </button>
+        
+        <button
+        onClick={handleLogout}
+        className="flex items-center gap-3 px-4 py-4 text-sm text-textMain hover:bg-gray-100 transition-colors border-t border-gray-200 mt-auto"
+      >
+        <LogOut size={18} />
+        Cerrar Sesión
+      </button>*
+      </div>
+    </div>
   );
 };
 

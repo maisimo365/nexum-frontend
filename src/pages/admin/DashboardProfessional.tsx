@@ -36,9 +36,7 @@ const DashboardProfessional = () => {
       
 
       {/* Breadcrumb */}
-      <div className="px-6 py-2 text-sm text-gray-500">
-        Home &gt; Mi Perfil &gt; <span className="font-semibold text-textMain">Dashboard</span>
-      </div>
+      
 
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
