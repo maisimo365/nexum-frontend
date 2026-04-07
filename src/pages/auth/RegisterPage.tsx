@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Check, Eye, EyeOff, Mail, User } from "lucide-react";
 import { registerService } from "../../services/auth.service";
+import Navbar from "../../components/ui/Navbar";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ export default function RegisterPage() {
   // Validation & API states
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [registerError, setRegisterError] = useState("");
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const [showPassword, setShowPassword] = useState(false);
@@ -86,8 +88,11 @@ export default function RegisterPage() {
         password_confirmation: confirmPassword,
       });
 
-      // Redirigir al inicio de sesión tras registro exitoso
-      navigate("/login");
+      // Mostrar mensaje de éxito y redirigir tras un breve retraso
+      setRegistrationSuccess(true);
+      setTimeout(() => {
+        navigate("/login");
+      }, 3000);
     } catch (err: any) {
       if (err.status === 422 && err.errors) {
         const serverErrors: { [key: string]: string } = {};
@@ -107,6 +112,7 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <Navbar />
       <div className="flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-2xl bg-surface rounded-xl shadow-md p-8 md:p-12 relative overflow-hidden">
 
@@ -119,13 +125,20 @@ export default function RegisterPage() {
             </p>
           </div>
 
+          {registrationSuccess && (
+            <div className="bg-[#E6F4EA] text-[#2E7D32] p-4 rounded-md text-sm mb-6 border border-[#A2CFAC] text-center animate-fadeIn">
+              Cuenta creada exitosamente, puede iniciar sesión con las credenciales.
+            </div>
+          )}
+
           {registerError && (
              <div className="bg-red-50 text-action p-3 rounded mb-6 text-sm border border-red-200 text-center animate-fadeIn">
                {registerError}
              </div>
           )}
 
-          <form onSubmit={handleRegister}>
+          {!registrationSuccess ? (
+            <form onSubmit={handleRegister}>
             {/* Progress Bar Header */}
             <div className="mb-6">
               <div className="flex h-1.5 w-full rounded-full bg-gray-200 overflow-hidden">
@@ -311,13 +324,22 @@ export default function RegisterPage() {
 
                 {/* Step 1 Actions */}
                 <div className="flex justify-between items-center pt-4">
-                  <button
-                    type="button"
-                    onClick={handleNextStep}
-                    className="border border-gray-300 text-textMain font-medium px-6 py-2 rounded text-sm hover:bg-gray-50 transition-colors"
-                  >
-                    Perfil profesional
-                  </button>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => navigate("/login")}
+                      className="bg-action text-white font-medium px-6 py-2 rounded text-sm hover:opacity-90 transition-opacity"
+                    >
+                      Atrás
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleNextStep}
+                      className="border border-gray-300 text-textMain font-medium px-6 py-2 rounded text-sm hover:bg-gray-50 transition-colors"
+                    >
+                      Perfil profesional
+                    </button>
+                  </div>
 
                   <button
                     type="submit"
@@ -348,13 +370,22 @@ export default function RegisterPage() {
 
                 {/* Step 2 Actions */}
                 <div className="flex justify-between items-center pt-8">
-                  <button
-                    type="button"
-                    onClick={() => setStep(1)}
-                    className="border border-gray-300 text-textMain font-medium px-8 py-2 rounded text-sm hover:bg-gray-50 transition-colors"
-                  >
-                    Atras
-                  </button>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => navigate("/login")}
+                      className="bg-action text-white font-medium px-6 py-2 rounded text-sm hover:opacity-90 transition-opacity"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setStep(1)}
+                      className="border border-gray-300 text-textMain font-medium px-8 py-2 rounded text-sm hover:bg-gray-50 transition-colors"
+                    >
+                      Atras
+                    </button>
+                  </div>
 
                   <button
                     type="submit"
@@ -367,11 +398,23 @@ export default function RegisterPage() {
               </div>
             )}
           </form>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-10 animate-fadeIn">
+            <div className="bg-[#E6F4EA] rounded-full p-4 mb-4">
+              <Check className="text-[#2E7D32]" size={40} />
+            </div>
+            <p className="text-gray-600 text-center">
+              Redirigiendo al inicio de sesión en unos segundos...
+            </p>
+          </div>
+        )}
         </div>
       </div>
 
       {/* Footer */}
-      
+      <footer className="text-center text-sm text-gray-500 py-4 bg-white">
+        Copyright © 2026 CODI
+      </footer>
     </div>
   );
 }
