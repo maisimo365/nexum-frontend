@@ -21,6 +21,7 @@ export default function RegisterPage() {
   // Validation & API states
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [registerError, setRegisterError] = useState("");
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const [showPassword, setShowPassword] = useState(false);
@@ -87,8 +88,11 @@ export default function RegisterPage() {
         password_confirmation: confirmPassword,
       });
 
-      // Redirigir al inicio de sesión tras registro exitoso
-      navigate("/login");
+      // Mostrar mensaje de éxito y redirigir tras un breve retraso
+      setRegistrationSuccess(true);
+      setTimeout(() => {
+        navigate("/login");
+      }, 3000);
     } catch (err: any) {
       if (err.status === 422 && err.errors) {
         const serverErrors: { [key: string]: string } = {};
@@ -121,13 +125,20 @@ export default function RegisterPage() {
             </p>
           </div>
 
+          {registrationSuccess && (
+            <div className="bg-[#E6F4EA] text-[#2E7D32] p-4 rounded-md text-sm mb-6 border border-[#A2CFAC] text-center animate-fadeIn">
+              Cuenta creada exitosamente, puede iniciar sesión con las credenciales.
+            </div>
+          )}
+
           {registerError && (
              <div className="bg-red-50 text-action p-3 rounded mb-6 text-sm border border-red-200 text-center animate-fadeIn">
                {registerError}
              </div>
           )}
 
-          <form onSubmit={handleRegister}>
+          {!registrationSuccess ? (
+            <form onSubmit={handleRegister}>
             {/* Progress Bar Header */}
             <div className="mb-6">
               <div className="flex h-1.5 w-full rounded-full bg-gray-200 overflow-hidden">
@@ -387,6 +398,16 @@ export default function RegisterPage() {
               </div>
             )}
           </form>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-10 animate-fadeIn">
+            <div className="bg-[#E6F4EA] rounded-full p-4 mb-4">
+              <Check className="text-[#2E7D32]" size={40} />
+            </div>
+            <p className="text-gray-600 text-center">
+              Redirigiendo al inicio de sesión en unos segundos...
+            </p>
+          </div>
+        )}
         </div>
       </div>
 
