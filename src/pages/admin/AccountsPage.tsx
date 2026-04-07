@@ -76,10 +76,7 @@ const AccountsPage = () => {
       
 
       {/* Breadcrumb */}
-      <div className="px-6 py-2 text-sm text-gray-500">
-        Home &gt; Panel de Administrador &gt;{" "}
-        <span className="font-semibold text-textMain">Gestión de Usuarios</span>
-      </div>
+      
 
       <div className="flex flex-1">
         {/* Sidebar */}

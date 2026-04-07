@@ -5,14 +5,12 @@ import { Link } from "react-router-dom";
 import Calendar from "../../components/ui/Calendar";
 const DashboardAdmin = () => {
   const { user } = useAuth();
-
+  
   return (
     <div className="min-h-screen bg-background flex flex-col">
       
       {/* Breadcrumb */}
-      <div className="px-6 py-2 text-sm text-gray-500">
-        Home &gt; Mi Perfil &gt; <span className="font-semibold text-textMain">Dashboard</span>
-      </div>
+      
 
       <div className="flex flex-1">
         {/* Sidebar */}

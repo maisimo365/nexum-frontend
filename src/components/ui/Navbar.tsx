@@ -1,16 +1,26 @@
 import { Link } from "react-router-dom";
 import logoUmss from "../../assets/logoUmss.png";
+import { User } from "lucide-react"; // Importa el icono de usuario
+import { useState } from "react";
+import UserMenuModal from "./UserMenuModal"; // Importa el componente del modal
 
 const Navbar = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  // Datos de usuario de ejemplo (reemplazar con datos reales del estado de autenticación)
+  const isAuthenticated = true; // Simula que el usuario está logueado
+  const userName = "Juan Pérez";
+  const userProfession = "Ingeniero de Software";
+  const userPhoto = "https://via.placeholder.com/80"; // URL de una imagen de perfil de ejemplo
+
   return (
-    <nav className="w-full bg-navbar px-6 py-3 flex items-center justify-between">
+    <nav className="w-full bg-[#001A5E] px-6 py-3 flex items-center justify-between"> {/* Azul marino profundo */}
       {/* Logo y nombre de Nexum */}
       <Link to="/" className="flex items-center gap-2 cursor-pointer">
         <div className="flex items-center gap-2">
           <img
                 src={logoUmss}
                 alt="Logo UMSS"
-                 className="w-8 h-8 object-contain"
+                 className="w-8 h-8 object-contain rounded-full" // Añadido rounded-full para intentar hacerlo circular
                />
           <span className="text-white font-bold text-lg tracking-wide">
             NEXUM
@@ -18,20 +28,35 @@ const Navbar = () => {
         </div>
       </Link>
 
-      {/* Botones */}
-      <div className="flex items-center gap-3">
-        <Link
-          to="/login"
-          className="text-white border border-white px-4 py-1.5 rounded text-sm hover:bg-white hover:text-navbar transition-colors"
-        >
+      {/* Lógica de Usuario */}
+      <div className="flex items-center gap-3"> {/* Contenedor para ambos elementos */}
+        {isAuthenticated && ( // Renderiza el icono de usuario y modal si está autenticado
+          <div className="relative">
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-300 text-gray-700 cursor-pointer hover:bg-gray-400 transition-colors"
+              aria-label="Abrir menú de usuario"
+            >
+              {/* Aquí podrías usar la userPhoto si la tuvieras en el Navbar, o un icono genérico */}
+              <User size={24} />
+            </button>
+            <UserMenuModal
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+              userName={userName}
+              userProfession={userProfession}
+              userPhoto={userPhoto}
+            />
+          </div>
+        )}
+
+        {/* Botones de Iniciar Sesión y Registrarse (siempre visibles por ahora) */}
+        {/*<Link to="/login" className="text-white border border-white px-4 py-1.5 rounded text-sm hover:bg-white hover:text-[#001A5E] transition-colors">
           Iniciar Sesión
         </Link>
-        <Link
-          to="/register"
-          className="bg-action text-white px-4 py-1.5 rounded text-sm hover:opacity-90 transition-opacity"
-        >
+        <Link to="/register" className="bg-[#C8102E] text-white px-4 py-1.5 rounded text-sm hover:opacity-90 transition-opacity">
           Registrarse
-        </Link>
+        </Link>*/}
       </div>
     </nav>
   );
