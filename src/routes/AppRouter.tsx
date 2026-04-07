@@ -43,7 +43,8 @@ const Breadcrumbs = () => {
     "usuarios": "Gestión de Usuarios",
     "roles": "Roles",
     "dashboard": "Panel de Control",
-    "personal-data": "Datos Personales"
+    "personal-data": "Datos Personales",
+    "links": "Enlaces y Privacidad"
   };
 
   return (
@@ -66,7 +67,9 @@ const Breadcrumbs = () => {
               <span style={{ margin: '0 8px', color: '#999' }}>&gt;</span>
               <span style={{ color: '#666' }}>Perfil</span>
               <span style={{ margin: '0 8px', color: '#999' }}>&gt;</span>
-              <span style={{ fontWeight: 'bold', color: '#003087' }}>Datos Personales</span>
+              <span style={{ fontWeight: 'bold', color: '#003087' }}>
+                {pathname === "/profile/links" ? "Enlaces y Privacidad" : "Datos Personales"}
+              </span>
             </>
           ) : (
             pathnames.map((name, index) => {
