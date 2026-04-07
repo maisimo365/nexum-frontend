@@ -185,9 +185,7 @@ const AuditPage = () => {
             </div>
 
 
-            <button className="bg-action text-white px-6 py-2 rounded-lg font-medium hover:opacity-90 transition-opacity">
-              Aplicar filtros
-            </button>
+            
           </div>
 
 
