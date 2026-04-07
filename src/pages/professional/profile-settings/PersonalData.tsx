@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Sidebar from '../../admin/components/Sidebar'
 import RightWidgets from '../../../components/ui/RightWidgets'
+import Modal from '../../../components/ui/Modal'
 import { getPersonalData, updatePersonalData, uploadAvatar } from '../../../services/datapersonal.service'
 
 // Función para comprimir y convertir imagen a WebP
@@ -69,8 +70,12 @@ function PersonalData() {
   const [biografia, setBiografia] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
 
+  // Estado para guardar los datos originales y comparar cambios
+  const [initialData, setInitialData] = useState<any>(null)
+
   const [loading, setLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -80,14 +85,26 @@ function PersonalData() {
         const data = await getPersonalData()
 
         if (data) {
-          setNombre(data.user.first_name || '')
-          setApellido(data.user.last_name || '')
+          const loadedValues = {
+            nombre: data.user.first_name || '',
+            apellido: data.user.last_name || '',
+            tituloProfesional: data.profession || '',
+            telefono: data.phone || '',
+            ubicacion: data.location || '',
+            biografia: data.biography || ''
+          }
+
+          setNombre(loadedValues.nombre)
+          setApellido(loadedValues.apellido)
           setCorreoElectronico(data.user.email || '')
-          setTituloProfesional(data.profession || '')
-          setTelefono(data.phone || '')
-          setUbicacion(data.location || '')
-          setBiografia(data.biography || '')
-          setAvatarUrl(data.avatar_url || '') // Se carga el avatar de la BD
+          setTituloProfesional(loadedValues.tituloProfesional)
+          setTelefono(loadedValues.telefono)
+          setUbicacion(loadedValues.ubicacion)
+          setBiografia(loadedValues.biografia)
+          setAvatarUrl(data.avatar_url || '') 
+          
+          // Guardamos la referencia para el bloqueo del botón
+          setInitialData(loadedValues)
         } else {
           const storedUser = JSON.parse(
             localStorage.getItem('user') || sessionStorage.getItem('user') || '{}'
@@ -107,8 +124,27 @@ function PersonalData() {
     loadData()
   }, [])
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  // Lógica de validación: ¿Hay cambios respecto a los datos iniciales?
+  const hasChanges = initialData && (
+    nombre !== initialData.nombre ||
+    apellido !== initialData.apellido ||
+    tituloProfesional !== initialData.tituloProfesional ||
+    telefono !== initialData.telefono ||
+    ubicacion !== initialData.ubicacion ||
+    biografia !== initialData.biografia
+  )
+
+  // Esta función ahora solo abre el modal de confirmación
+  const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault()
+    if (hasChanges) {
+      setShowConfirmModal(true)
+    }
+  }
+
+  // Esta función ejecuta el guardado real tras la confirmación
+  const handleConfirmSave = async () => {
+    setShowConfirmModal(false)
     setIsSaving(true)
 
     try {
@@ -120,6 +156,17 @@ function PersonalData() {
         ubicacion,
         biografia: biografia
       })
+      
+      // Actualizamos los datos iniciales para que el botón se vuelva a bloquear
+      setInitialData({
+        nombre,
+        apellido,
+        tituloProfesional,
+        telefono,
+        ubicacion,
+        biografia
+      })
+      
       alert('Cambios guardados con éxito')
     } catch (error: any) {
       alert(error.message)
@@ -132,12 +179,10 @@ function PersonalData() {
     navigate('/')
   }
 
-  // Nueva función para manejar el cambio de avatar
   const handleAvatarChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
       try {
-        // Comprimir y convertir a WebP
         const compressedBlob = await compressAndConvertToWebP(file, 0.8)
         const webpFile = new File([compressedBlob], `${file.name.split('.')[0]}.webp`, {
           type: 'image/webp'
@@ -237,7 +282,6 @@ function PersonalData() {
                 <span style={{ fontSize: '12px', fontWeight: '600', color: '#999' }}>Sin foto</span>
               )}
             </div>
-            {/* Input oculto */}
             <input
               type="file"
               ref={fileInputRef}
@@ -247,7 +291,7 @@ function PersonalData() {
             />
             <button
               type="button"
-              onClick={() => fileInputRef.current?.click()} // Activa el input de archivo
+              onClick={() => fileInputRef.current?.click()}
               style={{
                 minHeight: '36px',
                 padding: '0 14px',
@@ -407,15 +451,15 @@ function PersonalData() {
               </button>
               <button
                 type="submit"
-                disabled={isSaving}
+                disabled={isSaving || !hasChanges} // BLOQUEO SI NO HAY CAMBIOS
                 style={{
                   padding: '10px 20px',
                   borderRadius: '8px',
                   border: 'none',
-                  background: isSaving ? '#ccc' : '#c8102e',
+                  background: (isSaving || !hasChanges) ? '#ccc' : '#c8102e',
                   color: '#fff',
                   fontWeight: '600',
-                  cursor: isSaving ? 'not-allowed' : 'pointer'
+                  cursor: (isSaving || !hasChanges) ? 'not-allowed' : 'pointer'
                 }}
               >
                 {isSaving ? 'Guardando...' : 'Guardar cambios'}
@@ -426,6 +470,50 @@ function PersonalData() {
       </div>
 
       <RightWidgets type="profile" />
+
+      {/* Modal de Confirmación - Ancho aumentado a minWidth 450px */}
+      <Modal 
+        isOpen={showConfirmModal} 
+        onClose={() => setShowConfirmModal(false)}
+        title="¿Estás seguro que deseas actualizar tus Datos personales?"
+      >
+        <div style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', gap: '20px', minWidth: '450px' }}>
+          <p style={{ fontSize: '14px', color: '#555', lineHeight: '1.5', margin: 0 }}>
+            Estás a punto de actualizar todos tus datos, editados y borrados. Estos cambios serán visibles en tu perfil público de inmediato.
+          </p>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '10px' }}>
+            <button
+              onClick={() => setShowConfirmModal(false)}
+              style={{
+                padding: '10px 18px',
+                borderRadius: '8px',
+                border: '1px solid #ddd',
+                background: '#fff',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer'
+              }}
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleConfirmSave}
+              style={{
+                padding: '10px 18px',
+                borderRadius: '8px',
+                border: 'none',
+                background: '#c8102e',
+                color: '#fff',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer'
+              }}
+            >
+              Si, Actualizar
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   )
 }
