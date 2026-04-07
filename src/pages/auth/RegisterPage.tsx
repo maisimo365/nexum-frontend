@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Check, Eye, EyeOff, Mail, User } from "lucide-react";
 import { registerService } from "../../services/auth.service";
 
@@ -311,13 +311,22 @@ export default function RegisterPage() {
 
                 {/* Step 1 Actions */}
                 <div className="flex justify-between items-center pt-4">
-                  <button
-                    type="button"
-                    onClick={handleNextStep}
-                    className="border border-gray-300 text-textMain font-medium px-6 py-2 rounded text-sm hover:bg-gray-50 transition-colors"
-                  >
-                    Perfil profesional
-                  </button>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => navigate("/login")}
+                      className="bg-action text-white font-medium px-6 py-2 rounded text-sm hover:opacity-90 transition-opacity"
+                    >
+                      Atrás
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleNextStep}
+                      className="border border-gray-300 text-textMain font-medium px-6 py-2 rounded text-sm hover:bg-gray-50 transition-colors"
+                    >
+                      Perfil profesional
+                    </button>
+                  </div>
 
                   <button
                     type="submit"
@@ -348,13 +357,22 @@ export default function RegisterPage() {
 
                 {/* Step 2 Actions */}
                 <div className="flex justify-between items-center pt-8">
-                  <button
-                    type="button"
-                    onClick={() => setStep(1)}
-                    className="border border-gray-300 text-textMain font-medium px-8 py-2 rounded text-sm hover:bg-gray-50 transition-colors"
-                  >
-                    Atras
-                  </button>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => navigate("/login")}
+                      className="bg-action text-white font-medium px-6 py-2 rounded text-sm hover:opacity-90 transition-opacity"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setStep(1)}
+                      className="border border-gray-300 text-textMain font-medium px-8 py-2 rounded text-sm hover:bg-gray-50 transition-colors"
+                    >
+                      Atras
+                    </button>
+                  </div>
 
                   <button
                     type="submit"
