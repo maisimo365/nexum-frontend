@@ -73,8 +73,9 @@ function PersonalData() {
   const [isSaving, setIsSaving] = useState(false)
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   
-  // Estado para el Toast gud
+  // Estado para el Toast gud y Errores
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null)
+  const [errors, setErrors] = useState<{ [key: string]: string }>({})
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -133,10 +134,15 @@ function PersonalData() {
     biografia !== initialData.biografia
   )
 
-  // Esta función ahora solo abre el modal de confirmación
+  // Esta función ahora valida campos antes de abrir el modal
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault()
-    if (hasChanges) {
+    const newErrors: any = {}
+    if (!nombre.trim()) newErrors.nombre = 'Campo obligatorio: Nombre.'
+    if (!apellido.trim()) newErrors.apellido = 'Campo obligatorio: Apellido.'
+    if (!tituloProfesional.trim()) newErrors.tituloProfesional = 'Campo obligatorio: Profesión.'
+    setErrors(newErrors)
+    if (Object.keys(newErrors).length === 0 && hasChanges) {
       setShowConfirmModal(true)
     }
   }
@@ -183,6 +189,7 @@ function PersonalData() {
       setTelefono(initialData.telefono)
       setUbicacion(initialData.ubicacion)
       setBiografia(initialData.biografia)
+      setErrors({})
     }
     // Reemplazo del alert por Toast de info y se mantiene en la página
     setToast({ message: 'Se cancelaron los cambios realizados.', type: 'info' })
@@ -324,32 +331,20 @@ function PersonalData() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <label style={{ fontSize: '13px', fontWeight: '600' }}>Nombre</label>
                 <input
-                  type="text"
-                  value={nombre}
-                  onChange={(e) => setNombre(e.target.value)}
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    borderRadius: '8px',
-                    border: '1px solid #00000014'
-                  }}
+                  type="text" value={nombre}
+                  onChange={(e) => {setNombre(e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g, '')); setErrors({...errors, nombre: ''})}}
+                  style={{ width: '100%', padding: '10px', borderRadius: '8px', background: '#fff', outline: 'none', border: `1px solid ${errors.nombre ? '#c8102e' : '#00000014'}` }}
                 />
+                {errors.nombre && <span style={{ color: '#c8102e', fontSize: '11px', fontWeight: '600' }}>{errors.nombre}</span>}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <label style={{ fontSize: '13px', fontWeight: '600' }}>Apellido</label>
                 <input
-                  type="text"
-                  value={apellido}
-                  onChange={(e) => setApellido(e.target.value)}
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    borderRadius: '8px',
-                    border: '1px solid #00000014'
-                  }}
+                  type="text" value={apellido}
+                  onChange={(e) => {setApellido(e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g, '')); setErrors({...errors, apellido: ''})}}
+                  style={{ width: '100%', padding: '10px', borderRadius: '8px', background: '#fff', outline: 'none', border: `1px solid ${errors.apellido ? '#c8102e' : '#00000014'}` }}
                 />
+                {errors.apellido && <span style={{ color: '#c8102e', fontSize: '11px', fontWeight: '600' }}>{errors.apellido}</span>}
               </div>
             </div>
 
@@ -357,16 +352,11 @@ function PersonalData() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <label style={{ fontSize: '13px', fontWeight: '600' }}>Título Profesional</label>
                 <input
-                  type="text"
-                  value={tituloProfesional}
-                  onChange={(e) => setTituloProfesional(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    borderRadius: '8px',
-                    border: '1px solid #00000014'
-                  }}
+                  type="text" value={tituloProfesional}
+                  onChange={(e) => {setTituloProfesional(e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g, '')); setErrors({...errors, tituloProfesional: ''})}}
+                  style={{ width: '100%', padding: '10px', borderRadius: '8px', background: '#fff', outline: 'none', border: `1px solid ${errors.tituloProfesional ? '#c8102e' : '#00000014'}` }}
                 />
+                {errors.tituloProfesional && <span style={{ color: '#c8102e', fontSize: '11px', fontWeight: '600' }}>{errors.tituloProfesional}</span>}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <label style={{ fontSize: '13px', fontWeight: '600' }}>Correo</label>
@@ -392,12 +382,12 @@ function PersonalData() {
                 <input
                   type="tel"
                   value={telefono}
-                  onChange={(e) => setTelefono(e.target.value)}
+                  onChange={(e) => setTelefono(e.target.value.replace(/[^0-9]/g, ''))}
                   style={{
                     width: '100%',
                     padding: '10px',
                     borderRadius: '8px',
-                    border: '1px solid #00000014'
+                    border: '1px solid #00000014', outline: 'none'
                   }}
                 />
               </div>
@@ -406,12 +396,12 @@ function PersonalData() {
                 <input
                   type="text"
                   value={ubicacion}
-                  onChange={(e) => setUbicacion(e.target.value)}
+                  onChange={(e) => setUbicacion(e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ, ]/g, ''))}
                   style={{
                     width: '100%',
                     padding: '10px',
                     borderRadius: '8px',
-                    border: '1px solid #00000014'
+                    border: '1px solid #00000014', outline: 'none'
                   }}
                 />
               </div>
@@ -428,7 +418,7 @@ function PersonalData() {
                   padding: '10px',
                   borderRadius: '8px',
                   border: '1px solid #00000014',
-                  resize: 'none'
+                  resize: 'none', outline: 'none'
                 }}
               />
             </div>
