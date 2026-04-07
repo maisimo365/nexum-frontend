@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { loginService } from "../../services/auth.service";
+import logoUmss from "../../assets/logoUmss.png";
+import prueba11 from "../../assets/prueba11.png";
 
 
 const LoginPage = () => {
@@ -54,10 +56,10 @@ const LoginPage = () => {
       <nav className="w-full bg-navbar px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <img
-            src="/src/assets/logoUmss.png"
-            alt="Logo UMSS"
-            className="w-8 h-8 object-contain"
-          />
+              src={logoUmss}
+              alt="Logo UMSS"
+              className="w-8 h-8 object-contain"
+            />
           <span className="text-white font-bold text-lg tracking-wide">
             NEXUM
           </span>
@@ -71,10 +73,10 @@ const LoginPage = () => {
           {/* Panel izquierdo azul */}
           <div className="hidden md:flex w-1/2 bg-primary flex-col items-center justify-center p-10 text-white">
             <img
-              src="/src/assets/prueba11.png"
-              alt="Ilustración Nexum"
-              className="w-64 h-64 object-contain mb-8"
-            />
+                src={prueba11}
+                alt="Ilustración Nexum"
+                className="w-64 h-64 object-contain mb-8"
+              />
             <h2 className="text-2xl font-bold text-center mb-2">
               Tu portafolio profesional te espera
             </h2>
