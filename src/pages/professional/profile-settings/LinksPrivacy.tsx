@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Sidebar from '../../admin/components/Sidebar';
 import RightWidgets from '../../../components/ui/RightWidgets';
 import { Globe } from 'lucide-react';
+import Toast from '../../../components/ui/Toast';
 import { getLinksPrivacyData, updateLinksPrivacyData } from '../../../services/linksprivacy.service';
 
 const LinkedinIcon = () => (
@@ -18,37 +19,30 @@ const GithubIcon = () => (
 );
 
 function LinksPrivacy() {
-  // Estados de identidad necesarios para la validación del backend
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
-
   const [linkedin, setLinkedin] = useState('');
   const [github, setGithub] = useState('');
   const [website, setWebsite] = useState('');
 
-  const [showProjects, setShowProjects] = useState(true);
-  const [showSkills, setShowSkills] = useState(true);
-  const [showExperience, setShowExperience] = useState(true);
-  const [showContact, setShowContact] = useState(false);
+  // Unificamos la visibilidad en un solo estado para todos
+  const [isPublic, setIsPublic] = useState(true);
 
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
       try {
         const data = await getLinksPrivacyData();
         if (data) {
-          // Cargamos identidad y enlaces del backend
           setNombre(data.user.first_name || '');
           setApellido(data.user.last_name || '');
           setLinkedin(data.linkedin_url || '');
           setGithub(data.github_url || '');
-          
-          const isPrivate = data.global_privacy === 'private';
-          setShowProjects(!isPrivate);
-          setShowSkills(!isPrivate);
-          setShowExperience(!isPrivate);
+          // Cargamos el estado global del backend: si es public, el switch está activo
+          setIsPublic(data.global_privacy === 'public');
         } else {
           const storedUser = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user") || "{}");
           setNombre(storedUser.first_name || '');
@@ -68,21 +62,26 @@ function LinksPrivacy() {
     setIsSaving(true);
 
     try {
-      const globalPrivacy = (showProjects && showSkills && showExperience) ? 'public' : 'private';
+      // Enviamos 'public' o 'private' según el estado actual de isPublic
+      const privacyValue = isPublic ? 'public' : 'private';
 
       await updateLinksPrivacyData({
         nombre,
         apellido,
         linkedin,
         github,
-        global_privacy: globalPrivacy
+        global_privacy: privacyValue
       });
-      alert('Enlaces y Privacidad actualizados con éxito');
+      setToast({ message: 'Enlaces y Privacidad actualizados con éxito', type: 'success' });
     } catch (error: any) {
-      alert('Error de validación: ' + error.message);
+      setToast({ message: 'Error al actualizar: ' + error.message, type: 'error' });
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleToggleAll = () => {
+    setIsPublic(!isPublic);
   };
 
   const Toggle = ({ active, onToggle }: { active: boolean; onToggle: () => void }) => (
@@ -138,25 +137,32 @@ function LinksPrivacy() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontSize: '13px', fontWeight: '600' }}>Mostrar proyectos</span>
-                <Toggle active={showProjects} onToggle={() => setShowProjects(!showProjects)} />
+                <Toggle active={isPublic} onToggle={handleToggleAll} />
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontSize: '13px', fontWeight: '600' }}>Mostrar habilidades</span>
-                <Toggle active={showSkills} onToggle={() => setShowSkills(!showSkills)} />
+                <Toggle active={isPublic} onToggle={handleToggleAll} />
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontSize: '13px', fontWeight: '600' }}>Mostrar experiencia</span>
-                <Toggle active={showExperience} onToggle={() => setShowExperience(!showExperience)} />
+                <Toggle active={isPublic} onToggle={handleToggleAll} />
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontSize: '13px', fontWeight: '600' }}>Mostrar contacto</span>
-                <Toggle active={showContact} onToggle={() => setShowContact(!showContact)} />
+                <Toggle active={isPublic} onToggle={handleToggleAll} />
               </div>
             </div>
           </div>
         </div>
       </div>
       <RightWidgets type="profile" />
+      {toast && (
+        <Toast 
+          message={toast.message} 
+          type={toast.type} 
+          onClose={() => setToast(null)} 
+        />
+      )}
     </div>
   );
 }
