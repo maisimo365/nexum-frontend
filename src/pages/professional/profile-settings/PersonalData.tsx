@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
 import Sidebar from '../../admin/components/Sidebar'
 import RightWidgets from '../../../components/ui/RightWidgets'
 import Modal from '../../../components/ui/Modal'
+import Toast from '../../../components/ui/Toast' // Importamos el nuevo componente
 import { getPersonalData, updatePersonalData, uploadAvatar } from '../../../services/datapersonal.service'
 
 // Función para comprimir y convertir imagen a WebP
@@ -59,8 +59,6 @@ const compressAndConvertToWebP = async (file: File, quality: number = 0.8): Prom
 }
 
 function PersonalData() {
-  const navigate = useNavigate()
-
   const [nombre, setNombre] = useState('')
   const [apellido, setApellido] = useState('')
   const [tituloProfesional, setTituloProfesional] = useState('')
@@ -69,13 +67,14 @@ function PersonalData() {
   const [ubicacion, setUbicacion] = useState('')
   const [biografia, setBiografia] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
-
-  // Estado para guardar los datos originales y comparar cambios
   const [initialData, setInitialData] = useState<any>(null)
 
   const [loading, setLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [showConfirmModal, setShowConfirmModal] = useState(false)
+  
+  // Estado para el Toast gud
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -156,8 +155,7 @@ function PersonalData() {
         ubicacion,
         biografia: biografia
       })
-      
-      // Actualizamos los datos iniciales para que el botón se vuelva a bloquear
+
       setInitialData({
         nombre,
         apellido,
@@ -167,16 +165,27 @@ function PersonalData() {
         biografia
       })
       
-      alert('Cambios guardados con éxito')
+      // Reemplazo del alert por Toast de éxito
+      setToast({ message: 'Tus datos personales se actualizaron correctamente.', type: 'success' })
     } catch (error: any) {
-      alert(error.message)
+      setToast({ message: error.message || 'Ocurrió un error al guardar.', type: 'error' })
     } finally {
       setIsSaving(false)
     }
   }
 
   const handleCancel = () => {
-    navigate('/')
+    if (initialData) {
+      // Restauramos los valores originales del formulario
+      setNombre(initialData.nombre)
+      setApellido(initialData.apellido)
+      setTituloProfesional(initialData.tituloProfesional)
+      setTelefono(initialData.telefono)
+      setUbicacion(initialData.ubicacion)
+      setBiografia(initialData.biografia)
+    }
+    // Reemplazo del alert por Toast de info y se mantiene en la página
+    setToast({ message: 'Se cancelaron los cambios realizados.', type: 'info' })
   }
 
   const handleAvatarChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -190,9 +199,9 @@ function PersonalData() {
 
         const result = await uploadAvatar(webpFile)
         setAvatarUrl(result.data.avatar_url)
-        alert('Avatar actualizado con éxito')
+        setToast({ message: 'Foto de perfil actualizada con éxito.', type: 'success' })
       } catch (error: any) {
-        alert(error.message)
+        setToast({ message: error.message || 'Error al subir la imagen.', type: 'error' })
       }
     }
   }
@@ -245,7 +254,7 @@ function PersonalData() {
             backgroundColor: '#fff',
             padding: '32px',
             borderRadius: '12px',
-            boxShadow: '0 6px 18px rgba(0, 26, 94, 0.06)',
+            boxShadow: '0 6px 18 rgba(0, 26, 94, 0.06)',
             display: 'flex',
             gap: '32px'
           }}
@@ -451,7 +460,7 @@ function PersonalData() {
               </button>
               <button
                 type="submit"
-                disabled={isSaving || !hasChanges} // BLOQUEO SI NO HAY CAMBIOS
+                disabled={isSaving || !hasChanges}
                 style={{
                   padding: '10px 20px',
                   borderRadius: '8px',
@@ -471,7 +480,7 @@ function PersonalData() {
 
       <RightWidgets type="profile" />
 
-      {/* Modal de Confirmación - Ancho aumentado a minWidth 450px */}
+      {/* Modal de Confirmación */}
       <Modal 
         isOpen={showConfirmModal} 
         onClose={() => setShowConfirmModal(false)}
@@ -514,6 +523,15 @@ function PersonalData() {
           </div>
         </div>
       </Modal>
+
+      {/* Componente Toast gud renderizado al final */}
+      {toast && (
+        <Toast 
+          message={toast.message} 
+          type={toast.type} 
+          onClose={() => setToast(null)} 
+        />
+      )}
     </div>
   )
 }
