@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import { resetPasswordService } from "../../services/auth.service";
+import Navbar from "../../components/ui/Navbar";
 
 export default function ResetPasswordPage() {
   const navigate = useNavigate();
@@ -67,6 +68,7 @@ export default function ResetPasswordPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <Navbar />
       <div className="flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-lg bg-surface rounded-xl shadow-md p-8 md:p-12">
           
@@ -166,7 +168,9 @@ export default function ResetPasswordPage() {
       </div>
       
       {/* Footer */}
-     
+      <footer className="text-center text-sm text-gray-500 py-4 bg-white">
+        Copyright © 2026 CODI
+      </footer>
     </div>
   );
 }

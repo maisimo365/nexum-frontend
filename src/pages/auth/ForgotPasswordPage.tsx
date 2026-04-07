@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Mail } from "lucide-react";
 import { forgotPasswordService } from "../../services/auth.service";
+import Navbar from "../../components/ui/Navbar";
 
 export default function ForgotPasswordPage() {
   const navigate = useNavigate();
@@ -61,6 +62,7 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <Navbar />
       <div className="flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-lg bg-surface rounded-xl shadow-md p-8 md:p-12">
           
@@ -129,7 +131,7 @@ export default function ForgotPasswordPage() {
       </div>
       
       {/* Footer */}
-      <footer className="text-center text-xs text-gray-500 py-4 bg-white border-t border-gray-200 border-dashed">
+      <footer className="text-center text-sm text-gray-500 py-4 bg-white">
         Copyright © 2026 CODI
       </footer>
     </div>

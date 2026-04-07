@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Check, Eye, EyeOff, Mail, User } from "lucide-react";
 import { registerService } from "../../services/auth.service";
+import Navbar from "../../components/ui/Navbar";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -107,6 +108,7 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <Navbar />
       <div className="flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-2xl bg-surface rounded-xl shadow-md p-8 md:p-12 relative overflow-hidden">
 
@@ -389,7 +391,9 @@ export default function RegisterPage() {
       </div>
 
       {/* Footer */}
-      
+      <footer className="text-center text-sm text-gray-500 py-4 bg-white">
+        Copyright © 2026 CODI
+      </footer>
     </div>
   );
 }
