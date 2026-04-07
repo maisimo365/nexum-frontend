@@ -146,13 +146,13 @@ const Sidebar = ({ activeItem = "Dashboard" }: SidebarProps) => {
         )}
       </nav>
 
-     {/* <button
+      <button
         onClick={handleLogout}
         className="flex items-center gap-3 px-4 py-4 text-sm text-textMain hover:bg-gray-100 transition-colors border-t border-gray-200 mt-auto"
       >
         <LogOut size={18} />
         Cerrar Sesión
-      </button>*/}
+      </button>
     </div>
   );
 };

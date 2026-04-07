@@ -1,10 +1,8 @@
 import { Users, Activity, AlertTriangle, CheckCircle } from "lucide-react";
 import Sidebar from "./components/Sidebar";
-import useAuth from "../../hooks/useAuth";
 import { Link } from "react-router-dom";
 import Calendar from "../../components/ui/Calendar";
 const DashboardAdmin = () => {
-  const { user } = useAuth();
   
   return (
     <div className="min-h-screen bg-background flex flex-col">

@@ -10,6 +10,7 @@ const Navbar = () => {
   const isAuthenticated = true; // Simula que el usuario está logueado
   const userName = "Juan Pérez";
   const userProfession = "Ingeniero de Software";
+  const userEmail = "juan.perez@example.com"; // Add email to pass
   const userPhoto = "https://via.placeholder.com/80"; // URL de una imagen de perfil de ejemplo
 
   return (
@@ -46,6 +47,7 @@ const Navbar = () => {
               userName={userName}
               userProfession={userProfession}
               userPhoto={userPhoto}
+              userEmail={userEmail}
             />
           </div>
         )}

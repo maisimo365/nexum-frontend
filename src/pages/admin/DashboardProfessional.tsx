@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
 import { Eye, FolderOpen, CheckCircle, AlertTriangle } from "lucide-react";
 import Sidebar from "./components/Sidebar";
-import useAuth from "../../hooks/useAuth";
 import Calendar from "../../components/ui/Calendar";
 
 const DashboardProfessional = () => {
-  const { user } = useAuth();
+  // const { user } = useAuth(); // 'user' is not used in this component
   const [viewsCount, setViewsCount] = useState(0);
 
   useEffect(() => {

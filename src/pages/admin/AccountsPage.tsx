@@ -16,7 +16,7 @@ interface User {
 }
 
 const AccountsPage = () => {
-  const { user } = useAuth();
+  const { user: currentUser } = useAuth(); // Renamed to avoid conflict if `user` is used elsewhere
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -157,14 +157,17 @@ const AccountsPage = () => {
                           {u.status === "Activo" ? (
                             <button
                               onClick={() => handleDesactivar(u)}
-                              className="bg-action text-white px-3 py-1.5 rounded text-xs hover:opacity-90 transition-opacity"
+                              className={`px-3 py-1.5 rounded text-xs transition-opacity ${
+                                u.id === currentUser?.id ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-action text-white hover:opacity-90"
+                              }`}
+                              disabled={u.id === currentUser?.id}
                             >
                               Desactivar
                             </button>
                           ) : (
                             <button
                               onClick={() => handleReactivar(u.id)}
-                              className="bg-gray-200 text-gray-700 px-3 py-1.5 rounded text-xs hover:bg-gray-300 transition-colors"
+                              className="bg-primary text-white px-3 py-1.5 rounded text-xs hover:opacity-90 transition-colors"
                             >
                               Reactivar
                             </button>
