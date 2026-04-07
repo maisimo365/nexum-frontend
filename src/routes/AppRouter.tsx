@@ -8,6 +8,7 @@ import RolesPage from "../pages/admin/RolesPage";
 import AccountsPage from "../pages/admin/AccountsPage";
 import Navbar from "../components/ui/Navbar";
 import Footer from "../components/ui/Footer";
+import AuditPage from "../pages/admin/AuditPage";
 import PersonalData from "../pages/professional/profile-settings/PersonalData";
 import LinksPrivacy from "../pages/professional/profile-settings/LinksPrivacy";
 import ProtectedRoute from "./ProtectedRoute";
@@ -147,6 +148,12 @@ const AppRouter = () => {
             <ProtectedRoute allowedRole="admin">
               <AccountsPage />
             </ProtectedRoute>
+          } />
+
+          <Route path="/admin/auditoria" element={
+          <ProtectedRoute allowedRole="admin">
+              <AuditPage />
+             </ProtectedRoute>
           } />
 
           {/* Rutas del profesional */}
