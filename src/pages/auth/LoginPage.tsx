@@ -28,23 +28,32 @@ const LoginPage = () => {
       setError("");
       const data = await loginService({ email, password });
 
-     if (rememberMe) {
-             localStorage.setItem("token", data.token);
-             localStorage.setItem("user", JSON.stringify(data.user));
-            } else {
-            sessionStorage.setItem("token", data.token);
-            sessionStorage.setItem("user", JSON.stringify(data.user));
-          }
-        setEmail("");
-        setPassword("");
-        setRememberMe(false);
+      if (rememberMe) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+      } else {
+        sessionStorage.setItem("token", data.token);
+        sessionStorage.setItem("user", JSON.stringify(data.user));
+      }
+      setEmail("");
+      setPassword("");
+      setRememberMe(false);
+
       if (data.user.role === "admin") {
         navigate("/admin");
       } else {
         navigate("/profile/personal-data");
       }
     } catch (err: any) {
-      setError(err.message || "Credenciales inválidas. Verifica tus datos e inténtalo nuevamente.");
+      const rawMessage = err?.message || "Credenciales inválidas. Verifica tus datos e inténtalo nuevamente.";
+      const adminContact = "admin@nexum.com";
+      const isDeactivated = /desactivad/i.test(rawMessage);
+
+      setError(
+        isDeactivated
+          ? `Tu cuenta fue desactivada. Contactá al administrador: ${adminContact}`
+          : rawMessage
+      );
     } finally {
       setLoading(false);
     }
@@ -52,14 +61,15 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      {/*Navbar*/}
-      <nav className="w-full bg-navbar px-6 py-3 flex items-center justify-between">
+
+      {/* Navbar */}
+      <nav className="w-full bg-navbar px-4 sm:px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <img
-              src={logoUmss}
-              alt="Logo UMSS"
-              className="w-8 h-8 object-contain"
-            />
+            src={logoUmss}
+            alt="Logo UMSS"
+            className="w-8 h-8 object-contain"
+          />
           <span className="text-white font-bold text-lg tracking-wide">
             NEXUM
           </span>
@@ -67,17 +77,17 @@ const LoginPage = () => {
       </nav>
 
       {/* Contenido principal */}
-      <div className="flex-1 flex items-center justify-center px-4 py-10">
-        <div className="w-full max-w-4xl bg-surface rounded-lg shadow-lg overflow-hidden flex">
+      <div className="flex-1 flex items-center justify-center px-4 py-8 sm:py-10">
+        <div className="w-full max-w-4xl bg-surface rounded-lg shadow-lg overflow-hidden flex flex-col md:flex-row">
 
-          {/* Panel izquierdo azul */}
-          <div className="hidden md:flex w-1/2 bg-primary flex-col items-center justify-center p-10 text-white">
+          {/* Panel izquierdo azul — solo en md+ */}
+          <div className="hidden md:flex w-full md:w-1/2 bg-primary flex-col items-center justify-center p-10 text-white">
             <img
-                src={prueba11}
-                alt="Ilustración Nexum"
-                className="w-64 h-64 object-contain mb-8"
-              />
-            <h2 className="text-2xl font-bold text-center mb-2">
+              src={prueba11}
+              alt="Ilustración Nexum"
+              className="w-48 h-48 lg:w-64 lg:h-64 object-contain mb-8"
+            />
+            <h2 className="text-xl lg:text-2xl font-bold text-center mb-2">
               Tu portafolio profesional te espera
             </h2>
             <p className="text-sm text-center opacity-80 mb-6">
@@ -92,14 +102,25 @@ const LoginPage = () => {
           </div>
 
           {/* Panel derecho - Formulario */}
-          <div className="w-full md:w-1/2 flex flex-col items-center justify-center p-10 bg-background">
-            <p className="text-textMain text-sm font-bold mb-1">Bienvenido</p>
-            <p className="text-textMain font-bold mb-6">
+          <div className="w-full md:w-1/2 flex flex-col items-center justify-center p-6 sm:p-8 md:p-10 bg-background">
+
+            {/* Logo visible solo en móvil (reemplaza al panel izquierdo) */}
+            <div className="flex md:hidden flex-col items-center mb-4">
+              <img
+                src={logoUmss}
+                alt="Logo UMSS"
+                className="w-12 h-12 object-contain mb-1"
+              />
+              <span className="text-primary font-bold text-xl tracking-wide">NEXUM</span>
+            </div>
+
+            <p className="text-textMain text-sm font-bold mb-1 text-center">Bienvenido</p>
+            <p className="text-textMain font-bold mb-5 text-center text-sm sm:text-base">
               Accede a tu cuenta para continuar
             </p>
 
-            <div className="w-full bg-white rounded-lg border border-gray-200 p-6 shadow-md">
-              <h2 className="text-lg font-bold text-textMain text-center mb-1">
+            <div className="w-full bg-white rounded-lg border border-gray-200 p-5 sm:p-6 shadow-md">
+              <h2 className="text-base sm:text-lg font-bold text-textMain text-center mb-1">
                 Iniciar Sesión
               </h2>
               <p className="text-xs text-gray-400 text-center mb-5">
@@ -107,13 +128,14 @@ const LoginPage = () => {
               </p>
 
               <form onSubmit={handleSubmit} className="space-y-4">
+
                 {/* Email */}
                 <div>
                   <label className="text-sm font-medium text-textMain block mb-1">
                     Correo electrónico
                   </label>
                   <div className="flex items-center border border-gray-300 rounded px-3 py-2 gap-2 focus-within:border-primary">
-                    <Mail size={16} className="text-gray-400" />
+                    <Mail size={16} className="text-gray-400 shrink-0" />
                     <input
                       type="email"
                       placeholder="nombre@ejemplo.com"
@@ -122,7 +144,7 @@ const LoginPage = () => {
                         setEmail(e.target.value);
                         setError("");
                       }}
-                      className="flex-1 outline-none text-sm text-textMain bg-transparent"
+                      className="flex-1 outline-none text-sm text-textMain bg-transparent min-w-0"
                     />
                   </div>
                 </div>
@@ -133,7 +155,7 @@ const LoginPage = () => {
                     Contraseña
                   </label>
                   <div className="flex items-center border border-gray-300 rounded px-3 py-2 gap-2 focus-within:border-primary">
-                    <Lock size={16} className="text-gray-400" />
+                    <Lock size={16} className="text-gray-400 shrink-0" />
                     <input
                       type={showPassword ? "text" : "password"}
                       placeholder="••••••••••"
@@ -142,12 +164,12 @@ const LoginPage = () => {
                         setPassword(e.target.value);
                         setError("");
                       }}
-                      className="flex-1 outline-none text-sm text-textMain bg-transparent"
+                      className="flex-1 outline-none text-sm text-textMain bg-transparent min-w-0"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="text-gray-400 hover:text-primary"
+                      className="text-gray-400 hover:text-primary shrink-0"
                     >
                       {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
@@ -160,7 +182,7 @@ const LoginPage = () => {
                 </div>
 
                 {/* Recordarme y olvidaste contraseña */}
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <label className="flex items-center gap-2 text-sm text-textMain cursor-pointer">
                     <input
                       type="checkbox"

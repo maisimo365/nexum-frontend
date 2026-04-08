@@ -130,13 +130,15 @@ const AppRouter = () => {
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/login" element={<LoginPage />} />
-
+          
           {/* Rutas del admin */}
           <Route path="/admin" element={
             <ProtectedRoute allowedRole="admin">
               <RolesPage />
             </ProtectedRoute>
           } />
+            
+
           <Route path="/admin/roles" element={
             <ProtectedRoute allowedRole="admin">
               <RolesPage />
@@ -158,6 +160,7 @@ const AppRouter = () => {
               <AuditPage />
              </ProtectedRoute>
           } />
+
 
           {/* Rutas del profesional */}
           <Route path="/portfolio" element={

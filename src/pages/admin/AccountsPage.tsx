@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Filter } from "lucide-react";
+import { Filter, UserX, UserCheck, ShieldAlert, ExternalLink } from "lucide-react";
 import Sidebar from "./components/Sidebar";
 import useAuth from "../../hooks/useAuth";
 import { getUsers, toggleUserStatus } from "../../services/admin.service";
@@ -16,7 +16,7 @@ interface User {
 }
 
 const AccountsPage = () => {
-  const { user: currentUser } = useAuth(); // Renamed to avoid conflict if `user` is used elsewhere
+  useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -36,7 +36,6 @@ const AccountsPage = () => {
         setLoading(false);
       }
     };
-
     fetchUsers();
   }, []);
 
@@ -73,158 +72,176 @@ const AccountsPage = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      
-
-      {/* Breadcrumb */}
-      
-
       <div className="flex flex-1">
-        {/* Sidebar */}
+        {/* Sidebar adaptativo */}
         <Sidebar activeItem="Gestión Usuarios" />
 
-        {/* Contenido principal */}
-        <div className="flex-1 p-6">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-bold text-textMain">
-              Gestión de Usuarios
-            </h1>
-            <div className="flex items-center gap-2">
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="border border-gray-300 rounded px-3 py-1.5 text-sm text-textMain outline-none"
-              >
-                <option value="Todos">Estado: Todos</option>
-                <option value="Activo">Estado: Activo</option>
-                <option value="Inactivo">Estado: Inactivo</option>
-              </select>
-              <button className="bg-action text-white px-4 py-1.5 rounded text-sm hover:opacity-90 transition-opacity flex items-center gap-2">
-                <Filter size={14} />
-                Filtrar
-              </button>
-            </div>
-          </div>
+        {/* Layout Principal: Columna en móvil, Fila en Desktop (lg) */}
+        <main className="flex-1 flex flex-col lg:flex-row overflow-x-hidden">
+          
+          {/* SECCIÓN IZQUIERDA: Listado y Tabla */}
+          <div className="flex-1 p-4 pl-14 sm:pl-6 md:p-6">
+            
+            {/* Header: Título y Filtros apilables */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+              <div>
+                <h1 className="text-xl sm:text-2xl font-bold text-textMain">
+                  Gestión de Usuarios
+                </h1>
+                <p className="text-xs text-gray-500">Administración de accesos Nexum</p>
+              </div>
 
-          {/* Loading y error */}
-          {loading && (
-            <div className="text-center py-10 text-gray-500">
-              Cargando usuarios...
+              <div className="flex items-center gap-2">
+                <select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                  className="flex-1 md:flex-none border border-gray-300 rounded-lg px-3 py-2 text-sm text-textMain outline-none bg-white shadow-sm"
+                >
+                  <option value="Todos">Todos los estados</option>
+                  <option value="Activo">Activos</option>
+                  <option value="Inactivo">Inactivos</option>
+                </select>
+                <button className="bg-action text-white p-2 md:px-4 md:py-2 rounded-lg text-sm hover:opacity-90 transition-all flex items-center gap-2">
+                  <Filter size={16} />
+                  <span className="hidden sm:inline">Filtrar</span>
+                </button>
+              </div>
             </div>
-          )}
 
-          {error && (
-            <div className="text-center py-10 text-action">
-              {error}
-            </div>
-          )}
+            {/* Estados de carga y error */}
+            {loading && <div className="text-center py-20 text-gray-400 animate-pulse">Cargando base de datos...</div>}
+            {error && <div className="text-center py-20 text-action font-medium">{error}</div>}
 
-          {/* Tabla */}
-          {!loading && !error && (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-gray-100">
-                    <th className="text-left px-4 py-3 text-textMain font-semibold">Usuario</th>
-                    <th className="text-left px-4 py-3 text-textMain font-semibold">Email</th>
-                    <th className="text-left px-4 py-3 text-textMain font-semibold">Rol</th>
-                    <th className="text-left px-4 py-3 text-textMain font-semibold">Estado</th>
-                    <th className="text-left px-4 py-3 text-textMain font-semibold">Registro</th>
-                    <th className="text-left px-4 py-3 text-textMain font-semibold">Portafolio</th>
-                    <th className="text-left px-4 py-3 text-textMain font-semibold">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users
-                    .filter((u) => filterStatus === "Todos" || u.status === filterStatus)
-                    .map((u) => (
-                      <tr key={u.id} className="border-b border-gray-50 hover:bg-gray-50">
-                        <td className="px-4 py-3 text-textMain">{u.name}</td>
-                        <td className="px-4 py-3 text-gray-500">{u.email}</td>
-                        <td className="px-4 py-3 text-gray-500">{u.role}</td>
-                        <td className="px-4 py-3">
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${
-                            u.status === "Activo"
-                              ? "bg-green-100 text-green-700"
-                              : "bg-gray-100 text-gray-500"
-                          }`}>
-                            {u.status}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-gray-500">{u.registro}</td>
-                        <td className="px-4 py-3 text-gray-500">{u.portfolio}</td>
-                        <td className="px-4 py-3">
-                          {u.status === "Activo" ? (
-                            <button
-                              onClick={() => handleDesactivar(u)}
-                              className={`px-3 py-1.5 rounded text-xs transition-opacity ${
-                                u.id === currentUser?.id ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-action text-white hover:opacity-90"
-                              }`}
-                              disabled={u.id === currentUser?.id}
-                            >
-                              Desactivar
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() => handleReactivar(u.id)}
-                              className="bg-primary text-white px-3 py-1.5 rounded text-xs hover:opacity-90 transition-colors"
-                            >
-                              Reactivar
-                            </button>
-                          )}
-                        </td>
+            {/* Tabla con contenedor de Scroll Horizontal */}
+            {!loading && !error && (
+              <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm min-w-[800px]">
+                    <thead className="bg-gray-50 border-b border-gray-100">
+                      <tr>
+                        <th className="text-left px-6 py-4 text-textMain font-semibold">Usuario</th>
+                        <th className="text-left px-6 py-4 text-textMain font-semibold">Email</th>
+                        <th className="text-left px-6 py-4 text-textMain font-semibold">Rol</th>
+                        <th className="px-6 py-4 text-textMain font-semibold text-center">Estado</th>
+                        <th className="text-left px-6 py-4 text-textMain font-semibold">Registro</th>
+                        <th className="text-center px-6 py-4 text-textMain font-semibold">Acciones</th>
                       </tr>
-                    ))}
-                </tbody>
-              </table>
-              <p className="text-xs text-gray-400 px-4 py-3">
-                Filtro por estado "Inactivo" y restaura acceso con "Reactivar".
-              </p>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50">
+                      {users
+                        .filter((u) => filterStatus === "Todos" || u.status === filterStatus)
+                        .map((u) => (
+                          <tr key={u.id} className="hover:bg-blue-50/30 transition-colors">
+                            <td className="px-6 py-4 font-medium text-textMain">{u.name}</td>
+                            <td className="px-6 py-4 text-gray-500">{u.email}</td>
+                            <td className="px-6 py-4">
+                              <span className="text-[11px] bg-gray-100 px-2 py-1 rounded text-gray-600 font-medium lowercase">
+                                {u.role}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 text-center">
+                              <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                                u.status === "Activo" 
+                                ? "bg-green-100 text-green-700" 
+                                : "bg-red-50 text-red-600"
+                              }`}>
+                                {u.status}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 text-gray-400 text-xs">{u.registro}</td>
+                            <td className="px-6 py-4 text-center">
+                              {u.status === "Activo" ? (
+                                <button
+                                  onClick={() => handleDesactivar(u)}
+                                  className="text-action hover:bg-red-50 p-2 rounded-lg transition-colors group"
+                                  title="Suspender acceso"
+                                >
+                                  <UserX size={18} className="group-hover:scale-110 transition-transform" />
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() => handleReactivar(u.id)}
+                                  className="text-green-600 hover:bg-green-50 p-2 rounded-lg transition-colors group"
+                                  title="Reactivar acceso"
+                                >
+                                  <UserCheck size={18} className="group-hover:scale-110 transition-transform" />
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="px-6 py-3 bg-gray-50/50 border-t border-gray-100">
+                  <p className="text-[10px] text-gray-400 italic">
+                    Mostrando {users.length} registros en total. Deslice lateralmente en móvil.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* PANEL DERECHO: w-full en móvil, w-64 en Desktop */}
+          <aside className="w-full lg:w-64 p-6 bg-white border-t lg:border-t-0 lg:border-l border-gray-200 shrink-0">
+            <div className="sticky top-6">
+              <Calendar />
+              
+              <div className="mt-8">
+                <h3 className="font-bold text-textMain text-sm mb-4 flex items-center gap-2">
+                  <ShieldAlert size={16} className="text-yellow-500" />
+                  Seguridad
+                </h3>
+                <div className="p-4 bg-yellow-50 rounded-xl border border-yellow-100">
+                  <p className="text-[11px] text-yellow-800 leading-relaxed">
+                    La desactivación revoca tokens de sesión activos y bloquea el login del usuario seleccionado.
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-8">
+                <h3 className="font-bold text-textMain text-sm mb-4">Enlaces Rápidos</h3>
+                <ul className="space-y-3">
+                  <li className="group flex items-center justify-between text-xs text-primary cursor-pointer">
+                    <span className="group-hover:underline">Políticas de Privacidad</span>
+                    <ExternalLink size={12} className="opacity-0 group-hover:opacity-100" />
+                  </li>
+                  <li className="group flex items-center justify-between text-xs text-primary cursor-pointer">
+                    <span className="group-hover:underline">Configuración Global</span>
+                    <ExternalLink size={12} className="opacity-0 group-hover:opacity-100" />
+                  </li>
+                </ul>
+              </div>
             </div>
-          )}
-        </div>
+          </aside>
 
-        {/* Panel derecho */}
-        <div className="w-56 p-4 bg-white border-l border-gray-200">
-         
-            <Calendar />
-
-          <h3 className="font-semibold text-textMain mt-5 mb-2">Notificaciones</h3>
-          <div className="text-xs text-gray-600 flex items-start gap-2">
-            <span>👤</span>
-            La acción de desactivar requiere confirmación.
-          </div>
-
-          <h3 className="font-semibold text-textMain mt-5 mb-2">Enlaces rápidos</h3>
-          <div className="text-xs text-primary cursor-pointer hover:underline flex items-center gap-1">
-            ⚙️ Configuración Admin
-          </div>
-        </div>
+        </main>
       </div>
 
-      {/* Modal */}
+      {/* MODAL DE CONFIRMACIÓN RESPONSIVO */}
       {showModal && selectedUser && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-96 shadow-xl">
-            <h2 className="text-lg font-bold text-textMain mb-2">
-              Confirmar Desactivación
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl scale-in-center">
+            <div className="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-4 mx-auto">
+              <UserX size={24} />
+            </div>
+            <h2 className="text-lg font-bold text-textMain text-center mb-2">
+              Confirmar Suspensión
             </h2>
-            <p className="text-sm text-gray-600 mb-2">
-              ¿Está seguro de que desea suspender el acceso a este usuario?
+            <p className="text-sm text-gray-500 text-center mb-6 leading-relaxed">
+              ¿Estás seguro de desactivar a <span className="font-bold text-textMain">{selectedUser.name}</span>? 
+              Perderá acceso inmediato a la plataforma.
             </p>
-            <p className="text-sm text-gray-500 mb-6">
-              El usuario pasa a "Inactivo" sin borrarse sus datos y pierde el acceso a la plataforma.
-            </p>
-            <div className="flex items-center justify-between">
+            <div className="flex gap-3">
               <button
                 onClick={() => setShowModal(false)}
-                className="px-4 py-2 text-sm border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
               >
-                Cancelar
+                Volver
               </button>
               <button
                 onClick={handleConfirmDesactivar}
-                className="px-4 py-2 text-sm bg-action text-white rounded hover:opacity-90 transition-opacity"
+                className="flex-1 px-4 py-2.5 text-sm font-semibold bg-action text-white rounded-xl hover:brightness-110 shadow-lg shadow-red-200 transition-all"
               >
                 Desactivar
               </button>
@@ -232,8 +249,6 @@ const AccountsPage = () => {
           </div>
         </div>
       )}
-
-      
     </div>
   );
 };
