@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { loginService } from "../../services/auth.service";
 import logoUmss from "../../assets/logoUmss.png";
 import prueba11 from "../../assets/prueba11.png";
@@ -64,6 +64,13 @@ const LoginPage = () => {
 
       {/* Navbar */}
       <nav className="w-full bg-navbar px-4 sm:px-6 py-3 flex items-center justify-between">
+        <button
+          onClick={() => navigate("/")}
+          className="text-white hover:opacity-80 transition-opacity"
+          title="Retroceder al Home"
+        >
+          <ArrowLeft size={24} />
+        </button>
         <div className="flex items-center gap-2">
           <img
             src={logoUmss}
@@ -74,6 +81,7 @@ const LoginPage = () => {
             NEXUM
           </span>
         </div>
+        <div className="w-6" />
       </nav>
 
       {/* Contenido principal */}

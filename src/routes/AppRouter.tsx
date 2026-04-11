@@ -12,27 +12,7 @@ import AuditPage from "../pages/admin/AuditPage";
 import PersonalData from "../pages/professional/profile-settings/PersonalData";
 import LinksPrivacy from "../pages/professional/profile-settings/LinksPrivacy";
 import ProtectedRoute from "./ProtectedRoute";
-
-const HomePage = () => (
-  <div style={{ textAlign: "center", padding: "50px" }}>
-    <h1>Bienvenido a Nexum Frontend</h1>
-    <p>Este es la página de inicio.</p>
-    <nav style={{ marginTop: "20px" }}>
-      <Link
-        to="/profile/personal-data"
-        style={{
-          padding: "10px 20px",
-          border: "1px solid blue",
-          borderRadius: "5px",
-          textDecoration: "none",
-          color: "blue",
-        }}
-      >
-        Ir a Datos Personales
-      </Link>
-    </nav>
-  </div>
-);
+import Home from "../pages/Home";
 
 const Breadcrumbs = () => {
   const { pathname } = useLocation();
@@ -96,14 +76,19 @@ const Breadcrumbs = () => {
   );
 };
 
+// La ruta "/" (Home) NO usa el Navbar/Footer/Breadcrumbs del layout
+// porque el Home ya tiene su propio Navbar y Footer integrados.
 const ROUTES_WITHOUT_LAYOUT = [
-  "/login", "/register", "/forgot-password", "/reset-password", 
+  "/",                                                          // ← AGREGADO
+  "/login", "/register", "/forgot-password", "/reset-password", "/portfolio",
   "/proyectos", "/habilidades", "/experiencia", "/dashboard",
 ];
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const { pathname } = useLocation();
-  const hideLayout = ROUTES_WITHOUT_LAYOUT.some((route) => pathname.startsWith(route));
+  const hideLayout = ROUTES_WITHOUT_LAYOUT.some((route) =>
+    route === "/" ? pathname === "/" : pathname.startsWith(route)
+  );
 
   if (hideLayout) return <>{children}</>;
 
@@ -124,21 +109,22 @@ const AppRouter = () => {
     <BrowserRouter>
       <Layout>
         <Routes>
-          {/* Rutas públicas */}
-          <Route path="/" element={<HomePage />} />
+          {/* ── Página de inicio ─────────────────────────────── */}
+          <Route path="/" element={<Home />} />          {/* ← CAMBIADO */}
+
+          {/* ── Rutas públicas ───────────────────────────────── */}
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/portfolio" element={<RolesPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/login" element={<LoginPage />} />
-          
-          {/* Rutas del admin */}
+
+          {/* ── Rutas del admin ──────────────────────────────── */}
           <Route path="/admin" element={
             <ProtectedRoute allowedRole="admin">
               <RolesPage />
             </ProtectedRoute>
           } />
-            
-
           <Route path="/admin/roles" element={
             <ProtectedRoute allowedRole="admin">
               <RolesPage />
@@ -154,15 +140,13 @@ const AppRouter = () => {
               <AccountsPage />
             </ProtectedRoute>
           } />
-
           <Route path="/admin/auditoria" element={
-          <ProtectedRoute allowedRole="admin">
+            <ProtectedRoute allowedRole="admin">
               <AuditPage />
-             </ProtectedRoute>
+            </ProtectedRoute>
           } />
 
-
-          {/* Rutas del profesional */}
+          {/* ── Rutas del profesional ────────────────────────── */}
           <Route path="/portfolio" element={
             <ProtectedRoute allowedRole="professional">
               <RolesPage />
@@ -185,8 +169,8 @@ const AppRouter = () => {
             </ProtectedRoute>
           } />
 
-          {/* Ruta por defecto */}
-          <Route path="*" element={<HomePage />} />
+          {/* ── Ruta por defecto ─────────────────────────────── */}
+          <Route path="*" element={<Home />} />           {/* ← CAMBIADO */}
         </Routes>
       </Layout>
     </BrowserRouter>
