@@ -3,8 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { loginService } from "../../services/auth.service";
 import logoUmss from "../../assets/logoUmss.png";
-import prueba11 from "../../assets/prueba11.png";
-
+import prueba11 from "../../assets/prueba12.png";
+import prueba09 from "../../assets/prueba09.png";
+import prueba10 from "../../assets/prueba10.png";
+import { useEffect } from "react";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -89,26 +91,63 @@ const LoginPage = () => {
         <div className="w-full max-w-4xl bg-surface rounded-lg shadow-lg overflow-hidden flex flex-col md:flex-row">
 
           {/* Panel izquierdo azul — solo en md+ */}
-          <div className="hidden md:flex w-full md:w-1/2 bg-primary flex-col items-center justify-center p-10 text-white">
-            <img
-              src={prueba11}
-              alt="Ilustración Nexum"
-              className="w-48 h-48 lg:w-64 lg:h-64 object-contain mb-8"
-            />
-            <h2 className="text-xl lg:text-2xl font-bold text-center mb-2">
-              Tu portafolio profesional te espera
-            </h2>
-            <p className="text-sm text-center opacity-80 mb-6">
-              Conecta con oportunidades y muestra tu talento al mundo
-            </p>
-            <div className="flex items-center justify-between w-full mt-4">
-              <span className="border border-white text-white text-xs px-3 py-1 rounded">
-                UMSS
-              </span>
-              <span className="text-white font-bold text-lg">Nexum</span>
-            </div>
-          </div>
+            <div className="hidden md:flex w-full md:w-1/2 bg-primary flex-col items-center justify-center p-10 text-white">
 
+              {/* Carrusel */}
+              {(() => {
+                const [idx, setIdx] = useState(0);
+                const slides = [
+                  { img: prueba11, title: "Tu portafolio profesional ", desc: "Conecta con oportunidades y muestra tu talento al mundo" },
+                  { img: prueba09, title: "Proyectos que hablan por ti", desc: "Sube tu trabajo y déjalo brillar ante los empleadores" },
+                  { img: prueba10, title: "Verificado por UMSS · FCyT", desc: "Tu perfil con respaldo académico real" },
+                ];
+
+              useEffect(() => {
+                const t = setInterval(() => setIdx(i => (i + 1) % slides.length), 5000);
+                return () => clearInterval(t);
+              }, []);
+
+              return (
+                <div className="flex flex-col items-center w-full">
+                  <img
+                    key={idx}
+                    src={slides[idx].img}
+                    alt="Ilustración Nexum"
+                    className="w-48 h-48 lg:w-64 lg:h-64 object-contain mb-8 transition-opacity duration-500"
+                  />
+                  <h2 className="text-xl lg:text-2xl font-bold text-center mb-2">
+                    {slides[idx].title}
+                  </h2>
+                  <p className="text-sm text-center opacity-80 mb-6">
+                    {slides[idx].desc}
+                  </p>
+                  {/* Dots */}
+                  <div className="flex gap-2 mb-6">
+                    {slides.map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setIdx(i)}
+                        className="rounded-full transition-all duration-300"
+                        style={{
+                          width: i === idx ? "20px" : "8px",
+                          height: "8px",
+                          backgroundColor: i === idx ? "#FFFFFF" : "rgba(255,255,255,0.4)",
+                          border: "none",
+                          padding: 0,
+                          cursor: "pointer",
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+
+              <div className="flex items-center justify-between w-full mt-4">
+                <span className="border border-white text-white text-xs px-3 py-1 rounded">UMSS</span>
+                <span className="text-white font-bold text-lg">Nexum</span>
+              </div>
+            </div>
           {/* Panel derecho - Formulario */}
           <div className="w-full md:w-1/2 flex flex-col items-center justify-center p-6 sm:p-8 md:p-10 bg-background">
 

@@ -54,6 +54,7 @@ function PersonalData() {
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null)
+  const [errors, setErrors] = useState<{ [key: string]: string }>({})
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -117,6 +118,7 @@ function PersonalData() {
       setNombre(initialData.nombre); setApellido(initialData.apellido)
       setTituloProfesional(initialData.tituloProfesional); setTelefono(initialData.telefono)
       setUbicacion(initialData.ubicacion); setBiografia(initialData.biografia)
+      setErrors({})
     }
     setToast({ message: 'Se han revertido los cambios.', type: 'info' })
   }

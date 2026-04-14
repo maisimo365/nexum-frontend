@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import logoUmss from "../../assets/logoUmss.png";
+import logoUmss from "../../assets/logoUmss.png"; // Asegúrate de que la ruta sea correcta
 import { User } from "lucide-react"; // Importa el icono de usuario
 import { useState } from "react";
 import UserMenuModal from "./UserMenuModal"; // Importa el componente del modal
@@ -19,7 +19,7 @@ const Navbar = () => {
       <Link to="/" className="flex items-center gap-2 cursor-pointer">
         <div className="flex items-center gap-2">
           <img
-                src={logoUmss}
+                src={logoUmss} 
                 alt="Logo UMSS"
                  className="w-8 h-8 object-contain rounded-full" // Añadido rounded-full para intentar hacerlo circular
                />

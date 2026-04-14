@@ -81,7 +81,7 @@ const Breadcrumbs = () => {
 const ROUTES_WITHOUT_LAYOUT = [
   "/",                                                          // ← AGREGADO
   "/login", "/register", "/forgot-password", "/reset-password", "/portfolio",
-  "/proyectos", "/habilidades", "/experiencia", "/dashboard",
+  "/proyectos", "/habilidades", "/experiencia", "/dashboard","/Home"
 ];
 
 const Layout = ({ children }: { children: React.ReactNode }) => {

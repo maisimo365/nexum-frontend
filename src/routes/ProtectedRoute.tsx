@@ -17,9 +17,9 @@ const ProtectedRoute = ({ children, allowedRole }: ProtectedRouteProps) => {
   // Si el rol no coincide redirige a su dashboard
   if (user?.role !== allowedRole) {
     if (user?.role === "admin") {
-      return <Navigate to="/admin/roles" replace />;
+      return <Navigate to="/admin" replace />;
     } else {
-      return <Navigate to="/portfolio" replace />;
+      return <Navigate to="/profolio" replace />;
     }
   }
 
