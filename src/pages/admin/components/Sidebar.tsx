@@ -86,7 +86,7 @@ const Sidebar = ({ activeItem = "Dashboard" }: SidebarProps) => {
       ) : (
         <div className="flex flex-col">
           <Link
-            to="/admin"
+            to="/dashboard"
             className={`flex items-center gap-3 px-4 py-3 text-sm ${
               activeItem === "Dashboard"
                 ? "bg-primary text-white font-medium"
@@ -106,7 +106,7 @@ const Sidebar = ({ activeItem = "Dashboard" }: SidebarProps) => {
             <FolderOpen size={18} /> Proyectos
           </Link>
           <Link
-            to="/habilidades"
+            to="/profile/habilidades"
             className={`flex items-center gap-3 px-4 py-3 text-sm ${
               activeItem === "Habilidades"
                 ? "bg-primary text-white font-medium"

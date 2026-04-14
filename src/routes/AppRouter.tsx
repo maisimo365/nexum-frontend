@@ -11,6 +11,7 @@ import Footer from "../components/ui/Footer";
 import AuditPage from "../pages/admin/AuditPage";
 import PersonalData from "../pages/professional/profile-settings/PersonalData";
 import LinksPrivacy from "../pages/professional/profile-settings/LinksPrivacy";
+import HabilidadesPage from "../pages/professional/profile-settings/Habilidades";
 import ProtectedRoute from "./ProtectedRoute";
 import Home from "../pages/Home";
 
@@ -25,7 +26,8 @@ const Breadcrumbs = () => {
     "roles": "Roles",
     "dashboard": "Panel de Control",
     "personal-data": "Datos Personales",
-    "links": "Enlaces y Privacidad"
+    "links": "Enlaces y Privacidad",
+    "habilidades": "Habilidades"
   };
 
   return (
@@ -81,7 +83,7 @@ const Breadcrumbs = () => {
 const ROUTES_WITHOUT_LAYOUT = [
   "/",                                                          // ← AGREGADO
   "/login", "/register", "/forgot-password", "/reset-password", "/portfolio",
-  "/proyectos", "/habilidades", "/experiencia", "/dashboard","/Home"
+  "/proyectos", "/habilidades", "/experiencia","/Home","/profolio"
 ];
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
@@ -166,6 +168,11 @@ const AppRouter = () => {
           <Route path="/profile/links" element={
             <ProtectedRoute allowedRole="professional">
               <LinksPrivacy />
+            </ProtectedRoute>
+          } />
+          <Route path="/profile/habilidades" element={
+            <ProtectedRoute allowedRole="professional">
+              <HabilidadesPage />
             </ProtectedRoute>
           } />
 
