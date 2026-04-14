@@ -9,9 +9,12 @@ import AccountsPage from "../pages/admin/AccountsPage";
 import Navbar from "../components/ui/Navbar";
 import Footer from "../components/ui/Footer";
 import AuditPage from "../pages/admin/AuditPage";
+import CategoriesPage from "../pages/admin/CategoriesPage";
 import PersonalData from "../pages/professional/profile-settings/PersonalData";
 import LinksPrivacy from "../pages/professional/profile-settings/LinksPrivacy";
 import HabilidadesPage from "../pages/professional/profile-settings/Habilidades";
+import Experience from "../pages/professional/experience/Experience";
+import Certifications from "../pages/professional/certifications/Certifications";
 import ProtectedRoute from "./ProtectedRoute";
 import Home from "../pages/Home";
 
@@ -147,6 +150,11 @@ const AppRouter = () => {
               <AuditPage />
             </ProtectedRoute>
           } />
+          <Route path="/admin/categorias" element={
+            <ProtectedRoute allowedRole="admin">
+              <CategoriesPage />
+            </ProtectedRoute>
+          } />
 
           {/* ── Rutas del profesional ────────────────────────── */}
           <Route path="/portfolio" element={
@@ -157,6 +165,16 @@ const AppRouter = () => {
           <Route path="/dashboard" element={
             <ProtectedRoute allowedRole="professional">
               <RolesPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/experiencia" element={
+            <ProtectedRoute allowedRole="professional">
+              <Experience />
+            </ProtectedRoute>
+          } />
+          <Route path="/certificaciones" element={
+            <ProtectedRoute allowedRole="professional">
+              <Certifications />
             </ProtectedRoute>
           } />
           <Route path="/profile" element={<Navigate to="/profile/personal-data" replace />} />
