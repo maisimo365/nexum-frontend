@@ -7,8 +7,10 @@ import {
   Database,
   Settings,
   FolderOpen,
+  Layers,
   Wrench,
   Briefcase,
+  CheckCircle,
   User,
   ChevronDown,
   IdCard,
@@ -60,6 +62,7 @@ const Sidebar = ({ activeItem = "Dashboard" }: SidebarProps) => {
   const adminItems = [
     { label: "Dashboard", icon: <LayoutDashboard size={18} />, path: "/admin" },
     { label: "Gestión Usuarios", icon: <Users size={18} />, path: "/admin/usuarios" },
+    { label: "Categorías", icon: <Layers size={18} />, path: "/admin/categorias" },
     { label: "Auditoría", icon: <Shield size={18} />, path: "/admin/auditoria" },
     { label: "Copias de Seguridad", icon: <Database size={18} />, path: "/admin/backups" },
     { label: "Configuración del Sistema", icon: <Settings size={18} />, path: "/admin/configuracion" },
@@ -124,6 +127,16 @@ const Sidebar = ({ activeItem = "Dashboard" }: SidebarProps) => {
             }`}
           >
             <Briefcase size={18} /> Experiencia
+          </Link>
+          <Link
+            to="/certificaciones"
+            className={`flex items-center gap-3 px-4 py-3 text-sm ${
+              activeItem === "Certificaciones"
+                ? "bg-primary text-white font-medium"
+                : "text-textMain hover:bg-gray-100"
+            }`}
+          >
+            <CheckCircle size={18} /> Certificaciones
           </Link>
 
           {/* PERFIL CON DESPLEGABLE */}
