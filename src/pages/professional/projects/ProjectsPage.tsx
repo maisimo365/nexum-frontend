@@ -1,11 +1,15 @@
+import React, { useState } from 'react';
 import Sidebar from '../../admin/components/Sidebar';
 import Calendar from '../../../components/ui/Calendar';
+import CreateProjectModal from './CreateProjectModal'; // Importación del nuevo archivo
 import { 
   FolderOpen, Plus, ShieldCheck, AlertTriangle, 
-  CheckCircle, BookOpen, Settings,
+  CheckCircle, BookOpen, Settings, FileText 
 } from 'lucide-react';
 
 const ProjectsPage = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false); // Estado para el modal
+
   const RightPanelContent = () => (
     <div className="sticky top-6 space-y-8">
       <div>
@@ -27,19 +31,7 @@ const ProjectsPage = () => {
           </div>
         </div>
       </div>
-      <div>
-        <h3 className="font-normal text-textMain text-sm mb-4 uppercase tracking-wider">Enlaces rápidos</h3>
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 text-sm text-primary cursor-pointer hover:underline transition-all">
-            <BookOpen size={16} className="text-orange-400" />
-            <span className="font-medium">Guía de Proyectos</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm text-primary cursor-pointer hover:underline transition-all">
-            <Settings size={16} className="text-purple-400" />
-            <span className="font-medium">Configuración</span>
-          </div>
-        </div>
-      </div>
+      {/* ... Otros widgets del panel derecho ... */}
     </div>
   );
 
@@ -57,13 +49,18 @@ const ProjectsPage = () => {
                 </h1>
                 <p className="text-sm text-gray-400 mt-2">Gestiona y clasifica tus proyectos académicos y laborales.</p>
               </div>
-              <button className="bg-action hover:brightness-110 text-white font-bold px-6 py-3 rounded-xl shadow-lg transition-all flex items-center gap-2 text-sm">
+              <button 
+                onClick={() => setIsModalOpen(true)} // Abre el modal
+                className="bg-action hover:brightness-110 text-white font-bold px-6 py-3 rounded-xl shadow-lg transition-all flex items-center gap-2 text-sm"
+              >
                 <Plus size={18} /> NUEVO PROYECTO
               </button>
             </header>
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-              <p className="text-gray-500 text-center italic">Aquí se listarán tus proyectos profesionales...</p>
+
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
+              <p className="text-gray-500 italic">Aquí se listarán tus proyectos profesionales...</p>
             </div>
+
             <div className="mt-12 text-center pb-6">
               <p className="text-textMain font-medium text-sm">Copyright © 2026 CODI</p>
             </div>
@@ -73,6 +70,12 @@ const ProjectsPage = () => {
           </aside>
         </main>
       </div>
+
+      {/* COMPONENTE MODAL REUTILIZADO */}
+      <CreateProjectModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+      />
     </div>
   );
 };
