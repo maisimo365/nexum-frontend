@@ -13,6 +13,7 @@ import PersonalData from "../pages/professional/profile-settings/PersonalData";
 import LinksPrivacy from "../pages/professional/profile-settings/LinksPrivacy";
 import ProtectedRoute from "./ProtectedRoute";
 import Home from "../pages/Home";
+import ProjectsPage from "../pages/professional/projects/ProjectsPage";
 
 const Breadcrumbs = () => {
   const { pathname } = useLocation();
@@ -25,7 +26,8 @@ const Breadcrumbs = () => {
     "roles": "Roles",
     "dashboard": "Panel de Control",
     "personal-data": "Datos Personales",
-    "links": "Enlaces y Privacidad"
+    "links": "Enlaces y Privacidad",
+    "projects": "Mis Proyectos" // Mapeo para el breadcrumb
   };
 
   return (
@@ -76,12 +78,10 @@ const Breadcrumbs = () => {
   );
 };
 
-// La ruta "/" (Home) NO usa el Navbar/Footer/Breadcrumbs del layout
-// porque el Home ya tiene su propio Navbar y Footer integrados.
 const ROUTES_WITHOUT_LAYOUT = [
-  "/",                                                          // ← AGREGADO
+  "/", 
   "/login", "/register", "/forgot-password", "/reset-password", "/portfolio",
-  "/proyectos", "/habilidades", "/experiencia", "/dashboard","/Home"
+  "/habilidades", "/experiencia", "/dashboard", "/Home", "/proyectos"
 ];
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
@@ -110,7 +110,7 @@ const AppRouter = () => {
       <Layout>
         <Routes>
           {/* ── Página de inicio ─────────────────────────────── */}
-          <Route path="/" element={<Home />} />          {/* ← CAMBIADO */}
+          <Route path="/" element={<Home />} />
 
           {/* ── Rutas públicas ───────────────────────────────── */}
           <Route path="/register" element={<RegisterPage />} />
@@ -118,6 +118,11 @@ const AppRouter = () => {
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/proyectos" element={
+            <ProtectedRoute allowedRole="professional">
+              <ProjectsPage />
+            </ProtectedRoute>
+          } />
 
           {/* ── Rutas del admin ──────────────────────────────── */}
           <Route path="/admin" element={
@@ -170,7 +175,7 @@ const AppRouter = () => {
           } />
 
           {/* ── Ruta por defecto ─────────────────────────────── */}
-          <Route path="*" element={<Home />} />           {/* ← CAMBIADO */}
+          <Route path="*" element={<Home />} />
         </Routes>
       </Layout>
     </BrowserRouter>
