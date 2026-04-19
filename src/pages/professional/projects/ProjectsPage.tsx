@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Sidebar from '../../admin/components/Sidebar';
 import CreateProjectModal from './CreateProjectModal';
-import { getProjects, deleteProject, type Project } from '../../../services/project.service';
+import { getProjects, deleteProject, getCategories, type Project, type ProjectCategory } from '../../../services/project.service';
 import {
   FolderOpen, ChevronDown, Search, ArrowDownAZ, CalendarDays, Loader2
 } from 'lucide-react';
@@ -10,7 +10,14 @@ const ProjectsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [projectToEdit, setProjectToEdit] = useState<Project | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [categories, setCategories] = useState<ProjectCategory[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Filter states
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<number | 'ALL'>('ALL');
+  const [sortDate, setSortDate] = useState<'NEWEST' | 'OLDEST'>('NEWEST');
+  const [sortAlpha, setSortAlpha] = useState<'A-Z' | 'Z-A' | 'NONE'>('NONE');
 
   const fetchProjects = async () => {
     try {
@@ -25,8 +32,43 @@ const ProjectsPage = () => {
   };
 
   useEffect(() => {
+    getCategories().then(setCategories).catch(console.error);
     fetchProjects();
   }, []);
+
+  const filteredProjects = useMemo(() => {
+    return projects
+      .filter(project => {
+        // Filtro por categoría
+        if (selectedCategory !== 'ALL' && project.category?.id !== selectedCategory) {
+          return false;
+        }
+
+        // Filtro por búsqueda (mínimo 3 caracteres)
+        if (searchTerm.trim().length >= 3) {
+          const term = searchTerm.toLowerCase();
+          const matchTitle = project.title.toLowerCase().includes(term);
+          const matchCategory = project.category?.name?.toLowerCase().includes(term) || false;
+          const matchSkills = project.skills?.some(s => s.name.toLowerCase().includes(term)) || false;
+
+          if (!matchTitle && !matchCategory && !matchSkills) {
+            return false;
+          }
+        }
+        return true;
+      })
+      .sort((a, b) => {
+        // Orden alfabético tiene prioridad si está activo
+        if (sortAlpha !== 'NONE') {
+          const cmp = a.title.localeCompare(b.title);
+          return sortAlpha === 'A-Z' ? cmp : -cmp;
+        }
+        // Si no, ordena por fecha
+        const dateA = new Date(a.created_at || 0).getTime();
+        const dateB = new Date(b.created_at || 0).getTime();
+        return sortDate === 'NEWEST' ? dateB - dateA : dateA - dateB;
+      });
+  }, [projects, selectedCategory, searchTerm, sortDate, sortAlpha]);
 
   const handleDelete = async (id: number) => {
     if (!window.confirm('¿Estás seguro de que deseas eliminar este proyecto?')) return;
@@ -75,35 +117,68 @@ const ProjectsPage = () => {
               </div>
 
               <div className="flex flex-wrap items-center gap-3">
-                <div className="flex items-center gap-2 px-4 py-2 bg-[#eef3f8] text-[#003087] rounded-xl text-[13px] font-bold cursor-pointer hover:bg-[#e0eaf5] transition-colors">
-                  <FolderOpen size={16} />
-                  <span>Categoría: Desarrollo web</span>
-                  <ChevronDown size={16} />
+                <div className="relative flex items-center bg-[#eef3f8] text-[#003087] rounded-xl hover:bg-[#e0eaf5] transition-colors">
+                  <FolderOpen size={16} className="absolute left-4 pointer-events-none" />
+                  <select
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value === 'ALL' ? 'ALL' : Number(e.target.value))}
+                    className="appearance-none bg-transparent pl-11 pr-10 py-2 w-full text-[13px] font-bold cursor-pointer focus:outline-none outline-none border-none"
+                  >
+                    <option value="ALL">Categoría: Todas</option>
+                    {categories.map((c) => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
+                  </select>
+                  <ChevronDown size={16} className="absolute right-4 pointer-events-none" />
                 </div>
-                <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-[#1a1a2e] rounded-xl text-[13px] font-bold cursor-pointer hover:bg-gray-200 transition-colors">
-                  <CalendarDays size={16} />
-                  <span>Ordenar por: Más antiguos</span>
-                  <ChevronDown size={16} />
+
+                <div className="relative flex items-center bg-gray-100 text-[#1a1a2e] rounded-xl hover:bg-gray-200 transition-colors">
+                  <CalendarDays size={16} className="absolute left-4 pointer-events-none" />
+                  <select
+                    value={sortDate}
+                    onChange={(e) => {
+                      setSortDate(e.target.value as any);
+                      setSortAlpha('NONE'); // Resetear alpha al cambiar fecha
+                    }}
+                    className="appearance-none bg-transparent pl-11 pr-10 py-2 w-full text-[13px] font-bold cursor-pointer focus:outline-none outline-none border-none"
+                  >
+                    <option value="NEWEST">Más recientes</option>
+                    <option value="OLDEST">Más antiguos</option>
+                  </select>
+                  <ChevronDown size={16} className="absolute right-4 pointer-events-none" />
                 </div>
-                <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-[#1a1a2e] rounded-xl text-[13px] font-bold cursor-pointer hover:bg-gray-200 transition-colors">
-                  <ArrowDownAZ size={16} />
-                  <span>Ordenar: A a Z</span>
-                  <ChevronDown size={16} />
+
+                <div className="relative flex items-center bg-gray-100 text-[#1a1a2e] rounded-xl hover:bg-gray-200 transition-colors">
+                  <ArrowDownAZ size={16} className="absolute left-4 pointer-events-none" />
+                  <select
+                    value={sortAlpha}
+                    onChange={(e) => setSortAlpha(e.target.value as any)}
+                    className="appearance-none bg-transparent pl-11 pr-10 py-2 w-full text-[13px] font-bold cursor-pointer focus:outline-none outline-none border-none"
+                  >
+                    <option value="NONE">Orden alfabético</option>
+                    <option value="A-Z">A a Z</option>
+                    <option value="Z-A">Z a A</option>
+                  </select>
+                  <ChevronDown size={16} className="absolute right-4 pointer-events-none" />
                 </div>
               </div>
 
               <div className="flex flex-wrap items-center gap-3 mt-1">
-                <div className="relative w-full sm:w-80">
+                <div className="relative w-full sm:w-96">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                   <input
                     type="text"
-                    placeholder="Buscar proyecto o categoría"
-                    className="w-full pl-11 pr-4 py-2.5 bg-white border border-gray-200 rounded-full text-[13px] focus:outline-none focus:border-gray-300 transition-colors"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Buscar por nombre, categoría o tecnología..."
+                    className="w-full pl-11 pr-4 py-2.5 bg-white border border-gray-200 rounded-full text-[13px] focus:outline-none focus:border-[#003087] focus:ring-1 focus:ring-[#003087] transition-colors"
                   />
                 </div>
-                <button className="bg-[#c8102e] text-white px-5 py-2.5 rounded-lg text-[13px] font-bold hover:brightness-110 transition-all shadow-sm">
-                  Aplicar filtros
-                </button>
+                {searchTerm.trim().length > 0 && searchTerm.trim().length < 3 && (
+                  <span className="text-[12px] text-gray-500 italic">
+                    Escribe al menos 3 letras para buscar...
+                  </span>
+                )}
               </div>
             </div>
 
@@ -128,14 +203,16 @@ const ProjectsPage = () => {
                           Cargando proyectos...
                         </td>
                       </tr>
-                    ) : projects.length === 0 ? (
+                    ) : filteredProjects.length === 0 ? (
                       <tr>
                         <td colSpan={5} className="p-8 text-center text-[#5b6472]">
-                          Aún no has registrado ningún proyecto.
+                          {projects.length === 0
+                            ? 'Aún no has registrado ningún proyecto.'
+                            : 'No se encontraron proyectos con los filtros aplicados.'}
                         </td>
                       </tr>
                     ) : (
-                      projects.map((project) => (
+                      filteredProjects.map((project) => (
                         <tr key={project.id} className="hover:bg-gray-50 transition-colors group">
                           <td className="p-4 pl-6 text-[13px] text-[#5b6472] font-medium">
                             {project.title.length > 30 ? project.title.substring(0, 30) + '...' : project.title}
