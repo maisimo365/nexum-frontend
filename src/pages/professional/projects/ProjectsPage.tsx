@@ -156,10 +156,6 @@ const ProjectsPage = () => {
                 <p className="text-[12px] text-gray-400 italic">Mostrando proyectos profesionales registrados en el sistema.</p>
               </div>
             </div>
-
-            <footer className="mt-auto pt-8 text-center pb-6">
-              <p className="text-[#1a1a2e] font-bold text-[12px] tracking-widest uppercase">Copyright © 2026 CODI</p>
-            </footer>
           </div>
 
           <aside className="w-full lg:w-80 p-6 bg-white border-t lg:border-t-0 lg:border-l border-gray-200 shrink-0">
