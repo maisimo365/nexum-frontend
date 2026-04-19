@@ -1,12 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../../admin/components/Sidebar';
 import CreateProjectModal from './CreateProjectModal';
+import { getProjects, deleteProject, type Project } from '../../../services/project.service';
 import {
-  FolderOpen, ChevronDown, Search, ArrowDownAZ, CalendarDays
+  FolderOpen, ChevronDown, Search, ArrowDownAZ, CalendarDays, Loader2
 } from 'lucide-react';
 
 const ProjectsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchProjects = async () => {
+    try {
+      setLoading(true);
+      const data = await getProjects();
+      setProjects(data);
+    } catch (error) {
+      console.error('Error al cargar proyectos:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
+  const handleDelete = async (id: number) => {
+    if (!window.confirm('¿Estás seguro de que deseas eliminar este proyecto?')) return;
+    try {
+      await deleteProject(id);
+      setProjects(projects.filter(p => p.id !== id));
+    } catch (error) {
+      console.error('Error al eliminar proyecto:', error);
+      alert('No se pudo eliminar el proyecto.');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#f4f7fb] flex flex-col font-sans">
@@ -87,60 +117,59 @@ const ProjectsPage = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
-                    <tr className="hover:bg-gray-50 transition-colors group">
-                      <td className="p-4 pl-6 text-[13px] text-[#5b6472]">Sistema de Gestión ...</td>
-                      <td className="p-4">
-                        <span className="px-2.5 py-1.5 bg-[#eef3f8] text-[#003087] rounded-md text-[12px] font-bold inline-block">Desarrollo web</span>
-                      </td>
-                      <td className="p-4 text-[13px] text-[#5b6472]">React, Node.js, Post...</td>
-                      <td className="p-4 text-[13px] text-[#5b6472]">12/02/2024</td>
-                      <td className="p-4 pr-6">
-                        <div className="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button className="px-4 py-1.5 text-[13px] font-bold text-[#1a1a2e] bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                            Editar
-                          </button>
-                          <button className="px-4 py-1.5 text-[13px] font-bold text-white bg-[#c8102e] rounded-lg hover:brightness-110 transition-colors shadow-sm">
-                            Eliminar
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr className="hover:bg-gray-50 transition-colors group">
-                      <td className="p-4 pl-6 text-[13px] text-[#5b6472]">Portal de Tutorías In...</td>
-                      <td className="p-4">
-                        <span className="px-2.5 py-1.5 bg-[#eef3f8] text-[#003087] rounded-md text-[12px] font-bold inline-block">Desarrollo web</span>
-                      </td>
-                      <td className="p-4 text-[13px] text-[#5b6472]">Next.js, NestJS</td>
-                      <td className="p-4 text-[13px] text-[#5b6472]">18/07/2024</td>
-                      <td className="p-4 pr-6">
-                        <div className="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button className="px-4 py-1.5 text-[13px] font-bold text-[#1a1a2e] bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                            Editar
-                          </button>
-                          <button className="px-4 py-1.5 text-[13px] font-bold text-white bg-[#c8102e] rounded-lg hover:brightness-110 transition-colors shadow-sm">
-                            Eliminar
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr className="hover:bg-gray-50 transition-colors group">
-                      <td className="p-4 pl-6 text-[13px] text-[#5b6472]">Analítica de Datos U...</td>
-                      <td className="p-4">
-                        <span className="px-2.5 py-1.5 bg-[#e2e8f0] text-[#475569] rounded-md text-[12px] font-bold inline-block">Data</span>
-                      </td>
-                      <td className="p-4 text-[13px] text-[#5b6472]">Python, FastAPI, Po...</td>
-                      <td className="p-4 text-[13px] text-[#5b6472]">09/01/2025</td>
-                      <td className="p-4 pr-6">
-                        <div className="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button className="px-4 py-1.5 text-[13px] font-bold text-[#1a1a2e] bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                            Editar
-                          </button>
-                          <button className="px-4 py-1.5 text-[13px] font-bold text-white bg-[#c8102e] rounded-lg hover:brightness-110 transition-colors shadow-sm">
-                            Eliminar
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
+                    {loading ? (
+                      <tr>
+                        <td colSpan={5} className="p-8 text-center text-[#5b6472]">
+                          <Loader2 className="animate-spin mx-auto mb-2 text-[#003087]" size={24} />
+                          Cargando proyectos...
+                        </td>
+                      </tr>
+                    ) : projects.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="p-8 text-center text-[#5b6472]">
+                          Aún no has registrado ningún proyecto.
+                        </td>
+                      </tr>
+                    ) : (
+                      projects.map((project) => (
+                        <tr key={project.id} className="hover:bg-gray-50 transition-colors group">
+                          <td className="p-4 pl-6 text-[13px] text-[#5b6472] font-medium">
+                            {project.title.length > 30 ? project.title.substring(0, 30) + '...' : project.title}
+                          </td>
+                          <td className="p-4">
+                            <span className={`px-2.5 py-1.5 rounded-md text-[12px] font-bold inline-block ${project.category?.name?.toLowerCase().includes('data')
+                              ? 'bg-[#e2e8f0] text-[#475569]'
+                              : 'bg-[#eef3f8] text-[#003087]'
+                              }`}>
+                              {project.category?.name || 'Sin Categoría'}
+                            </span>
+                          </td>
+                          <td className="p-4 text-[13px] text-[#5b6472] truncate max-w-[200px]" title={project.skills?.map(s => s.name).join(', ')}>
+                            {project.skills?.map(s => s.name).join(', ') || 'No especificadas'}
+                          </td>
+                          <td className="p-4 text-[13px] text-[#5b6472]">
+                            {project.created_at ? new Date(project.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'N/A'}
+                            {' - '}
+                            {project.updated_at
+                              ? new Date(project.updated_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                              : 'Presente'}
+                          </td>
+                          <td className="p-4 pr-6">
+                            <div className="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button className="px-4 py-1.5 text-[13px] font-bold text-[#1a1a2e] bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                                Editar
+                              </button>
+                              <button
+                                onClick={() => handleDelete(project.id)}
+                                className="px-4 py-1.5 text-[13px] font-bold text-white bg-[#c8102e] rounded-lg hover:brightness-110 transition-colors shadow-sm"
+                              >
+                                Eliminar
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -151,7 +180,10 @@ const ProjectsPage = () => {
 
       <CreateProjectModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => {
+          setIsModalOpen(false);
+          fetchProjects(); // Recargar tras cerrar modal por si se creó un proyecto
+        }}
       />
     </div>
   );
