@@ -5,10 +5,10 @@ import Modal from '../../../components/ui/Modal'
 import Toast from '../../../components/ui/Toast'
 import Calendar from '../../../components/ui/Calendar'
 import { getPersonalData, updatePersonalData, uploadAvatar } from '../../../services/datapersonal.service'
-import { 
-  Camera, Save, X, User, Briefcase, MapPin, 
-  Phone, Mail, ShieldCheck, AlertTriangle, 
-  CheckCircle, BookOpen, Settings, FileText 
+import {
+  Camera, Save, X, User, Briefcase, MapPin,
+  Phone, Mail, ShieldCheck, AlertTriangle,
+  CheckCircle, BookOpen, Settings, FileText
 } from 'lucide-react'
 
 // Función para comprimir y convertir imagen a WebP
@@ -52,7 +52,7 @@ function PersonalData() {
   const [loading, setLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [showConfirmModal, setShowConfirmModal] = useState(false)
-  
+
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null)
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
 
@@ -62,10 +62,15 @@ function PersonalData() {
     const loadData = async () => {
       try {
         const data = await getPersonalData()
+
+        // Recuperar información base del usuario que se guardó en login
+        const userStr = localStorage.getItem('user') || sessionStorage.getItem('user')
+        const currentUser = userStr ? JSON.parse(userStr) : null
+
         if (data) {
           const loadedValues = {
-            nombre: data.user.first_name || '',
-            apellido: data.user.last_name || '',
+            nombre: data.user?.first_name || currentUser?.first_name || '',
+            apellido: data.user?.last_name || currentUser?.last_name || '',
             tituloProfesional: data.profession || '',
             telefono: data.phone || '',
             ubicacion: data.location || '',
@@ -73,12 +78,30 @@ function PersonalData() {
           }
           setNombre(loadedValues.nombre)
           setApellido(loadedValues.apellido)
-          setCorreoElectronico(data.user.email || '')
+          setCorreoElectronico(data.user?.email || currentUser?.email || '')
           setTituloProfesional(loadedValues.tituloProfesional)
           setTelefono(loadedValues.telefono)
           setUbicacion(loadedValues.ubicacion)
           setBiografia(loadedValues.biografia)
-          setAvatarUrl(data.avatar_url || '') 
+          setAvatarUrl(data.avatar_url || '')
+          setInitialData(loadedValues)
+        } else if (currentUser) {
+          const loadedValues = {
+            nombre: currentUser.first_name || '',
+            apellido: currentUser.last_name || '',
+            tituloProfesional: '',
+            telefono: '',
+            ubicacion: '',
+            biografia: ''
+          }
+          setNombre(loadedValues.nombre)
+          setApellido(loadedValues.apellido)
+          setCorreoElectronico(currentUser.email || '')
+          setTituloProfesional('')
+          setTelefono('')
+          setUbicacion('')
+          setBiografia('')
+          setAvatarUrl('')
           setInitialData(loadedValues)
         }
       } catch (error) {
@@ -202,7 +225,7 @@ function PersonalData() {
         <Sidebar activeItem="Datos Personales" />
 
         <main className="flex-1 flex flex-col lg:flex-row overflow-y-auto">
-          
+
           {/* SECCIÓN IZQUIERDA: Formulario */}
           <div className="flex-1 p-4 pl-14 sm:pl-6 md:p-8">
             <header className="mb-8">
@@ -212,7 +235,7 @@ function PersonalData() {
 
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 max-w-5xl">
               <div className="flex flex-col lg:flex-row gap-10">
-                
+
                 {/* AVATAR */}
                 <div className="flex flex-col items-center gap-4 shrink-0">
                   <div className="relative group">
@@ -223,7 +246,7 @@ function PersonalData() {
                         <User size={60} className="text-gray-200" />
                       )}
                     </div>
-                    <button 
+                    <button
                       onClick={() => fileInputRef.current?.click()}
                       className="absolute bottom-1 right-1 p-2.5 bg-action text-white rounded-full shadow-lg hover:scale-110 transition-all z-10"
                     >
@@ -235,29 +258,29 @@ function PersonalData() {
                 </div>
 
                 {/* FORM FIELDS */}
-                <form 
-                  onSubmit={(e) => { e.preventDefault(); if (hasChanges) setShowConfirmModal(true); }} 
+                <form
+                  onSubmit={(e) => { e.preventDefault(); if (hasChanges) setShowConfirmModal(true); }}
                   className="flex-1 space-y-6"
                 >
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div className="space-y-1.5">
                       <label className="text-[11px] font-bold text-gray-500 uppercase flex items-center gap-2 italic">
-                        <User size={14}/> Nombre
+                        <User size={14} /> Nombre
                       </label>
-                      <input 
-                        type="text" value={nombre} 
-                        onChange={(e) => setNombre(e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g, ''))} 
-                        className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50/30 outline-none focus:border-primary transition-all text-sm" 
+                      <input
+                        type="text" value={nombre}
+                        onChange={(e) => setNombre(e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g, ''))}
+                        className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50/30 outline-none focus:border-primary transition-all text-sm"
                       />
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-[11px] font-bold text-gray-500 uppercase flex items-center gap-2 italic">
-                        <User size={14}/> Apellido
+                        <User size={14} /> Apellido
                       </label>
-                      <input 
-                        type="text" value={apellido} 
-                        onChange={(e) => setApellido(e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g, ''))} 
-                        className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50/30 outline-none focus:border-primary transition-all text-sm" 
+                      <input
+                        type="text" value={apellido}
+                        onChange={(e) => setApellido(e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g, ''))}
+                        className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50/30 outline-none focus:border-primary transition-all text-sm"
                       />
                     </div>
                   </div>
@@ -265,17 +288,17 @@ function PersonalData() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div className="space-y-1.5">
                       <label className="text-[11px] font-bold text-gray-500 uppercase flex items-center gap-2 italic">
-                        <Briefcase size={14}/> Título Profesional
+                        <Briefcase size={14} /> Título Profesional
                       </label>
-                      <input 
-                        type="text" value={tituloProfesional} 
-                        onChange={(e) => setTituloProfesional(e.target.value)} 
-                        className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50/30 outline-none focus:border-primary transition-all text-sm" 
+                      <input
+                        type="text" value={tituloProfesional}
+                        onChange={(e) => setTituloProfesional(e.target.value)}
+                        className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50/30 outline-none focus:border-primary transition-all text-sm"
                       />
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-[11px] font-bold text-gray-400 uppercase flex items-center gap-2 italic">
-                        <Mail size={14}/> Correo Institucional
+                        <Mail size={14} /> Correo Institucional
                       </label>
                       <input type="email" value={correoElectronico} disabled className="w-full p-3 rounded-xl border border-gray-100 bg-gray-100 text-gray-400 cursor-not-allowed italic text-sm" />
                     </div>
@@ -284,52 +307,51 @@ function PersonalData() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div className="space-y-1.5">
                       <label className="text-[11px] font-bold text-gray-500 uppercase flex items-center gap-2 italic">
-                        <Phone size={14}/> Teléfono
+                        <Phone size={14} /> Teléfono
                       </label>
-                      <input 
-                        type="tel" value={telefono} 
-                        onChange={(e) => setTelefono(e.target.value.replace(/[^0-9]/g, ''))} 
-                        className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50/30 outline-none focus:border-primary transition-all text-sm tabular-nums" 
+                      <input
+                        type="tel" value={telefono}
+                        onChange={(e) => setTelefono(e.target.value.replace(/[^0-9]/g, ''))}
+                        className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50/30 outline-none focus:border-primary transition-all text-sm tabular-nums"
                       />
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-[11px] font-bold text-gray-500 uppercase flex items-center gap-2 italic">
-                        <MapPin size={14}/> Ubicación
+                        <MapPin size={14} /> Ubicación
                       </label>
-                      <input 
-                        type="text" value={ubicacion} 
-                        onChange={(e) => setUbicacion(e.target.value)} 
-                        className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50/30 outline-none focus:border-primary transition-all text-sm" 
+                      <input
+                        type="text" value={ubicacion}
+                        onChange={(e) => setUbicacion(e.target.value)}
+                        className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50/30 outline-none focus:border-primary transition-all text-sm"
                       />
                     </div>
                   </div>
 
                   <div className="space-y-1.5">
                     <label className="text-[11px] font-bold text-gray-500 uppercase">Biografía Profesional</label>
-                    <textarea 
-                      value={biografia} 
-                      onChange={(e) => setBiografia(e.target.value)} 
-                      rows={4} 
-                      className="w-full p-4 rounded-xl border border-gray-200 bg-gray-50/30 outline-none focus:border-primary transition-all resize-none text-sm leading-relaxed" 
+                    <textarea
+                      value={biografia}
+                      onChange={(e) => setBiografia(e.target.value)}
+                      rows={4}
+                      className="w-full p-4 rounded-xl border border-gray-200 bg-gray-50/30 outline-none focus:border-primary transition-all resize-none text-sm leading-relaxed"
                       placeholder="Describe brevemente tu perfil académico y profesional..."
                     />
                   </div>
 
                   <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-gray-50">
-                    <button 
-                      type="button" 
-                      onClick={handleCancel} 
-                      disabled={isSaving} 
+                    <button
+                      type="button"
+                      onClick={handleCancel}
+                      disabled={isSaving}
                       className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl border border-gray-200 font-bold text-sm text-gray-600 hover:bg-gray-50 transition-all shadow-sm"
                     >
                       <X size={16} /> Cancelar
                     </button>
-                    <button 
-                      type="submit" 
-                      disabled={isSaving || !hasChanges} 
-                      className={`flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm text-white shadow-lg transition-all ${
-                        isSaving || !hasChanges ? 'bg-gray-300 cursor-not-allowed' : 'bg-action hover:brightness-110 shadow-red-100'
-                      }`}
+                    <button
+                      type="submit"
+                      disabled={isSaving || !hasChanges}
+                      className={`flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm text-white shadow-lg transition-all ${isSaving || !hasChanges ? 'bg-gray-300 cursor-not-allowed' : 'bg-action hover:brightness-110 shadow-red-100'
+                        }`}
                     >
                       <Save size={16} /> {isSaving ? 'Guardando...' : 'Guardar cambios'}
                     </button>
