@@ -4,11 +4,26 @@ import Sidebar from '../../admin/components/Sidebar'
 import Modal from '../../../components/ui/Modal'
 import Toast from '../../../components/ui/Toast'
 import Calendar from '../../../components/ui/Calendar'
-import { getPersonalData, updatePersonalData, uploadAvatar } from '../../../services/datapersonal.service'
 import {
-  Camera, Save, X, User, Briefcase, MapPin,
-  Phone, Mail, ShieldCheck, AlertTriangle,
-  CheckCircle, BookOpen, Settings, FileText
+  getPersonalData,
+  updatePersonalData,
+  uploadAvatar
+} from '../../../services/datapersonal.service'
+import {
+  Camera,
+  Save,
+  X,
+  User,
+  Briefcase,
+  MapPin,
+  Phone,
+  Mail,
+  ShieldCheck,
+  AlertTriangle,
+  CheckCircle,
+  BookOpen,
+  Settings,
+  FileText
 } from 'lucide-react'
 
 // Función para comprimir y convertir imagen a WebP
@@ -27,10 +42,14 @@ const compressAndConvertToWebP = async (file: File, quality: number = 0.8): Prom
         canvas.width = img.width
         canvas.height = img.height
         ctx.drawImage(img, 0, 0)
-        canvas.toBlob((blob) => {
-          if (blob) resolve(blob)
-          else reject(new Error('No se pudo convertir a WebP'))
-        }, 'image/webp', quality)
+        canvas.toBlob(
+          (blob) => {
+            if (blob) resolve(blob)
+            else reject(new Error('No se pudo convertir a WebP'))
+          },
+          'image/webp',
+          quality
+        )
       }
       img.src = e.target?.result as string
     }
@@ -53,7 +72,10 @@ function PersonalData() {
   const [isSaving, setIsSaving] = useState(false)
   const [showConfirmModal, setShowConfirmModal] = useState(false)
 
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null)
+  const [toast, setToast] = useState<{
+    message: string
+    type: 'success' | 'error' | 'info'
+  } | null>(null)
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
 
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -113,20 +135,27 @@ function PersonalData() {
     loadData()
   }, [])
 
-  const hasChanges = initialData && (
-    nombre !== initialData.nombre ||
-    apellido !== initialData.apellido ||
-    tituloProfesional !== initialData.tituloProfesional ||
-    telefono !== initialData.telefono ||
-    ubicacion !== initialData.ubicacion ||
-    biografia !== initialData.biografia
-  )
+  const hasChanges =
+    initialData &&
+    (nombre !== initialData.nombre ||
+      apellido !== initialData.apellido ||
+      tituloProfesional !== initialData.tituloProfesional ||
+      telefono !== initialData.telefono ||
+      ubicacion !== initialData.ubicacion ||
+      biografia !== initialData.biografia)
 
   const handleConfirmSave = async () => {
     setShowConfirmModal(false)
     setIsSaving(true)
     try {
-      await updatePersonalData({ nombre, apellido, tituloProfesional, telefono, ubicacion, biografia })
+      await updatePersonalData({
+        nombre,
+        apellido,
+        tituloProfesional,
+        telefono,
+        ubicacion,
+        biografia
+      })
       setInitialData({ nombre, apellido, tituloProfesional, telefono, ubicacion, biografia })
       setToast({ message: 'Tus datos se actualizaron correctamente.', type: 'success' })
     } catch (error: any) {
@@ -138,9 +167,12 @@ function PersonalData() {
 
   const handleCancel = () => {
     if (initialData) {
-      setNombre(initialData.nombre); setApellido(initialData.apellido)
-      setTituloProfesional(initialData.tituloProfesional); setTelefono(initialData.telefono)
-      setUbicacion(initialData.ubicacion); setBiografia(initialData.biografia)
+      setNombre(initialData.nombre)
+      setApellido(initialData.apellido)
+      setTituloProfesional(initialData.tituloProfesional)
+      setTelefono(initialData.telefono)
+      setUbicacion(initialData.ubicacion)
+      setBiografia(initialData.biografia)
       setErrors({})
     }
     setToast({ message: 'Se han revertido los cambios.', type: 'info' })
@@ -151,7 +183,9 @@ function PersonalData() {
     if (file) {
       try {
         const compressedBlob = await compressAndConvertToWebP(file, 0.8)
-        const webpFile = new File([compressedBlob], `${file.name.split('.')[0]}.webp`, { type: 'image/webp' })
+        const webpFile = new File([compressedBlob], `${file.name.split('.')[0]}.webp`, {
+          type: 'image/webp'
+        })
         const result = await uploadAvatar(webpFile)
         setAvatarUrl(result.data.avatar_url)
         setToast({ message: 'Foto de perfil actualizada.', type: 'success' })
@@ -211,13 +245,14 @@ function PersonalData() {
         </div>
       </div>
     </div>
-  );
-
-  if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-background text-gray-400 font-medium">
-      Cargando perfil...
-    </div>
   )
+
+  if (loading)
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background text-gray-400 font-medium">
+        Cargando perfil...
+      </div>
+    )
 
   return (
     <div className="min-h-screen bg-background flex flex-col font-sans">
@@ -225,17 +260,17 @@ function PersonalData() {
         <Sidebar activeItem="Datos Personales" />
 
         <main className="flex-1 flex flex-col lg:flex-row overflow-y-auto">
-
           {/* SECCIÓN IZQUIERDA: Formulario */}
           <div className="flex-1 p-4 pl-14 sm:pl-6 md:p-8">
             <header className="mb-8">
               <h1 className="text-xl sm:text-2xl font-bold text-textMain mb-1">Datos Personales</h1>
-              <p className="text-sm text-gray-400">Gestiona la información pública de tu cuenta profesional.</p>
+              <p className="text-sm text-gray-400">
+                Gestiona la información pública de tu cuenta profesional.
+              </p>
             </header>
 
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 max-w-5xl">
               <div className="flex flex-col lg:flex-row gap-10">
-
                 {/* AVATAR */}
                 <div className="flex flex-col items-center gap-4 shrink-0">
                   <div className="relative group">
@@ -252,14 +287,25 @@ function PersonalData() {
                     >
                       <Camera size={20} />
                     </button>
-                    <input type="file" ref={fileInputRef} onChange={handleAvatarChange} accept="image/*" className="hidden" />
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleAvatarChange}
+                      accept="image/*"
+                      className="hidden"
+                    />
                   </div>
-                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Foto de Perfil</p>
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                    Foto de Perfil
+                  </p>
                 </div>
 
                 {/* FORM FIELDS */}
                 <form
-                  onSubmit={(e) => { e.preventDefault(); if (hasChanges) setShowConfirmModal(true); }}
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                    if (hasChanges) setShowConfirmModal(true)
+                  }}
                   className="flex-1 space-y-6"
                 >
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -268,8 +314,11 @@ function PersonalData() {
                         <User size={14} /> Nombre
                       </label>
                       <input
-                        type="text" value={nombre}
-                        onChange={(e) => setNombre(e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g, ''))}
+                        type="text"
+                        value={nombre}
+                        onChange={(e) =>
+                          setNombre(e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g, ''))
+                        }
                         className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50/30 outline-none focus:border-primary transition-all text-sm"
                       />
                     </div>
@@ -278,8 +327,11 @@ function PersonalData() {
                         <User size={14} /> Apellido
                       </label>
                       <input
-                        type="text" value={apellido}
-                        onChange={(e) => setApellido(e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g, ''))}
+                        type="text"
+                        value={apellido}
+                        onChange={(e) =>
+                          setApellido(e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g, ''))
+                        }
                         className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50/30 outline-none focus:border-primary transition-all text-sm"
                       />
                     </div>
@@ -291,7 +343,8 @@ function PersonalData() {
                         <Briefcase size={14} /> Título Profesional
                       </label>
                       <input
-                        type="text" value={tituloProfesional}
+                        type="text"
+                        value={tituloProfesional}
                         onChange={(e) => setTituloProfesional(e.target.value)}
                         className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50/30 outline-none focus:border-primary transition-all text-sm"
                       />
@@ -300,7 +353,12 @@ function PersonalData() {
                       <label className="text-[11px] font-bold text-gray-400 uppercase flex items-center gap-2 italic">
                         <Mail size={14} /> Correo Institucional
                       </label>
-                      <input type="email" value={correoElectronico} disabled className="w-full p-3 rounded-xl border border-gray-100 bg-gray-100 text-gray-400 cursor-not-allowed italic text-sm" />
+                      <input
+                        type="email"
+                        value={correoElectronico}
+                        disabled
+                        className="w-full p-3 rounded-xl border border-gray-100 bg-gray-100 text-gray-400 cursor-not-allowed italic text-sm"
+                      />
                     </div>
                   </div>
 
@@ -310,7 +368,8 @@ function PersonalData() {
                         <Phone size={14} /> Teléfono
                       </label>
                       <input
-                        type="tel" value={telefono}
+                        type="tel"
+                        value={telefono}
                         onChange={(e) => setTelefono(e.target.value.replace(/[^0-9]/g, ''))}
                         className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50/30 outline-none focus:border-primary transition-all text-sm tabular-nums"
                       />
@@ -320,7 +379,8 @@ function PersonalData() {
                         <MapPin size={14} /> Ubicación
                       </label>
                       <input
-                        type="text" value={ubicacion}
+                        type="text"
+                        value={ubicacion}
                         onChange={(e) => setUbicacion(e.target.value)}
                         className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50/30 outline-none focus:border-primary transition-all text-sm"
                       />
@@ -328,7 +388,9 @@ function PersonalData() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-[11px] font-bold text-gray-500 uppercase">Biografía Profesional</label>
+                    <label className="text-[11px] font-bold text-gray-500 uppercase">
+                      Biografía Profesional
+                    </label>
                     <textarea
                       value={biografia}
                       onChange={(e) => setBiografia(e.target.value)}
@@ -350,8 +412,11 @@ function PersonalData() {
                     <button
                       type="submit"
                       disabled={isSaving || !hasChanges}
-                      className={`flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm text-white shadow-lg transition-all ${isSaving || !hasChanges ? 'bg-gray-300 cursor-not-allowed' : 'bg-action hover:brightness-110 shadow-red-100'
-                        }`}
+                      className={`flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm text-white shadow-lg transition-all ${
+                        isSaving || !hasChanges
+                          ? 'bg-gray-300 cursor-not-allowed'
+                          : 'bg-action hover:brightness-110 shadow-red-100'
+                      }`}
                     >
                       <Save size={16} /> {isSaving ? 'Guardando...' : 'Guardar cambios'}
                     </button>
@@ -362,9 +427,7 @@ function PersonalData() {
 
             {/* COPYRIGHT FOOTER */}
             <div className="mt-12 text-center pb-6">
-              <p className="text-textMain font-medium text-sm">
-                Copyright © 2026 CODI
-              </p>
+              <p className="text-textMain font-medium text-sm">Copyright © 2026 CODI</p>
             </div>
           </div>
 
@@ -376,17 +439,32 @@ function PersonalData() {
       </div>
 
       {/* MODALES Y TOASTS */}
-      <Modal isOpen={showConfirmModal} onClose={() => setShowConfirmModal(false)} title="Confirmar Actualización">
+      <Modal
+        isOpen={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        title="Confirmar Actualización"
+      >
         <div className="space-y-6 max-w-sm text-center p-2">
           <div className="w-16 h-16 bg-red-50 text-action rounded-full flex items-center justify-center mx-auto">
             <Save size={30} />
           </div>
           <p className="text-sm text-gray-500 leading-relaxed font-medium">
-            ¿Estás seguro de que deseas guardar los cambios? Se actualizará tu información profesional en la plataforma.
+            ¿Estás seguro de que deseas guardar los cambios? Se actualizará tu información
+            profesional en la plataforma.
           </p>
           <div className="flex gap-3">
-            <button onClick={() => setShowConfirmModal(false)} className="flex-1 py-3 text-sm font-bold border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">Volver</button>
-            <button onClick={handleConfirmSave} className="flex-1 py-3 text-sm font-bold bg-action text-white rounded-xl hover:brightness-110 shadow-lg shadow-red-200 transition-all">Guardar</button>
+            <button
+              onClick={() => setShowConfirmModal(false)}
+              className="flex-1 py-3 text-sm font-bold border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
+            >
+              Volver
+            </button>
+            <button
+              onClick={handleConfirmSave}
+              className="flex-1 py-3 text-sm font-bold bg-action text-white rounded-xl hover:brightness-110 shadow-lg shadow-red-200 transition-all"
+            >
+              Guardar
+            </button>
           </div>
         </div>
       </Modal>
