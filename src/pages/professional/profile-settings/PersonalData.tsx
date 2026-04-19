@@ -23,7 +23,8 @@ import {
   CheckCircle,
   BookOpen,
   Settings,
-  FileText
+  FileText,
+  Loader2
 } from 'lucide-react'
 
 // Función para comprimir y convertir imagen a WebP
@@ -248,8 +249,21 @@ function PersonalData() {
 
   if (loading)
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background text-gray-400 font-medium">
-        Cargando perfil...
+      <div className="min-h-screen bg-background flex flex-col font-sans">
+        <div className="flex flex-1 overflow-hidden relative">
+          <Sidebar activeItem="Datos Personales" />
+          <main className="flex-1 flex flex-col lg:flex-row overflow-y-auto">
+            <div className="flex-1 p-4 pl-14 sm:pl-6 md:p-8 flex items-center justify-center">
+              <div className="flex flex-col items-center gap-3 text-gray-400 font-medium">
+                <Loader2 className="animate-spin text-primary" size={32} />
+                <span>Cargando perfil...</span>
+              </div>
+            </div>
+            <aside className="w-full lg:w-72 p-6 bg-white border-t lg:border-t-0 lg:border-l border-gray-200 shrink-0">
+              <RightPanelContent />
+            </aside>
+          </main>
+        </div>
       </div>
     )
 
@@ -423,10 +437,6 @@ function PersonalData() {
               </div>
             </div>
 
-            {/* COPYRIGHT FOOTER */}
-            <div className="mt-12 text-center pb-6">
-              <p className="text-textMain font-medium text-sm">Copyright © 2026 CODI</p>
-            </div>
           </div>
 
           {/* ASIDE DERECHO (ESTILO DASHBOARD ADMIN) */}
