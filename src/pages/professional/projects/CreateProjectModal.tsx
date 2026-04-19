@@ -1,14 +1,16 @@
 import React, { useState, useRef, useEffect } from "react";
 import Modal from "../../../components/ui/Modal";
 import { X, ChevronDown, Check } from "lucide-react";
-import { createProject, getCategories, getSkillsCatalog, type ProjectCategory, type Skill } from "../../../services/project.service";
+import { createProject, updateProject, getCategories, getSkillsCatalog, type ProjectCategory, type Skill, type Project } from "../../../services/project.service";
 
 interface CreateProjectModalProps {
   isOpen: boolean;
   onClose: () => void;
+  projectToEdit?: Project | null;
+  onDelete?: (id: number) => void;
 }
 
-const CreateProjectModal = ({ isOpen, onClose }: CreateProjectModalProps) => {
+const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete }: CreateProjectModalProps) => {
   const [availableSkills, setAvailableSkills] = useState<Skill[]>([]);
   const [categories, setCategories] = useState<ProjectCategory[]>([]);
 
@@ -28,8 +30,23 @@ const CreateProjectModal = ({ isOpen, onClose }: CreateProjectModalProps) => {
     if (isOpen) {
       getCategories().then(setCategories).catch(console.error);
       getSkillsCatalog().then(setAvailableSkills).catch(console.error);
+
+      if (projectToEdit) {
+        setTitle(projectToEdit.title);
+        setCategoryId(projectToEdit.category?.id || "");
+        setDescription(projectToEdit.description || "");
+        setProjectUrl(projectToEdit.project_url || "");
+        // El backend devuelve id y name, podemos asimilarlo a Skill
+        setSelectedSkills((projectToEdit.skills as unknown as Skill[]) || []);
+      } else {
+        setTitle("");
+        setCategoryId("");
+        setDescription("");
+        setProjectUrl("");
+        setSelectedSkills([]);
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, projectToEdit]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -50,13 +67,19 @@ const CreateProjectModal = ({ isOpen, onClose }: CreateProjectModalProps) => {
 
     try {
       setIsSubmitting(true);
-      await createProject({
+      const data = {
         title,
         description,
         project_url: projectUrl,
         category_id: categoryId === "" ? null : categoryId,
         skill_ids: selectedSkills.map(s => s.id),
-      });
+      };
+
+      if (projectToEdit) {
+        await updateProject(projectToEdit.id, data);
+      } else {
+        await createProject(data);
+      }
 
       // Reset and close
       setTitle("");
@@ -87,7 +110,7 @@ const CreateProjectModal = ({ isOpen, onClose }: CreateProjectModalProps) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Nuevo proyecto">
+    <Modal isOpen={isOpen} onClose={onClose} title={projectToEdit ? "Editar proyecto" : "Nuevo proyecto"}>
       <div className="flex flex-col gap-6 w-full max-w-[520px]">
         {/* Header descriptivo con Badge */}
         <div className="flex justify-between items-start gap-4">
@@ -97,7 +120,7 @@ const CreateProjectModal = ({ isOpen, onClose }: CreateProjectModalProps) => {
             </p>
           </div>
           <span className="bg-[#eef3f8] text-[#003087] px-3 py-1.5 rounded-md text-[13px] font-bold">
-            Crear
+            {projectToEdit ? "Editar" : "Crear"}
           </span>
         </div>
 
@@ -229,12 +252,20 @@ const CreateProjectModal = ({ isOpen, onClose }: CreateProjectModalProps) => {
               Cancelar
             </button>
             <div className="flex gap-3">
-              <button
-                type="button"
-                className="h-10 px-6 text-[14px] font-bold text-white bg-[#c8102e] rounded-lg hover:brightness-110 transition-all"
-              >
-                Eliminar
-              </button>
+              {projectToEdit && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (onDelete) {
+                      onDelete(projectToEdit.id);
+                      onClose();
+                    }
+                  }}
+                  className="h-10 px-6 text-[14px] font-bold text-white bg-[#c8102e] rounded-lg hover:brightness-110 transition-all"
+                >
+                  Eliminar
+                </button>
+              )}
               <button
                 type="submit"
                 disabled={isSubmitting}

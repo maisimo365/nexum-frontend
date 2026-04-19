@@ -72,6 +72,37 @@ export const createProject = async (data: {
   return result.data || result
 }
 
+export const updateProject = async (
+  id: number,
+  data: {
+    title: string
+    description?: string
+    project_url?: string
+    category_id?: number | null
+    skill_ids?: number[]
+  }
+): Promise<Project> => {
+  const token = getToken()
+
+  const response = await fetch(`${API_BASE_URL}/projects/${id}`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null)
+    throw new Error(errorData?.message || 'Error al actualizar el proyecto')
+  }
+
+  const result = await response.json()
+  return result.data || result
+}
+
 export const deleteProject = async (id: number): Promise<void> => {
   const token = getToken()
 

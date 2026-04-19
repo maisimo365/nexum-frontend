@@ -76,7 +76,7 @@ function PersonalData() {
     message: string
     type: 'success' | 'error' | 'info'
   } | null>(null)
-  const [errors, setErrors] = useState<{ [key: string]: string }>({})
+
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -173,7 +173,6 @@ function PersonalData() {
       setTelefono(initialData.telefono)
       setUbicacion(initialData.ubicacion)
       setBiografia(initialData.biografia)
-      setErrors({})
     }
     setToast({ message: 'Se han revertido los cambios.', type: 'info' })
   }
@@ -412,11 +411,10 @@ function PersonalData() {
                     <button
                       type="submit"
                       disabled={isSaving || !hasChanges}
-                      className={`flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm text-white shadow-lg transition-all ${
-                        isSaving || !hasChanges
-                          ? 'bg-gray-300 cursor-not-allowed'
-                          : 'bg-action hover:brightness-110 shadow-red-100'
-                      }`}
+                      className={`flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm text-white shadow-lg transition-all ${isSaving || !hasChanges
+                        ? 'bg-gray-300 cursor-not-allowed'
+                        : 'bg-action hover:brightness-110 shadow-red-100'
+                        }`}
                     >
                       <Save size={16} /> {isSaving ? 'Guardando...' : 'Guardar cambios'}
                     </button>

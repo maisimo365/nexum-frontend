@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar from '../../admin/components/Sidebar';
 import CreateProjectModal from './CreateProjectModal';
 import { getProjects, deleteProject, type Project } from '../../../services/project.service';
@@ -8,6 +8,7 @@ import {
 
 const ProjectsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [projectToEdit, setProjectToEdit] = useState<Project | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -56,7 +57,10 @@ const ProjectsPage = () => {
                 </p>
               </div>
               <button
-                onClick={() => setIsModalOpen(true)}
+                onClick={() => {
+                  setProjectToEdit(null);
+                  setIsModalOpen(true);
+                }}
                 className="bg-[#c8102e] hover:brightness-110 text-white font-bold px-6 py-2.5 rounded-lg shadow-sm transition-all text-[14px]"
               >
                 Nuevo proyecto
@@ -156,7 +160,13 @@ const ProjectsPage = () => {
                           </td>
                           <td className="p-4 pr-6">
                             <div className="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <button className="px-4 py-1.5 text-[13px] font-bold text-[#1a1a2e] bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                              <button
+                                onClick={() => {
+                                  setProjectToEdit(project);
+                                  setIsModalOpen(true);
+                                }}
+                                className="px-4 py-1.5 text-[13px] font-bold text-[#1a1a2e] bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                              >
                                 Editar
                               </button>
                               <button
@@ -180,9 +190,12 @@ const ProjectsPage = () => {
 
       <CreateProjectModal
         isOpen={isModalOpen}
+        projectToEdit={projectToEdit}
+        onDelete={handleDelete}
         onClose={() => {
           setIsModalOpen(false);
-          fetchProjects(); // Recargar tras cerrar modal por si se creó un proyecto
+          setProjectToEdit(null);
+          fetchProjects(); // Recargar tras cerrar modal por si se creó/editó un proyecto
         }}
       />
     </div>
