@@ -9,8 +9,12 @@ import AccountsPage from "../pages/admin/AccountsPage";
 import Navbar from "../components/ui/Navbar";
 import Footer from "../components/ui/Footer";
 import AuditPage from "../pages/admin/AuditPage";
+import CategoriesPage from "../pages/admin/CategoriesPage";
 import PersonalData from "../pages/professional/profile-settings/PersonalData";
 import LinksPrivacy from "../pages/professional/profile-settings/LinksPrivacy";
+import HabilidadesPage from "../pages/professional/profile-settings/Habilidades";
+import Experience from "../pages/professional/experience/Experience";
+import Certifications from "../pages/professional/certifications/Certifications";
 import ProtectedRoute from "./ProtectedRoute";
 import Home from "../pages/Home";
 import ProjectsPage from "../pages/professional/projects/ProjectsPage";
@@ -27,16 +31,17 @@ const Breadcrumbs = () => {
     "dashboard": "Panel de Control",
     "personal-data": "Datos Personales",
     "links": "Enlaces y Privacidad",
-    "projects": "Mis Proyectos" // Mapeo para el breadcrumb
+    "projects": "Mis Proyectos",
+    "habilidades": "Habilidades",
   };
 
   return (
-    <div style={{ 
-      padding: '12px 40px', 
-      backgroundColor: '#eef3f8', 
-      borderBottom: '1px solid #ddd', 
-      fontSize: '13px', 
-      color: '#666' 
+    <div style={{
+      padding: '12px 40px',
+      backgroundColor: '#eef3f8',
+      borderBottom: '1px solid #ddd',
+      fontSize: '13px',
+      color: '#666'
     }}>
       {pathname === "/" ? (
         <span style={{ fontWeight: 'bold', color: '#003087' }}>Menú principal</span>
@@ -58,8 +63,8 @@ const Breadcrumbs = () => {
             pathnames.map((name, index) => {
               const routeTo = `/${pathnames.slice(0, index + 1).join("/")}`;
               const isLast = index === pathnames.length - 1;
-              const displayName = routeLabels[name.toLowerCase()] || 
-                                  name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g, ' ');
+              const displayName = routeLabels[name.toLowerCase()] ||
+                name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g, ' ');
               return (
                 <span key={name}>
                   <span style={{ margin: '0 8px', color: '#999' }}>&gt;</span>
@@ -79,9 +84,9 @@ const Breadcrumbs = () => {
 };
 
 const ROUTES_WITHOUT_LAYOUT = [
-  "/", 
+  "/",
   "/login", "/register", "/forgot-password", "/reset-password", "/portfolio",
-  "/habilidades", "/experiencia", "/dashboard", "/Home", "/proyectos"
+  "/proyectos", "/habilidades", "/experiencia", "/Home", "/profolio"
 ];
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
@@ -150,6 +155,11 @@ const AppRouter = () => {
               <AuditPage />
             </ProtectedRoute>
           } />
+          <Route path="/admin/categorias" element={
+            <ProtectedRoute allowedRole="admin">
+              <CategoriesPage />
+            </ProtectedRoute>
+          } />
 
           {/* ── Rutas del profesional ────────────────────────── */}
           <Route path="/portfolio" element={
@@ -162,6 +172,16 @@ const AppRouter = () => {
               <RolesPage />
             </ProtectedRoute>
           } />
+          <Route path="/experiencia" element={
+            <ProtectedRoute allowedRole="professional">
+              <Experience />
+            </ProtectedRoute>
+          } />
+          <Route path="/certificaciones" element={
+            <ProtectedRoute allowedRole="professional">
+              <Certifications />
+            </ProtectedRoute>
+          } />
           <Route path="/profile" element={<Navigate to="/profile/personal-data" replace />} />
           <Route path="/profile/personal-data" element={
             <ProtectedRoute allowedRole="professional">
@@ -171,6 +191,11 @@ const AppRouter = () => {
           <Route path="/profile/links" element={
             <ProtectedRoute allowedRole="professional">
               <LinksPrivacy />
+            </ProtectedRoute>
+          } />
+          <Route path="/profile/habilidades" element={
+            <ProtectedRoute allowedRole="professional">
+              <HabilidadesPage />
             </ProtectedRoute>
           } />
 
