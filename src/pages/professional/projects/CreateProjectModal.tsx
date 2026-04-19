@@ -93,74 +93,92 @@ const CreateProjectModal = ({ isOpen, onClose }: CreateProjectModalProps) => {
             />
           </div>
 
-          {/* Fila 3: Enlace y Tecnologías */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Fila 3: Enlace */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[13px] font-bold text-[#1a1a2e]">Enlace del proyecto</label>
+            <input
+              type="url"
+              className="w-full h-10 px-3 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0030871a] focus:border-[#003087] text-[#1a1a2e]"
+              placeholder="https://github.com/..."
+            />
+          </div>
+
+          {/* Fila 4: Tecnologías */}
+          <div className="flex flex-col gap-1.5 mt-1" ref={dropdownRef}>
+            <label className="text-[13px] font-bold text-[#1a1a2e]">Tecnologías</label>
+
+            <div className="relative">
+              {/* Custom Select Trigger */}
+              <div
+                className={`min-h-10 w-full px-3 py-2 text-sm bg-white border rounded-lg transition-all cursor-pointer flex items-center justify-between gap-2 ${isTechDropdownOpen ? "ring-2 ring-[#0030871a] border-[#003087]" : "border-gray-200"
+                  }`}
+                onClick={() => setIsTechDropdownOpen(!isTechDropdownOpen)}
+              >
+                <div className="flex flex-wrap gap-1.5 flex-1">
+                  {selectedTechs.length === 0 ? (
+                    <span className="text-[#5b6472] select-none">React, NestJS, ...</span>
+                  ) : (
+                    selectedTechs.map((tech) => (
+                      <span
+                        key={tech}
+                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#0030871a] text-[#003087] text-[11px] font-semibold"
+                      >
+                        {tech}
+                        <span
+                          className="hover:bg-[#00308733] rounded-full p-0.5 transition-colors cursor-pointer"
+                          onClick={(e) => removeTech(e, tech)}
+                        >
+                          <X size={12} />
+                        </span>
+                      </span>
+                    ))
+                  )}
+                </div>
+                <ChevronDown size={16} className={`text-[#5b6472] transition-transform flex-shrink-0 ${isTechDropdownOpen ? "rotate-180" : ""}`} />
+              </div>
+
+              {/* Dropdown Menu */}
+              {isTechDropdownOpen && (
+                <div className="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl max-h-48 overflow-y-auto py-1">
+                  {AVAILABLE_TECHS.map((tech) => (
+                    <div
+                      key={tech}
+                      className="px-3 py-2 text-sm cursor-pointer hover:bg-gray-50 flex items-center justify-between transition-colors"
+                      onClick={() => toggleTech(tech)}
+                    >
+                      <span className={selectedTechs.includes(tech) ? "font-bold text-[#003087]" : "text-[#1a1a2e]"}>
+                        {tech}
+                      </span>
+                      {selectedTechs.includes(tech) && (
+                        <Check size={16} className="text-[#003087]" />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Fila 5: Fechas */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[13px] font-bold text-[#1a1a2e]">Enlace del proyecto</label>
+              <label className="text-[13px] font-bold text-[#1a1a2e]">Fecha inicio</label>
               <input
-                type="url"
-                className="w-full h-10 px-3 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0030871a] focus:border-[#003087] text-[#1a1a2e]"
-                placeholder="https://github.com/..."
+                type="date"
+                className="w-full h-10 px-3 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0030871a] focus:border-[#003087] text-[#1a1a2e] cursor-pointer"
               />
             </div>
-            <div className="flex flex-col gap-1.5" ref={dropdownRef}>
-              <label className="text-[13px] font-bold text-[#1a1a2e]">Tecnologías</label>
-
-              <div className="relative">
-                {/* Custom Select Trigger */}
-                <div
-                  className={`min-h-10 w-full px-3 py-2 text-sm bg-white border rounded-lg transition-all cursor-pointer flex items-center justify-between gap-2 ${isTechDropdownOpen ? "ring-2 ring-[#0030871a] border-[#003087]" : "border-gray-200"
-                    }`}
-                  onClick={() => setIsTechDropdownOpen(!isTechDropdownOpen)}
-                >
-                  <div className="flex flex-wrap gap-1.5 flex-1">
-                    {selectedTechs.length === 0 ? (
-                      <span className="text-[#5b6472] select-none">React, NestJS, ...</span>
-                    ) : (
-                      selectedTechs.map((tech) => (
-                        <span
-                          key={tech}
-                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#0030871a] text-[#003087] text-[11px] font-semibold"
-                        >
-                          {tech}
-                          <span
-                            className="hover:bg-[#00308733] rounded-full p-0.5 transition-colors cursor-pointer"
-                            onClick={(e) => removeTech(e, tech)}
-                          >
-                            <X size={12} />
-                          </span>
-                        </span>
-                      ))
-                    )}
-                  </div>
-                  <ChevronDown size={16} className={`text-[#5b6472] transition-transform flex-shrink-0 ${isTechDropdownOpen ? "rotate-180" : ""}`} />
-                </div>
-
-                {/* Dropdown Menu */}
-                {isTechDropdownOpen && (
-                  <div className="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl max-h-48 overflow-y-auto py-1">
-                    {AVAILABLE_TECHS.map((tech) => (
-                      <div
-                        key={tech}
-                        className="px-3 py-2 text-sm cursor-pointer hover:bg-gray-50 flex items-center justify-between transition-colors"
-                        onClick={() => toggleTech(tech)}
-                      >
-                        <span className={selectedTechs.includes(tech) ? "font-bold text-[#003087]" : "text-[#1a1a2e]"}>
-                          {tech}
-                        </span>
-                        {selectedTechs.includes(tech) && (
-                          <Check size={16} className="text-[#003087]" />
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[13px] font-bold text-[#1a1a2e]">Fecha fin</label>
+              <input
+                type="date"
+                className="w-full h-10 px-3 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0030871a] focus:border-[#003087] text-[#1a1a2e] cursor-pointer"
+              />
             </div>
           </div>
 
           {/* Footer: Botones */}
-          <div className="flex justify-between items-center pt-6 mt-2">
+          <div className="flex justify-between items-center pt-6 mt-4 border-t border-gray-100">
             <button
               type="button"
               onClick={onClose}
