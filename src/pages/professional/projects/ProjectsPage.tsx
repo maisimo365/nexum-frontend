@@ -148,11 +148,11 @@ const ProjectsPage = () => {
                             {project.skills?.map(s => s.name).join(', ') || 'No especificadas'}
                           </td>
                           <td className="p-4 text-[13px] text-[#5b6472]">
-                            {project.created_at ? new Date(project.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'N/A'}
-                            {' - '}
                             {project.updated_at
                               ? new Date(project.updated_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
-                              : 'Presente'}
+                              : project.created_at
+                                ? new Date(project.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                                : 'N/A'}
                           </td>
                           <td className="p-4 pr-6">
                             <div className="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
