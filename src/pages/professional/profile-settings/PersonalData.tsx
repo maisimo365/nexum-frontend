@@ -4,6 +4,7 @@ import Sidebar from '../../admin/components/Sidebar'
 import Modal from '../../../components/ui/Modal'
 import Toast from '../../../components/ui/Toast'
 import Calendar from '../../../components/ui/Calendar'
+import ImageCropperModal from '../../../components/ui/ImageCropperModal'
 import {
   getPersonalData,
   updatePersonalData,
@@ -72,6 +73,11 @@ function PersonalData() {
   const [loading, setLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [showConfirmModal, setShowConfirmModal] = useState(false)
+  
+  // Estados para el Cropper
+  const [isCropperOpen, setIsCropperOpen] = useState(false)
+  const [selectedImageSrc, setSelectedImageSrc] = useState<string>('')
+  const [selectedFileName, setSelectedFileName] = useState<string>('')
 
   const [toast, setToast] = useState<{
     message: string
@@ -178,20 +184,39 @@ function PersonalData() {
     setToast({ message: 'Se han revertido los cambios.', type: 'info' })
   }
 
-  const handleAvatarChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
-      try {
-        const compressedBlob = await compressAndConvertToWebP(file, 0.8)
-        const webpFile = new File([compressedBlob], `${file.name.split('.')[0]}.webp`, {
-          type: 'image/webp'
-        })
-        const result = await uploadAvatar(webpFile)
-        setAvatarUrl(result.data.avatar_url)
-        setToast({ message: 'Foto de perfil actualizada.', type: 'success' })
-      } catch (error: any) {
-        setToast({ message: 'Error al subir la imagen.', type: 'error' })
+      const reader = new FileReader()
+      reader.onload = () => {
+        setSelectedImageSrc(reader.result as string)
+        setSelectedFileName(file.name)
+        setIsCropperOpen(true)
       }
+      reader.readAsDataURL(file)
+      // Resetear el input para que detecte si se selecciona el mismo archivo de nuevo
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
+
+  const handleCropComplete = async (croppedBlob: Blob) => {
+    setIsCropperOpen(false)
+    try {
+      // 1. Convertir el Blob recortado a File para la compresión
+      const fileToCompress = new File([croppedBlob], selectedFileName, { type: 'image/jpeg' })
+      
+      // 2. Comprimir y convertir a WebP
+      const compressedBlob = await compressAndConvertToWebP(fileToCompress, 0.8)
+      const webpFile = new File([compressedBlob], `${selectedFileName.split('.')[0]}.webp`, {
+        type: 'image/webp'
+      })
+      
+      // 3. Subir el WebP
+      const result = await uploadAvatar(webpFile)
+      setAvatarUrl(result.data.avatar_url)
+      setToast({ message: 'Foto de perfil actualizada y comprimida con éxito.', type: 'success' })
+    } catch (error: any) {
+      setToast({ message: 'Error al procesar o subir la imagen.', type: 'error' })
     }
   }
 
@@ -478,6 +503,15 @@ function PersonalData() {
       </Modal>
 
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+
+      {isCropperOpen && (
+        <ImageCropperModal
+          isOpen={isCropperOpen}
+          onClose={() => setIsCropperOpen(false)}
+          imageSrc={selectedImageSrc}
+          onCropComplete={handleCropComplete}
+        />
+      )}
     </div>
   )
 }
