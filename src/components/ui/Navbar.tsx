@@ -3,18 +3,20 @@ import logoUmss from "../../assets/logoUmss.png"; // Asegúrate de que la ruta s
 import { User } from "lucide-react"; // Importa el icono de usuario
 import { useState } from "react";
 import UserMenuModal from "./UserMenuModal"; // Importa el componente del modal
+import useAuth from "../../hooks/useAuth"; // Hook para obtener el usuario logueado
 
 const Navbar = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  // Datos de usuario de ejemplo (reemplazar con datos reales del estado de autenticación)
-  const isAuthenticated = true; // Simula que el usuario está logueado
-  const userName = "Juan Pérez";
-  const userProfession = "Ingeniero de Software";
-  const userEmail = "juan.perez@example.com"; // Add email to pass
-  const userPhoto = "https://via.placeholder.com/80"; // URL de una imagen de perfil de ejemplo
+  const { user } = useAuth();
+
+  const isAuthenticated = !!user;
+  const userName = user ? `${user.first_name || ""} ${user.last_name || ""}`.trim() || "Usuario" : "Invitado";
+  const userProfession = user?.role === "professional" ? "Profesional" : user?.role === "admin" ? "Administrador" : "Usuario";
+  const userEmail = user?.email || "Sin correo";
+  const userPhoto = user?.avatar_url || ""; // Avatar desde la BD o vacío
 
   return (
-    <nav className="w-full bg-[#001A5E] px-6 py-3 flex items-center justify-between"> {/* Azul marino profundo */}
+    <nav className="w-full bg-[#001A5E] px-6 py-3 flex items-center justify-between z-50 relative"> {/* Azul marino profundo */}
       {/* Logo y nombre de Nexum */}
       <Link to="/" className="flex items-center gap-2 cursor-pointer">
         <div className="flex items-center gap-2">
@@ -32,14 +34,20 @@ const Navbar = () => {
       {/* Lógica de Usuario */}
       <div className="flex items-center gap-3"> {/* Contenedor para ambos elementos */}
         {isAuthenticated && ( // Renderiza el icono de usuario y modal si está autenticado
-          <div className="relative">
+          <div 
+            className="relative"
+            onMouseLeave={() => setIsModalOpen(false)}
+          >
             <button
-              onClick={() => setIsModalOpen(true)}
-              className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-300 text-gray-700 cursor-pointer hover:bg-gray-400 transition-colors"
-              aria-label="Abrir menú de usuario"
+              onClick={() => setIsModalOpen(!isModalOpen)}
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-300 text-gray-700 cursor-pointer hover:bg-gray-400 transition-colors overflow-hidden"
+              aria-label="Alternar menú de usuario"
             >
-              {/* Aquí podrías usar la userPhoto si la tuvieras en el Navbar, o un icono genérico */}
-              <User size={24} />
+              {userPhoto ? (
+                <img src={userPhoto} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                <User size={24} />
+              )}
             </button>
             <UserMenuModal
               isOpen={isModalOpen}
@@ -51,14 +59,6 @@ const Navbar = () => {
             />
           </div>
         )}
-
-        {/* Botones de Iniciar Sesión y Registrarse (siempre visibles por ahora) */}
-        {/*<Link to="/login" className="text-white border border-white px-4 py-1.5 rounded text-sm hover:bg-white hover:text-[#001A5E] transition-colors">
-          Iniciar Sesión
-        </Link>
-        <Link to="/register" className="bg-[#C8102E] text-white px-4 py-1.5 rounded text-sm hover:opacity-90 transition-opacity">
-          Registrarse
-        </Link>*/}
       </div>
     </nav>
   );
