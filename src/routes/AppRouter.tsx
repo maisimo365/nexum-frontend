@@ -28,12 +28,18 @@ const Breadcrumbs = () => {
     "admin": "Administración",
     "usuarios": "Gestión de Usuarios",
     "roles": "Roles",
-    "dashboard": "Panel de Control",
+    "dashboard": "Dashboard",
     "personal-data": "Datos Personales",
     "links": "Enlaces y Privacidad",
-    "projects": "Mis Proyectos",
+    "projects": "Proyectos",
+    "proyectos": "Proyectos",
     "habilidades": "Habilidades",
+    "experiencia": "Experiencia",
+    "certificaciones": "Certificaciones",
+    "portfolio": "Portafolio"
   };
+
+  const isProfessionalRoute = ["/dashboard", "/proyectos", "/habilidades", "/experiencia", "/certificaciones", "/portfolio"].includes(pathname) || pathname.startsWith("/profile");
 
   return (
     <div style={{
@@ -48,15 +54,29 @@ const Breadcrumbs = () => {
       ) : (
         <>
           <Link to="/" style={{ color: '#666', textDecoration: 'none' }}>Menú principal</Link>
-          {pathname.startsWith("/profile") ? (
+          
+          {isProfessionalRoute ? (
             <>
               <span style={{ margin: '0 8px', color: '#999' }}>&gt;</span>
               <span style={{ color: '#666' }}>Configuración de perfil</span>
-              <span style={{ margin: '0 8px', color: '#999' }}>&gt;</span>
-              <span style={{ color: '#666' }}>Perfil</span>
+              
+              {pathname.startsWith("/profile") && (
+                <>
+                  <span style={{ margin: '0 8px', color: '#999' }}>&gt;</span>
+                  <span style={{ color: '#666' }}>Perfil</span>
+                </>
+              )}
+              
               <span style={{ margin: '0 8px', color: '#999' }}>&gt;</span>
               <span style={{ fontWeight: 'bold', color: '#003087' }}>
-                {pathname === "/profile/links" ? "Enlaces y Privacidad" : "Datos Personales"}
+                {pathname.includes("dashboard") ? "Dashboard" :
+                 pathname.includes("proyectos") ? "Proyectos" :
+                 pathname.includes("habilidades") ? "Habilidades" :
+                 pathname.includes("experiencia") ? "Experiencia" :
+                 pathname.includes("certificaciones") ? "Certificaciones" :
+                 pathname.includes("links") ? "Enlaces y Privacidad" :
+                 pathname.includes("portfolio") ? "Portafolio" :
+                 "Datos Personales"}
               </span>
             </>
           ) : (
