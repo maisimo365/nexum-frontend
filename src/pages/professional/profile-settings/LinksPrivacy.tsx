@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Sidebar from '../../admin/components/Sidebar';
 import RightWidgets from '../../../components/ui/RightWidgets';
 import { Globe } from 'lucide-react';
+import Toast from '../../../components/ui/Toast';
 import { getLinksPrivacyData, updateLinksPrivacyData } from '../../../services/linksprivacy.service';
 
 const LinkedinIcon = () => (
@@ -17,38 +18,44 @@ const GithubIcon = () => (
   </svg>
 );
 
+const Toggle = ({ active, onToggle, disabled }: { active: boolean; onToggle: () => void; disabled?: boolean }) => (
+  <div
+    onClick={!disabled ? onToggle : undefined}
+    className={`w-11 h-6 rounded-full relative cursor-pointer transition-colors ${
+      active ? 'bg-action' : 'bg-gray-400'
+    } ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
+  >
+    <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all ${
+      active ? 'left-5' : 'left-0.5'
+    }`} />
+  </div>
+);
+
 function LinksPrivacy() {
-  // Estados de identidad necesarios para la validación del backend
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
-
   const [linkedin, setLinkedin] = useState('');
   const [github, setGithub] = useState('');
   const [website, setWebsite] = useState('');
 
-  const [showProjects, setShowProjects] = useState(true);
-  const [showSkills, setShowSkills] = useState(true);
-  const [showExperience, setShowExperience] = useState(true);
-  const [showContact, setShowContact] = useState(false);
+  // Unificamos la visibilidad en un solo estado para todos
+  const [isPublic, setIsPublic] = useState(true);
 
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
       try {
         const data = await getLinksPrivacyData();
         if (data) {
-          // Cargamos identidad y enlaces del backend
           setNombre(data.user.first_name || '');
           setApellido(data.user.last_name || '');
           setLinkedin(data.linkedin_url || '');
           setGithub(data.github_url || '');
-          
-          const isPrivate = data.global_privacy === 'private';
-          setShowProjects(!isPrivate);
-          setShowSkills(!isPrivate);
-          setShowExperience(!isPrivate);
+          // Cargamos el estado global del backend: si es public, el switch está activo
+          setIsPublic(data.global_privacy === 'public');
         } else {
           const storedUser = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user") || "{}");
           setNombre(storedUser.first_name || '');
@@ -68,95 +75,219 @@ function LinksPrivacy() {
     setIsSaving(true);
 
     try {
-      const globalPrivacy = (showProjects && showSkills && showExperience) ? 'public' : 'private';
+      // Enviamos 'public' o 'private' según el estado actual de isPublic
+      const privacyValue = isPublic ? 'public' : 'private';
 
       await updateLinksPrivacyData({
         nombre,
         apellido,
         linkedin,
         github,
-        global_privacy: globalPrivacy
+        global_privacy: privacyValue
       });
-      alert('Enlaces y Privacidad actualizados con éxito');
+      setToast({ message: 'Enlaces y Privacidad actualizados con éxito', type: 'success' });
     } catch (error: any) {
-      alert('Error de validación: ' + error.message);
+      setToast({ message: 'Error al actualizar: ' + error.message, type: 'error' });
     } finally {
       setIsSaving(false);
     }
   };
 
-  const Toggle = ({ active, onToggle }: { active: boolean; onToggle: () => void }) => (
-    <div
-      onClick={!isSaving ? onToggle : undefined}
-      style={{
-        width: '44px', height: '24px', borderRadius: '999px',
-        backgroundColor: active ? '#c8102e' : '#5b6472',
-        position: 'relative', cursor: isSaving ? 'not-allowed' : 'pointer',
-        transition: 'background-color 0.2s'
-      }}
-    >
-      <div style={{
-        position: 'absolute', top: '2px', left: active ? '22px' : '2px',
-        width: '20px', height: '20px', borderRadius: '50%',
-        backgroundColor: '#fff', transition: 'left 0.2s'
-      }} />
-    </div>
-  );
+  const handleToggleAll = () => {
+    setIsPublic(!isPublic);
+  };
 
-  if (loading) return <div style={{ padding: '40px', textAlign: 'center', minHeight: '100vh', backgroundColor: '#e9eef5' }}>Cargando...</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-gray-500 font-medium">Cargando...</p>
+      </div>
+    );
+  }
 
   return (
-    <div style={{ display: 'flex', flex: 1, minHeight: 'calc(100vh - 120px)', backgroundColor: '#e9eef5' }}>
-      <Sidebar activeItem="Enlaces" />
-      <div style={{ flex: 1, padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px', overflowY: 'auto' }}>
-        <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1a1a2e', margin: 0 }}>Enlaces y Privacidad</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '24px', width: '100%', maxWidth: '1100px' }}>
+    <div className="min-h-screen bg-background flex flex-col">
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar */}
+        <Sidebar activeItem="Enlaces" />
+
+        {/* Contenido principal + Panel derecho */}
+        <main className="flex-1 flex flex-col lg:flex-row overflow-y-auto">
           
-          <div style={{ backgroundColor: '#fff', padding: '32px', borderRadius: '12px', boxShadow: '0 6px 18px rgba(0, 26, 94, 0.06)', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#1a1a2e', margin: 0 }}>Redes Profesionales</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div>
-                <label style={{ fontSize: '13px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px' }}><LinkedinIcon /> LinkedIn</label>
-                <input type="text" value={linkedin} onChange={(e) => setLinkedin(e.target.value)} placeholder="https://linkedin.com/in/..." style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #00000014' }} />
-              </div>
-              <div>
-                <label style={{ fontSize: '13px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px' }}><GithubIcon /> GitHub</label>
-                <input type="text" value={github} onChange={(e) => setGithub(e.target.value)} placeholder="https://github.com/..." style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #00000014' }} />
-              </div>
-              <div>
-                <label style={{ fontSize: '13px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px' }}><Globe size={18} /> Sitio web</label>
-                <input type="text" value={website} onChange={(e) => setWebsite(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #00000014' }} />
-              </div>
+          {/* SECCIÓN IZQUIERDA: Formularios */}
+          <div className="flex-1 p-4 pl-14 sm:pl-6 md:p-6">
+            
+            {/* Header */}
+            <div className="mb-6">
+              <h1 className="text-xl sm:text-2xl font-bold text-textMain mb-1">
+                Enlaces y Privacidad
+              </h1>
+              <p className="text-sm text-gray-500">
+                Gestiona tus redes profesionales y configuración de privacidad
+              </p>
             </div>
-            <button onClick={handleSubmit} disabled={isSaving} style={{ alignSelf: 'flex-end', padding: '10px 20px', borderRadius: '8px', backgroundColor: isSaving ? '#ccc' : '#c8102e', color: 'white', border: 'none', fontWeight: 'bold', cursor: isSaving ? 'not-allowed' : 'pointer' }}>
-              {isSaving ? 'Guardando...' : 'Guardar enlaces'}
-            </button>
+
+            {/* Grid responsivo: 1 columna en móvil, 2 en desktop */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              
+              {/* Tarjeta de Redes Profesionales */}
+              <div className="bg-white rounded-xl p-6 sm:p-8 shadow-sm border border-gray-100">
+                <h3 className="text-base font-bold text-textMain mb-5">
+                  Redes Profesionales
+                </h3>
+                
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  
+                  {/* LinkedIn */}
+                  <div>
+                    <label className="text-sm font-semibold text-textMain flex items-center gap-2 mb-2">
+                      <LinkedinIcon />
+                      LinkedIn
+                    </label>
+                    <input 
+                      type="text" 
+                      value={linkedin} 
+                      onChange={(e) => setLinkedin(e.target.value)} 
+                      placeholder="https://linkedin.com/in/..."
+                      disabled={isSaving}
+                      className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:border-primary focus:outline-none transition-colors disabled:opacity-60 disabled:cursor-not-allowed bg-white"
+                    />
+                  </div>
+
+                  {/* GitHub */}
+                  <div>
+                    <label className="text-sm font-semibold text-textMain flex items-center gap-2 mb-2">
+                      <GithubIcon />
+                      GitHub
+                    </label>
+                    <input 
+                      type="text" 
+                      value={github} 
+                      onChange={(e) => setGithub(e.target.value)} 
+                      placeholder="https://github.com/..."
+                      disabled={isSaving}
+                      className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:border-primary focus:outline-none transition-colors disabled:opacity-60 disabled:cursor-not-allowed bg-white"
+                    />
+                  </div>
+
+                  {/* Sitio web */}
+                  <div>
+                    <label className="text-sm font-semibold text-textMain flex items-center gap-2 mb-2">
+                      <Globe size={18} />
+                      Sitio web
+                    </label>
+                    <input 
+                      type="text" 
+                      value={website} 
+                      onChange={(e) => setWebsite(e.target.value)} 
+                      placeholder="https://tuportafolio.com"
+                      disabled={isSaving}
+                      className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:border-primary focus:outline-none transition-colors disabled:opacity-60 disabled:cursor-not-allowed bg-white"
+                    />
+                  </div>
+
+                  {/* Botón de guardar */}
+                  <div className="flex justify-end pt-4">
+                    <button 
+                      type="submit" 
+                      disabled={isSaving}
+                      className="px-6 py-2.5 bg-action text-white text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                      {isSaving ? 'Guardando...' : 'Guardar enlaces'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              {/* Tarjeta de Visibilidad */}
+              <div className="bg-white rounded-xl p-6 sm:p-8 shadow-sm border border-gray-100">
+                <h3 className="text-base font-bold text-textMain mb-5">
+                  Visibilidad Pública
+                </h3>
+                
+                <div className="space-y-4">
+                  
+                  {/* Switch principal */}
+                  <div className="pb-4 border-b border-gray-200">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-semibold text-textMain">
+                          Hacer perfil público
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {isPublic ? 'Tu perfil es visible para todos' : 'Tu perfil es privado'}
+                        </p>
+                      </div>
+                      <Toggle 
+                        active={isPublic} 
+                        onToggle={handleToggleAll}
+                        disabled={isSaving}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Opciones de visibilidad individuales */}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-textMain">Mostrar proyectos</span>
+                      <Toggle 
+                        active={isPublic} 
+                        onToggle={handleToggleAll}
+                        disabled={isSaving || !isPublic}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-textMain">Mostrar habilidades</span>
+                      <Toggle 
+                        active={isPublic} 
+                        onToggle={handleToggleAll}
+                        disabled={isSaving || !isPublic}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-textMain">Mostrar experiencia</span>
+                      <Toggle 
+                        active={isPublic} 
+                        onToggle={handleToggleAll}
+                        disabled={isSaving || !isPublic}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-textMain">Mostrar contacto</span>
+                      <Toggle 
+                        active={isPublic} 
+                        onToggle={handleToggleAll}
+                        disabled={isSaving || !isPublic}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Info adicional */}
+                  <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                    <p className="text-xs text-blue-700">
+                      💡 <span className="font-medium">Consejo:</span> Habilita la visibilidad pública para que reclutadores puedan encontrarte más fácilmente.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+            </div>
           </div>
 
-          <div style={{ backgroundColor: '#fff', padding: '32px', borderRadius: '12px', boxShadow: '0 6px 18px rgba(0, 26, 94, 0.06)', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#1a1a2e', margin: 0 }}>Visibilidad</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '13px', fontWeight: '600' }}>Mostrar proyectos</span>
-                <Toggle active={showProjects} onToggle={() => setShowProjects(!showProjects)} />
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '13px', fontWeight: '600' }}>Mostrar habilidades</span>
-                <Toggle active={showSkills} onToggle={() => setShowSkills(!showSkills)} />
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '13px', fontWeight: '600' }}>Mostrar experiencia</span>
-                <Toggle active={showExperience} onToggle={() => setShowExperience(!showExperience)} />
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '13px', fontWeight: '600' }}>Mostrar contacto</span>
-                <Toggle active={showContact} onToggle={() => setShowContact(!showContact)} />
-              </div>
-            </div>
-          </div>
-        </div>
+          {/* PANEL DERECHO (Responsivo) */}
+          <RightWidgets type="profile" className="w-full lg:w-64 shrink-0" />
+
+        </main>
       </div>
-      <RightWidgets type="profile" />
+
+      {/* Toast de notificación */}
+      {toast && (
+        <Toast 
+          message={toast.message} 
+          type={toast.type} 
+          onClose={() => setToast(null)} 
+        />
+      )}
     </div>
   );
 }

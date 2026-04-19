@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import logoUmss from "../../assets/logoUmss.png";
+import logoUmss from "../../assets/logoUmss.png"; // Asegúrate de que la ruta sea correcta
 import { User } from "lucide-react"; // Importa el icono de usuario
 import { useState } from "react";
 import UserMenuModal from "./UserMenuModal"; // Importa el componente del modal
@@ -10,6 +10,7 @@ const Navbar = () => {
   const isAuthenticated = true; // Simula que el usuario está logueado
   const userName = "Juan Pérez";
   const userProfession = "Ingeniero de Software";
+  const userEmail = "juan.perez@example.com"; // Add email to pass
   const userPhoto = "https://via.placeholder.com/80"; // URL de una imagen de perfil de ejemplo
 
   return (
@@ -18,7 +19,7 @@ const Navbar = () => {
       <Link to="/" className="flex items-center gap-2 cursor-pointer">
         <div className="flex items-center gap-2">
           <img
-                src={logoUmss}
+                src={logoUmss} 
                 alt="Logo UMSS"
                  className="w-8 h-8 object-contain rounded-full" // Añadido rounded-full para intentar hacerlo circular
                />
@@ -46,6 +47,7 @@ const Navbar = () => {
               userName={userName}
               userProfession={userProfession}
               userPhoto={userPhoto}
+              userEmail={userEmail}
             />
           </div>
         )}

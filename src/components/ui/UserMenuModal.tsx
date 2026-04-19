@@ -4,18 +4,16 @@ import { UserCog, LogOut, Mail } from "lucide-react";
 interface UserMenuModalProps {
   isOpen: boolean;
   onClose: () => void;
+  userName: string;
+  userProfession: string;
+  userPhoto: string;
+  userEmail: string;
 }
 
-const UserMenuModal = ({ isOpen, onClose }: UserMenuModalProps) => {
+const UserMenuModal = ({ isOpen, onClose, userName, userProfession, userPhoto, userEmail }: UserMenuModalProps) => {
   
   if (!isOpen) return null;
   const navigate = useNavigate();
-
-  const user = {
-    name: "Milton",
-    email: "milton@gmail.com",
-    photo: "https://storage.googleapis.com/banani-avatars/avatar%2Fmale%2F25-35%2FHispanic%2F0"
-  };
 
   const handleGoToProfile = () => {
     onClose();
@@ -36,15 +34,16 @@ const UserMenuModal = ({ isOpen, onClose }: UserMenuModalProps) => {
       <div className="p-5 border-b border-gray-100 flex flex-col items-center gap-3">
         <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-[#003087]">
           <img 
-            src={user.photo} 
+            src={userPhoto} 
             alt="Avatar" 
             className="w-full h-full object-cover" 
           />
         </div>
         <div className="text-center">
-          <p className="font-bold text-sm">{user.name}</p>
-          <p className="text-xs text-gray-500 flex items-center justify-center gap-1">
-            <Mail size={12} /> {user.email}
+          <p className="font-bold text-sm">{userName}</p>
+          <p className="text-xs text-gray-500">{userProfession}</p>
+          <p className="text-xs text-gray-500 flex items-center justify-center gap-1 mt-1">
+            <Mail size={12} /> {userEmail}
           </p>
         </div>
       </div>

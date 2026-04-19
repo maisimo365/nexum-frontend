@@ -9,30 +9,15 @@ import AccountsPage from "../pages/admin/AccountsPage";
 import Navbar from "../components/ui/Navbar";
 import Footer from "../components/ui/Footer";
 import AuditPage from "../pages/admin/AuditPage";
+import CategoriesPage from "../pages/admin/CategoriesPage";
 import PersonalData from "../pages/professional/profile-settings/PersonalData";
 import LinksPrivacy from "../pages/professional/profile-settings/LinksPrivacy";
+import HabilidadesPage from "../pages/professional/profile-settings/Habilidades";
+import Experience from "../pages/professional/experience/Experience";
+import Certifications from "../pages/professional/certifications/Certifications";
 import ProtectedRoute from "./ProtectedRoute";
-
-const HomePage = () => (
-  <div style={{ textAlign: "center", padding: "50px" }}>
-    <h1>Bienvenido a Nexum Frontend</h1>
-    <p>Este es la página de inicio.</p>
-    <nav style={{ marginTop: "20px" }}>
-      <Link
-        to="/profile/personal-data"
-        style={{
-          padding: "10px 20px",
-          border: "1px solid blue",
-          borderRadius: "5px",
-          textDecoration: "none",
-          color: "blue",
-        }}
-      >
-        Ir a Datos Personales
-      </Link>
-    </nav>
-  </div>
-);
+import Home from "../pages/Home";
+import ProjectsPage from "../pages/professional/projects/ProjectsPage";
 
 const Breadcrumbs = () => {
   const { pathname } = useLocation();
@@ -43,38 +28,63 @@ const Breadcrumbs = () => {
     "admin": "Administración",
     "usuarios": "Gestión de Usuarios",
     "roles": "Roles",
-    "dashboard": "Panel de Control",
-    "personal-data": "Datos Personales"
+    "dashboard": "Dashboard",
+    "personal-data": "Datos Personales",
+    "links": "Enlaces y Privacidad",
+    "projects": "Proyectos",
+    "proyectos": "Proyectos",
+    "habilidades": "Habilidades",
+    "experiencia": "Experiencia",
+    "certificaciones": "Certificaciones",
+    "portfolio": "Portafolio"
   };
 
+  const isProfessionalRoute = ["/dashboard", "/proyectos", "/habilidades", "/experiencia", "/certificaciones", "/portfolio"].includes(pathname) || pathname.startsWith("/profile");
+
   return (
-    <div style={{ 
-      padding: '12px 40px', 
-      backgroundColor: '#eef3f8', 
-      borderBottom: '1px solid #ddd', 
-      fontSize: '13px', 
-      color: '#666' 
+    <div style={{
+      padding: '12px 40px',
+      backgroundColor: '#eef3f8',
+      borderBottom: '1px solid #ddd',
+      fontSize: '13px',
+      color: '#666'
     }}>
       {pathname === "/" ? (
         <span style={{ fontWeight: 'bold', color: '#003087' }}>Menú principal</span>
       ) : (
         <>
           <Link to="/" style={{ color: '#666', textDecoration: 'none' }}>Menú principal</Link>
-          {pathname.startsWith("/profile") ? (
+          
+          {isProfessionalRoute ? (
             <>
               <span style={{ margin: '0 8px', color: '#999' }}>&gt;</span>
               <span style={{ color: '#666' }}>Configuración de perfil</span>
+              
+              {pathname.startsWith("/profile") && (
+                <>
+                  <span style={{ margin: '0 8px', color: '#999' }}>&gt;</span>
+                  <span style={{ color: '#666' }}>Perfil</span>
+                </>
+              )}
+              
               <span style={{ margin: '0 8px', color: '#999' }}>&gt;</span>
-              <span style={{ color: '#666' }}>Perfil</span>
-              <span style={{ margin: '0 8px', color: '#999' }}>&gt;</span>
-              <span style={{ fontWeight: 'bold', color: '#003087' }}>Datos Personales</span>
+              <span style={{ fontWeight: 'bold', color: '#003087' }}>
+                {pathname.includes("dashboard") ? "Dashboard" :
+                 pathname.includes("proyectos") ? "Proyectos" :
+                 pathname.includes("habilidades") ? "Habilidades" :
+                 pathname.includes("experiencia") ? "Experiencia" :
+                 pathname.includes("certificaciones") ? "Certificaciones" :
+                 pathname.includes("links") ? "Enlaces y Privacidad" :
+                 pathname.includes("portfolio") ? "Portafolio" :
+                 "Datos Personales"}
+              </span>
             </>
           ) : (
             pathnames.map((name, index) => {
               const routeTo = `/${pathnames.slice(0, index + 1).join("/")}`;
               const isLast = index === pathnames.length - 1;
-              const displayName = routeLabels[name.toLowerCase()] || 
-                                  name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g, ' ');
+              const displayName = routeLabels[name.toLowerCase()] ||
+                name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g, ' ');
               return (
                 <span key={name}>
                   <span style={{ margin: '0 8px', color: '#999' }}>&gt;</span>
@@ -94,13 +104,16 @@ const Breadcrumbs = () => {
 };
 
 const ROUTES_WITHOUT_LAYOUT = [
-  "/login", "/register", "/forgot-password", "/reset-password", 
-  "/proyectos", "/habilidades", "/experiencia", "/dashboard",
+  "/",
+  "/login", "/register", "/forgot-password", "/reset-password", "/portfolio",
+  "/habilidades", "/experiencia", "/Home", "/profolio"
 ];
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const { pathname } = useLocation();
-  const hideLayout = ROUTES_WITHOUT_LAYOUT.some((route) => pathname.startsWith(route));
+  const hideLayout = ROUTES_WITHOUT_LAYOUT.some((route) =>
+    route === "/" ? pathname === "/" : pathname.startsWith(route)
+  );
 
   if (hideLayout) return <>{children}</>;
 
@@ -121,14 +134,22 @@ const AppRouter = () => {
     <BrowserRouter>
       <Layout>
         <Routes>
-          {/* Rutas públicas */}
-          <Route path="/" element={<HomePage />} />
+          {/* ── Página de inicio ─────────────────────────────── */}
+          <Route path="/" element={<Home />} />
+
+          {/* ── Rutas públicas ───────────────────────────────── */}
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/portfolio" element={<RolesPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/proyectos" element={
+            <ProtectedRoute allowedRole="professional">
+              <ProjectsPage />
+            </ProtectedRoute>
+          } />
 
-          {/* Rutas del admin */}
+          {/* ── Rutas del admin ──────────────────────────────── */}
           <Route path="/admin" element={
             <ProtectedRoute allowedRole="admin">
               <RolesPage />
@@ -149,14 +170,18 @@ const AppRouter = () => {
               <AccountsPage />
             </ProtectedRoute>
           } />
-
           <Route path="/admin/auditoria" element={
-          <ProtectedRoute allowedRole="admin">
+            <ProtectedRoute allowedRole="admin">
               <AuditPage />
-             </ProtectedRoute>
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/categorias" element={
+            <ProtectedRoute allowedRole="admin">
+              <CategoriesPage />
+            </ProtectedRoute>
           } />
 
-          {/* Rutas del profesional */}
+          {/* ── Rutas del profesional ────────────────────────── */}
           <Route path="/portfolio" element={
             <ProtectedRoute allowedRole="professional">
               <RolesPage />
@@ -165,6 +190,16 @@ const AppRouter = () => {
           <Route path="/dashboard" element={
             <ProtectedRoute allowedRole="professional">
               <RolesPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/experiencia" element={
+            <ProtectedRoute allowedRole="professional">
+              <Experience />
+            </ProtectedRoute>
+          } />
+          <Route path="/certificaciones" element={
+            <ProtectedRoute allowedRole="professional">
+              <Certifications />
             </ProtectedRoute>
           } />
           <Route path="/profile" element={<Navigate to="/profile/personal-data" replace />} />
@@ -178,9 +213,14 @@ const AppRouter = () => {
               <LinksPrivacy />
             </ProtectedRoute>
           } />
+          <Route path="/profile/habilidades" element={
+            <ProtectedRoute allowedRole="professional">
+              <HabilidadesPage />
+            </ProtectedRoute>
+          } />
 
-          {/* Ruta por defecto */}
-          <Route path="*" element={<HomePage />} />
+          {/* ── Ruta por defecto ─────────────────────────────── */}
+          <Route path="*" element={<Home />} />
         </Routes>
       </Layout>
     </BrowserRouter>
