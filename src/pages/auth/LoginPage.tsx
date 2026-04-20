@@ -44,7 +44,7 @@ const LoginPage = () => {
       if (data.user.role === "admin") {
         navigate("/admin");
       } else {
-        navigate("/profile/personal-data");
+        navigate("/home");
       }
     } catch (err: any) {
       const rawMessage = err?.message || "Credenciales inválidas. Verifica tus datos e inténtalo nuevamente.";
@@ -77,7 +77,7 @@ const LoginPage = () => {
           <img
             src={logoUmss}
             alt="Logo UMSS"
-            className="w-8 h-8 object-contain"
+            className="w-8 h-10 object-contain"
           />
           <span className="text-white font-bold text-lg tracking-wide">
             NEXUM

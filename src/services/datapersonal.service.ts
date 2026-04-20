@@ -88,10 +88,17 @@ export const uploadAvatar = async (file: File) => {
     body: formData
   })
 
-  const result = await response.json()
+  let result
+  try {
+    result = await response.json()
+  } catch (e) {
+    // Si no se puede parsear como JSON, usar el texto de la respuesta
+    const text = await response.text()
+    throw new Error(`Error del servidor: ${response.status} - ${text}`)
+  }
 
   if (!response.ok) {
-    throw new Error(result.message || 'Error al subir el avatar')
+    throw new Error(result.message || `Error del servidor: ${response.status} - ${result.error || 'Error desconocido'}`)
   }
 
   return result
