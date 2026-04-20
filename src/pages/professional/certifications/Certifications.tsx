@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import Sidebar from '../../admin/components/Sidebar'
 import Calendar from '../../../components/ui/Calendar'
 import { 
@@ -7,6 +7,50 @@ import {
 
 function Certifications() {
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const [titulo, setTitulo] = useState("")
+  const [descripcion, setDescripcion] = useState("")
+  const [entidad, setEntidad] = useState("")
+  const [fechaDesde, setFechaDesde] = useState("")
+  const [fechaHasta, setFechaHasta] = useState("")
+
+  const handleTituloChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    if (/^[A-Za-záéíóúÁÉÍÓÚñÑ\s]*$/.test(val)) {
+      setTitulo(val);
+    }
+  }
+
+  const handleDescripcionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    if (/^[A-Za-z0-9áéíóúÁÉÍÓÚñÑ\s]*$/.test(val)) {
+      setDescripcion(val);
+    }
+  }
+
+  const handleEntidadChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    if (/^[A-Za-záéíóúÁÉÍÓÚñÑ\s]*$/.test(val)) {
+      setEntidad(val);
+    }
+  }
+
+  const formatMonthYear = (val: string) => {
+    let curr = val.replace(/\D/g, "");
+    if (curr.length > 6) curr = curr.slice(0, 6);
+    if (curr.length >= 3) {
+      return curr.slice(0, 2) + "/" + curr.slice(2);
+    }
+    return curr;
+  }
+
+  const handleFechaDesdeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFechaDesde(formatMonthYear(e.target.value));
+  }
+
+  const handleFechaHastaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFechaHasta(formatMonthYear(e.target.value));
+  }
 
   // ESTRUCTURA DEL PANEL DERECHO (Basada en Dashboard Admin / PersonalData)
   const RightPanelContent = () => (
@@ -55,57 +99,78 @@ function Certifications() {
       <div className="flex flex-1 overflow-hidden relative">
         <Sidebar activeItem="Certificaciones" />
 
-        <main className="flex-1 flex flex-col lg:flex-row overflow-y-auto bg-[#eef3f8]">
+        <main className="flex-1 flex flex-col lg:flex-row overflow-y-auto bg-[#cbd5e1]">
           
           {/* SECCIÓN IZQUIERDA: Formulario */}
           <div className="flex-1 p-4 pl-14 sm:pl-6 md:p-8">
-            <header className="mb-6">
+            <div className="max-w-4xl mx-auto pt-2">
+              <header className="mb-6">
+                <h1 className="text-2xl font-bold text-textMain">Certificaciones</h1>
+              </header>
 
-              <h1 className="text-2xl font-bold text-textMain">Certificaciones</h1>
-            </header>
-
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 max-w-4xl">
+              <div className="bg-white rounded-xl shadow-sm p-6 md:p-8">
               
               <h2 className="text-base font-bold text-textMain mb-6">Añadir Certificación</h2>
 
               <div className="space-y-6">
                 {/* Campos Principales */}
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] items-center gap-4">
-                    <label className="text-[13px] font-bold text-gray-700">Nombre de la Certificación:</label>
+                <div className="space-y-5">
+                  <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] items-center gap-4">
+                    <label className="text-[13px] font-bold text-gray-700">Titulo de la Certificación:</label>
                     <input 
                       type="text" 
-                      placeholder="Ej. AWS Certified Solutions Architect" 
-                      className="w-full p-2.5 rounded-lg border border-gray-200 bg-white outline-none focus:border-action transition-all text-sm" 
+                      placeholder="Ej. Encaminamiento de redes" 
+                      value={titulo}
+                      onChange={handleTituloChange}
+                      className="w-full p-2.5 rounded border border-gray-200 bg-white outline-none focus:border-action transition-all text-sm" 
                     />
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] items-center gap-4">
-                    <label className="text-[13px] font-bold text-gray-700">Entidad Emisora:</label>
+                  <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] items-center gap-4">
+                    <label className="text-[13px] font-bold text-gray-700">Descripcion de certificado:</label>
                     <input 
                       type="text" 
-                      placeholder="Ej. Amazon Web Services" 
-                      className="w-full p-2.5 rounded-lg border border-gray-200 bg-white outline-none focus:border-action transition-all text-sm" 
+                      placeholder="Ej. Protocolos de enrutamiento" 
+                      value={descripcion}
+                      onChange={handleDescripcionChange}
+                      className="w-full p-2.5 rounded border border-gray-200 bg-white outline-none focus:border-action transition-all text-sm" 
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] items-center gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] items-center gap-4">
+                    <label className="text-[13px] font-bold text-gray-700">Entidad Emisora:</label>
+                    <input 
+                      type="text" 
+                      placeholder="Ej. Udemy" 
+                      value={entidad}
+                      onChange={handleEntidadChange}
+                      className="w-full p-2.5 rounded border border-gray-200 bg-white outline-none focus:border-action transition-all text-sm" 
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] items-center gap-4">
                     <label className="text-[13px] font-bold text-gray-700">Fecha:</label>
                     <div className="flex items-center gap-3">
                       <input 
-                        type="month" 
-                        className="flex-1 p-2.5 rounded-lg border border-gray-200 bg-white outline-none focus:border-action transition-all text-sm text-gray-500 placeholder-transparent" 
+                        type="text" 
+                        placeholder="Desde (MM/YYYY)" 
+                        value={fechaDesde}
+                        onChange={handleFechaDesdeChange}
+                        className="flex-1 p-2.5 rounded border border-gray-200 bg-white outline-none focus:border-action transition-all text-sm" 
                       />
-                      <span className="text-gray-400">—</span>
+                      <span className="text-gray-400">-</span>
                       <input 
-                        type="month" 
-                        className="flex-1 p-2.5 rounded-lg border border-gray-200 bg-white outline-none focus:border-action transition-all text-sm text-gray-500 placeholder-transparent" 
+                        type="text" 
+                        placeholder="Hasta (MM/YYYY)" 
+                        value={fechaHasta}
+                        onChange={handleFechaHastaChange}
+                        className="flex-1 p-2.5 rounded border border-gray-200 bg-white outline-none focus:border-action transition-all text-sm" 
                       />
                     </div>
                   </div>
                 </div>
 
-                <div className="pt-2">
+                <div className="pt-4">
                   <label className="text-[13px] font-bold text-gray-700 mb-3 block">Certificado o Insignia (Opcional):</label>
                   <div className="w-full bg-[#f0f4f8] border border-dashed border-[#d1dce5] rounded-xl p-8 flex flex-col items-center justify-center gap-3">
                     <button 
@@ -123,21 +188,20 @@ function Certifications() {
               <div className="flex justify-end gap-3 pt-8 mt-6">
                 <button 
                   type="button" 
-                  className="px-6 py-2.5 rounded-lg border border-gray-200 font-medium text-sm text-gray-700 hover:bg-gray-50 transition-all shadow-sm bg-white"
+                  className="px-6 py-2 rounded border border-gray-200 font-medium text-sm text-gray-700 hover:bg-gray-50 transition-all shadow-sm bg-white"
                 >
                   Cancelar
                 </button>
                 <button 
                   type="button" 
-                  className="flex items-center justify-center px-6 py-2.5 rounded-lg font-medium text-sm text-white bg-[#dc2626] hover:bg-red-700 shadow-md transition-all"
+                  className="px-6 py-2 rounded font-medium text-sm text-white bg-[#dc2626] hover:bg-red-700 shadow-sm transition-all"
                 >
                   Guardar Certificación
                 </button>
               </div>
 
             </div>
-
-
+            </div>
           </div>
 
           {/* ASIDE DERECHO (ESTILO MOCKUP) */}

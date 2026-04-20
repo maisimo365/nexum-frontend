@@ -160,124 +160,119 @@ const AuditPage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <div className="hidden sm:block px-6 py-2 text-[10px] text-gray-500 uppercase tracking-widest">
-        Home &gt; Admin &gt; <span className="font-bold text-textMain">Auditoria</span>
-      </div>
 
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar activeItem="Auditoría" />
+    <div className="flex flex-1 overflow-hidden">
+      <Sidebar activeItem="Auditoría" />
 
-        <main className="flex-1 flex flex-col lg:flex-row overflow-y-auto">
-          
-          <div className="flex-1 p-4 pl-14 sm:pl-6 md:p-6">
-            <h1 className="text-xl sm:text-2xl font-bold text-textMain mb-6">
-              Historial de Auditoría
-            </h1>
+      <main className="flex-1 flex flex-col lg:flex-row overflow-y-auto">
 
-            {/* FILTROS RESPONSIVOS */}
-            <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 mb-8">
-              {/* Buscador */}
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                <input
-                  type="text"
-                  placeholder="Buscar por usuario o ID..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-primary/10 outline-none transition-all"
-                />
-              </div>
+        <div className="flex-1 p-4 pl-14 sm:pl-6 md:p-6">
+          <h1 className="text-xl sm:text-2xl font-bold text-textMain mb-6">
+            Historial de Auditoría
+          </h1>
 
-              {/* Selector de Fechas (Solución Definitiva con showPicker) */}
-              <div className="flex items-center gap-2 bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-2 flex-1 md:flex-none justify-between">
-                <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-tighter w-full">
-                  
-                  {/* Botón Desde */}
-                  <div 
-                    className="relative flex-1 cursor-pointer hover:bg-gray-50 p-1 rounded-md transition-colors"
-                    onClick={() => handleOpenCalendar(dateFromRef)}
-                  >
-                    <span className="text-gray-400 block mb-0.5">Desde</span>
-                    <span className="text-textMain block text-[13px] font-medium">{formatDateDisplay(dateFrom)}</span>
-                    <input
-                      ref={dateFromRef}
-                      type="date"
-                      value={dateFrom}
-                      onChange={(e) => setDateFrom(e.target.value)}
-                      className="absolute inset-0 opacity-0 pointer-events-none"
-                    />
-                  </div>
-
-                  <div className="h-8 w-px bg-gray-100 shrink-0"></div>
-
-                  {/* Botón Hasta */}
-                  <div 
-                    className="relative flex-1 cursor-pointer hover:bg-gray-50 p-1 rounded-md transition-colors"
-                    onClick={() => handleOpenCalendar(dateToRef)}
-                  >
-                    <span className="text-gray-400 block mb-0.5">Hasta</span>
-                    <span className="text-textMain block text-[13px] font-medium">{formatDateDisplay(dateTo)}</span>
-                    <input
-                      ref={dateToRef}
-                      type="date"
-                      value={dateTo}
-                      onChange={(e) => setDateTo(e.target.value)}
-                      className="absolute inset-0 opacity-0 pointer-events-none"
-                    />
-                  </div>
-
-                  <CalendarIcon size={18} className="text-gray-300 shrink-0 ml-1" />
-                </div>
-              </div>
+          {/* FILTROS RESPONSIVOS */}
+          <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 mb-8">
+            {/* Buscador */}
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+              <input
+                type="text"
+                placeholder="Buscar por usuario o ID..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-primary/10 outline-none transition-all"
+              />
             </div>
 
-            {/* TABLA DE AUDITORÍA */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm min-w-[850px]">
-                  <thead>
-                    <tr className="bg-gray-50/50 border-b border-gray-100 text-gray-500 uppercase text-[11px] tracking-wider">
-                      <th className="text-left px-6 py-4 font-bold">Usuario</th>
-                      <th className="text-center px-6 py-4 font-bold">Evento</th>
-                      <th className="text-left px-6 py-4 font-bold">Fecha/Hora</th>
-                      <th className="text-left px-6 py-4 font-bold">Detalle de actividad</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-50">
-                    {loading ? (
-                      <tr><td colSpan={4} className="p-16 text-center text-gray-400 animate-pulse">Consultando base de datos...</td></tr>
-                    ) : error ? (
-                      <tr><td colSpan={4} className="p-16 text-center text-action font-medium">{error}</td></tr>
-                    ) : filteredLogs.length > 0 ? (
-                      filteredLogs.map((log) => (
-                        <tr key={log.id} className="hover:bg-blue-50/20 transition-colors">
-                          <td className="px-6 py-4 text-textMain font-normal ">{log.user_name}</td>
-                          <td className="px-6 py-4 text-center">
-                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${getEventBadgeClass(log.event)}`}>
-                              {log.event.replace('_', ' ')}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 text-gray-500 font-mono text-xs">{log.timestamp}</td>
-                          <td className="px-6 py-4 text-gray-600 leading-relaxed text-xs max-w-sm">{log.detail}</td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr><td colSpan={4} className="p-16 text-center text-gray-400 italic">No se encontraron registros de auditoría.</td></tr>
-                    )}
-                  </tbody>
-                </table>
+            {/* Selector de Fechas (Solución Definitiva con showPicker) */}
+            <div className="flex items-center gap-2 bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-2 flex-1 md:flex-none justify-between">
+              <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-tighter w-full">
+
+                {/* Botón Desde */}
+                <div
+                  className="relative flex-1 cursor-pointer hover:bg-gray-50 p-1 rounded-md transition-colors"
+                  onClick={() => handleOpenCalendar(dateFromRef)}
+                >
+                  <span className="text-gray-400 block mb-0.5">Desde</span>
+                  <span className="text-textMain block text-[13px] font-medium">{formatDateDisplay(dateFrom)}</span>
+                  <input
+                    ref={dateFromRef}
+                    type="date"
+                    value={dateFrom}
+                    onChange={(e) => setDateFrom(e.target.value)}
+                    className="absolute inset-0 opacity-0 pointer-events-none"
+                  />
+                </div>
+
+                <div className="h-8 w-px bg-gray-100 shrink-0"></div>
+
+                {/* Botón Hasta */}
+                <div
+                  className="relative flex-1 cursor-pointer hover:bg-gray-50 p-1 rounded-md transition-colors"
+                  onClick={() => handleOpenCalendar(dateToRef)}
+                >
+                  <span className="text-gray-400 block mb-0.5">Hasta</span>
+                  <span className="text-textMain block text-[13px] font-medium">{formatDateDisplay(dateTo)}</span>
+                  <input
+                    ref={dateToRef}
+                    type="date"
+                    value={dateTo}
+                    onChange={(e) => setDateTo(e.target.value)}
+                    className="absolute inset-0 opacity-0 pointer-events-none"
+                  />
+                </div>
+
+                <CalendarIcon size={18} className="text-gray-300 shrink-0 ml-1" />
               </div>
             </div>
           </div>
 
-          {/* ASIDE DERECHO */}
-          <aside className="w-full lg:w-72 p-6 bg-white border-t lg:border-t-0 lg:border-l border-gray-200 shrink-0">
-            <RightPanelContent />
-          </aside>
+          {/* TABLA DE AUDITORÍA */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm min-w-[850px]">
+                <thead>
+                  <tr className="bg-gray-50/50 border-b border-gray-100 text-gray-500 uppercase text-[11px] tracking-wider">
+                    <th className="text-left px-6 py-4 font-bold">Usuario</th>
+                    <th className="text-center px-6 py-4 font-bold">Evento</th>
+                    <th className="text-left px-6 py-4 font-bold">Fecha/Hora</th>
+                    <th className="text-left px-6 py-4 font-bold">Detalle de actividad</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {loading ? (
+                    <tr><td colSpan={4} className="p-16 text-center text-gray-400 animate-pulse">Consultando base de datos...</td></tr>
+                  ) : error ? (
+                    <tr><td colSpan={4} className="p-16 text-center text-action font-medium">{error}</td></tr>
+                  ) : filteredLogs.length > 0 ? (
+                    filteredLogs.map((log) => (
+                      <tr key={log.id} className="hover:bg-blue-50/20 transition-colors">
+                        <td className="px-6 py-4 text-textMain font-normal ">{log.user_name}</td>
+                        <td className="px-6 py-4 text-center">
+                          <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${getEventBadgeClass(log.event)}`}>
+                            {log.event.replace('_', ' ')}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-gray-500 font-mono text-xs">{log.timestamp}</td>
+                        <td className="px-6 py-4 text-gray-600 leading-relaxed text-xs max-w-sm">{log.detail}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr><td colSpan={4} className="p-16 text-center text-gray-400 italic">No se encontraron registros de auditoría.</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
 
-        </main>
-      </div>
+        {/* ASIDE DERECHO */}
+        <aside className="w-full lg:w-72 p-6 bg-white border-t lg:border-t-0 lg:border-l border-gray-200 shrink-0">
+          <RightPanelContent />
+        </aside>
+
+      </main>
     </div>
   );
 };
