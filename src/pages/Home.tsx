@@ -444,7 +444,7 @@ function Hero({ stats }: { stats: GlobalStats }) {
         <p className="text-blue-200 text-base leading-relaxed mb-10 max-w-lg">
           {user
             ? "Accedé a tu perfil, actualizá tus proyectos y compartí tu portafolio profesional."
-            : "Crea, gestiona y comparte tu perfil profesional con el respaldo de la Universidad Mayor de San Simón."}
+            : "Crea, gestiona y comparte tu perfil profesional."}
         </p>
 
         <div>
@@ -660,7 +660,7 @@ function RecentPortfolios({ profiles, loading }: { profiles: FeaturedProfile[]; 
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
           <h2 className="font-extrabold text-3xl lg:text-4xl mb-4" style={{ color: "#1A1A2E" }}>Portafolios recientes</h2>
-          <p className="text-gray-500 max-w-xl mx-auto text-base">Conoce el trabajo de los profesionales TIS de la UMSS.</p>
+          <p className="text-gray-500 max-w-xl mx-auto text-base">Conoce el trabajo de los profesionales.</p>
         </div>
 
         {loading ? (

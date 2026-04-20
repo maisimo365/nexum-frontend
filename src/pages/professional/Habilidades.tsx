@@ -1,6 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
 import Sidebar from "../admin/components/Sidebar";
-import RightWidgets from "../../components/ui/RightWidgets";
 import Toast from "../../components/ui/Toast";
 
 import {
@@ -259,8 +258,7 @@ function EditNivelModal({ skill, loading, onSave, onCancel }: {
           </div>
           <h3 className="text-sm font-semibold text-gray-900 mb-1">Sin nivel disponible</h3>
           <p className="text-xs text-gray-500 mb-5">
-            El backend rechaza <code className="text-xs bg-gray-100 px-1 rounded">level</code> para habilidades blandas.
-            Solo puedes eliminarla si ya no aplica a tu perfil.
+                Las habilidades blandas no tienen nivel de dominio. Si ya no aplica a tu perfil, puedes eliminarla.
           </p>
           <button onClick={onCancel} className="px-5 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors">Entendido</button>
         </div>
@@ -469,14 +467,14 @@ function NuevaHabilidadPanel({
 
   return (
     <>
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-gray-200 shadow-md overflow-hidden">
         <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-100 bg-gray-50/60">
           <div>
             <p className="text-xs font-bold text-gray-500 uppercase tracking-wide">
               {skillSeleccionada ? `Nueva · ${skillSeleccionada.nombre}` : "Nueva habilidad"}
             </p>
             <p className="text-xs text-gray-400 mt-0.5">
-              {isTecnica ? "Selecciona del catálogo técnico y asigna tu nivel." : "Selecciona del catálogo de habilidades blandas. El nivel no aplica."}
+              {isTecnica ? "Selecciona del catálogo técnico y asigna tu nivel." : "Selecciona del catálogo de habilidades blandas."}
             </p>
           </div>
           <div className="flex gap-1 bg-gray-100 rounded-lg p-0.5">
@@ -629,7 +627,7 @@ function NuevaHabilidadPanel({
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 110 20A10 10 0 0112 2z" />
                 </svg>
                 <p className="text-xs text-purple-700 leading-relaxed">
-                  <span className="font-semibold">Oculto automáticamente:</span> el backend rechaza <code className="text-xs bg-purple-100 px-1 rounded">level</code> para habilidades blandas.
+                  <span className="font-semibold">Las habilidades blandas no tienen nivel.</span> Este tipo de habilidades se valoran por su presencia, no por un grado de dominio.
                 </p>
               </div>
             )}
@@ -664,7 +662,6 @@ export default function HabilidadesPage() {
   const [loadingCatalog, setLoadingCatalog]             = useState(false);
   const [catalogoPorCategoria, setCatalogoPorCategoria] = useState<Record<string, CatalogItem[]>>({});
   const [filtroTipo, setFiltroTipo]                     = useState<"Todas" | TipoHabilidad>("Todas");
-  const [filtroEstado]                                  = useState("Activas");
   const [busqueda, setBusqueda]                         = useState("");
   const [mostrandoPanel, setMostrandoPanel]             = useState(false);
   const [tipoNueva, setTipoNueva]                       = useState<TipoHabilidad>("Técnica");
@@ -782,66 +779,65 @@ export default function HabilidadesPage() {
   const blandas  = skillsFiltered.filter(s => s.tipo === "Blanda");
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <div className="flex flex-1 overflow-hidden">
         <Sidebar activeItem="Habilidades" />
         <main className="flex-1 flex flex-col lg:flex-row overflow-y-auto">
           <div className="flex-1 p-4 pl-14 sm:pl-6 md:p-8">
             <header className="mb-6">
-              <p className="text-sm text-gray-500 mb-0.5">Portafolio profesional UMSS</p>
-              <h1 className="text-2xl font-bold text-textMain">Mis Habilidades</h1>
-              <p className="text-sm text-gray-500 mt-1">Administra tus habilidades técnicas y blandas con su nivel de dominio.</p>
+              <p className="text-base text-gray-500 mb-0.5">Portafolio profesional UMSS</p>
+              <h1 className="text-4xl font-bold text-textMain">Mis Habilidades</h1>
+              <p className="text-sm text-gray-500 mt-1">Bienvenido al area de habilidades. Administra tus habilidades técnicas y blandas .</p>
             </header>
 
             {/* Filtros */}
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-5">
-              <div className="flex items-center gap-2 flex-wrap">
-                <div className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-300 rounded-lg bg-white text-sm hover:border-gray-400 transition-colors">
-                  <svg className="w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h8m-8 6h16" />
-                  </svg>
-                  <select value={filtroTipo} onChange={e => setFiltroTipo(e.target.value as "Todas" | TipoHabilidad)}
-                    className="appearance-none bg-transparent outline-none text-sm text-gray-700 cursor-pointer">
-                    <option value="Todas">Todas</option>
-                    <option value="Técnica">Técnica</option>
-                    <option value="Blanda">Blanda</option>
-                  </select>
-                  <svg className="w-3 h-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-                <div className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-300 rounded-lg bg-white text-sm text-gray-700">
-                  <svg className="w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>{filtroEstado}</span>
-                  <svg className="w-3 h-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-                <div className="flex items-center gap-2 px-3 py-1.5 border border-gray-300 rounded-lg bg-white hover:border-gray-400 transition-colors">
-                  <IconSearch className="text-gray-400" />
-                  <input type="text" value={busqueda} onChange={e => setBusqueda(e.target.value)}
-                    placeholder="Buscar por nombre..."
-                    className="outline-none text-sm text-gray-700 placeholder:text-gray-400 bg-transparent w-40"
-                  />
-                  {busqueda && (
-                    <button onClick={() => setBusqueda("")} className="text-gray-400 hover:text-gray-600 transition-colors">
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                      </svg>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {/* Filtro tipo como botones */}
+                      <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-0.5">
+                        {(["Todas", "Técnica", "Blanda"] as const).map(t => (
+                          <button
+                            key={t}
+                            onClick={() => setFiltroTipo(t)}
+                            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
+                              filtroTipo === t
+                                ? "bg-white text-gray-800 shadow-sm"
+                                : "text-gray-500 hover:text-gray-700"
+                            }`}
+                          >
+                            {t}
+                          </button>
+                        ))}
+                      </div>
+                      {/* Buscador */}
+                      <div className="flex items-center gap-2 px-3 py-1.5 border border-gray-300 rounded-lg bg-white hover:border-gray-400 transition-colors">
+                        <IconSearch className="text-gray-400" />
+                        <input
+                          type="text"
+                          value={busqueda}
+                          onChange={e => setBusqueda(e.target.value)}
+                          placeholder="Buscar por nombre..."
+                          className="outline-none text-sm text-gray-700 placeholder:text-gray-400 bg-transparent w-40"
+                        />
+                        {busqueda && (
+                          <button onClick={() => setBusqueda("")} className="text-gray-400 hover:text-gray-600 transition-colors">
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setMostrandoPanel(true)}
+                      disabled={mostrandoPanel}
+                      className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg active:scale-95 transition-all whitespace-nowrap disabled:opacity-60"
+                    >
+                      + Nueva habilidad
                     </button>
-                  )}
-                </div>
-              </div>
-              <button onClick={() => setMostrandoPanel(true)} disabled={mostrandoPanel}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg active:scale-95 transition-all whitespace-nowrap disabled:opacity-60">
-                + Nueva habilidad
-              </button>
-            </div>
-
+                  </div>
             {/* Habilidades registradas */}
-            <div className="bg-white rounded-xl border border-gray-200 p-5 mb-5">
+            <div className="bg-white rounded-xl border border-trasparent shadow-md p-5 mb-5">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <h2 className="text-sm font-bold text-gray-800">Tus Habilidades Registradas</h2>
@@ -849,7 +845,7 @@ export default function HabilidadesPage() {
                     <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full font-medium">{skills.length}</span>
                   )}
                 </div>
-                <p className="text-xs text-gray-400 hidden sm:block">Editar → solo nivel · Eliminar → quita la habilidad</p>
+                <p className="text-xs text-gray-400 hidden sm:block">Puedes realizar Editar → solo nivel o · Eliminar → quita la habilidad</p>
               </div>
 
               {loadingSkills ? (
@@ -894,7 +890,7 @@ export default function HabilidadesPage() {
                             ))}
                           </div>
                           <p className="text-xs text-gray-400 italic">
-                            Las habilidades blandas no muestran nivel; el backend lo rechaza en{" "}
+                               Las habilidades blandas no tienen nivel de dominio asignado.
                             <code className="text-xs bg-gray-100 px-1 rounded">StoreSkillRequest</code>.
                           </p>
                         </>
@@ -917,7 +913,6 @@ export default function HabilidadesPage() {
               />
             )}
           </div>
-          <RightWidgets type="profile" />
         </main>
       </div>
 
