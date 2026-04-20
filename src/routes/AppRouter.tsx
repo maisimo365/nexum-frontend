@@ -17,6 +17,7 @@ import Experience from "../pages/professional/experience/Experience";
 import Certifications from "../pages/professional/certifications/Certifications";
 import ProtectedRoute from "./ProtectedRoute";
 import Home from "../pages/Home";
+import ProjectsPage from "../pages/professional/projects/ProjectsPage";
 
 const Breadcrumbs = () => {
   const { pathname } = useLocation();
@@ -27,42 +28,63 @@ const Breadcrumbs = () => {
     "admin": "Administración",
     "usuarios": "Gestión de Usuarios",
     "roles": "Roles",
-    "dashboard": "Panel de Control",
+    "dashboard": "Dashboard",
     "personal-data": "Datos Personales",
     "links": "Enlaces y Privacidad",
-    "habilidades": "Habilidades"
+    "projects": "Proyectos",
+    "proyectos": "Proyectos",
+    "habilidades": "Habilidades",
+    "experiencia": "Experiencia",
+    "certificaciones": "Certificaciones",
+    "portfolio": "Portafolio"
   };
 
+  const isProfessionalRoute = ["/dashboard", "/proyectos", "/habilidades", "/experiencia", "/certificaciones", "/portfolio"].includes(pathname) || pathname.startsWith("/profile");
+
   return (
-    <div style={{ 
-      padding: '12px 40px', 
-      backgroundColor: '#eef3f8', 
-      borderBottom: '1px solid #ddd', 
-      fontSize: '13px', 
-      color: '#666' 
+    <div style={{
+      padding: '12px 40px',
+      backgroundColor: '#eef3f8',
+      borderBottom: '1px solid #ddd',
+      fontSize: '13px',
+      color: '#666'
     }}>
       {pathname === "/" ? (
         <span style={{ fontWeight: 'bold', color: '#003087' }}>Menú principal</span>
       ) : (
         <>
           <Link to="/" style={{ color: '#666', textDecoration: 'none' }}>Menú principal</Link>
-          {pathname.startsWith("/profile") ? (
+          
+          {isProfessionalRoute ? (
             <>
               <span style={{ margin: '0 8px', color: '#999' }}>&gt;</span>
               <span style={{ color: '#666' }}>Configuración de perfil</span>
-              <span style={{ margin: '0 8px', color: '#999' }}>&gt;</span>
-              <span style={{ color: '#666' }}>Perfil</span>
+              
+              {pathname.startsWith("/profile") && (
+                <>
+                  <span style={{ margin: '0 8px', color: '#999' }}>&gt;</span>
+                  <span style={{ color: '#666' }}>Perfil</span>
+                </>
+              )}
+              
               <span style={{ margin: '0 8px', color: '#999' }}>&gt;</span>
               <span style={{ fontWeight: 'bold', color: '#003087' }}>
-                {pathname === "/profile/links" ? "Enlaces y Privacidad" : "Datos Personales"}
+                {pathname.includes("dashboard") ? "Dashboard" :
+                 pathname.includes("proyectos") ? "Proyectos" :
+                 pathname.includes("habilidades") ? "Habilidades" :
+                 pathname.includes("experiencia") ? "Experiencia" :
+                 pathname.includes("certificaciones") ? "Certificaciones" :
+                 pathname.includes("links") ? "Enlaces y Privacidad" :
+                 pathname.includes("portfolio") ? "Portafolio" :
+                 "Datos Personales"}
               </span>
             </>
           ) : (
             pathnames.map((name, index) => {
               const routeTo = `/${pathnames.slice(0, index + 1).join("/")}`;
               const isLast = index === pathnames.length - 1;
-              const displayName = routeLabels[name.toLowerCase()] || 
-                                  name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g, ' ');
+              const displayName = routeLabels[name.toLowerCase()] ||
+                name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g, ' ');
               return (
                 <span key={name}>
                   <span style={{ margin: '0 8px', color: '#999' }}>&gt;</span>
@@ -138,6 +160,11 @@ const AppRouter = () => {
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/proyectos" element={
+            <ProtectedRoute allowedRole="professional">
+              <ProjectsPage />
+            </ProtectedRoute>
+          } />
 
           {/* ── Rutas del admin ──────────────────────────────── */}
           <Route path="/admin" element={
