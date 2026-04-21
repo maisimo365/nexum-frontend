@@ -554,7 +554,7 @@ function PortfolioCard({ portfolio, accentColor }: { portfolio: Portfolio; accen
   return (
     <div className="rounded-2xl p-6 border-2 hover:shadow-xl hover:-translate-y-1 transition-all duration-300" style={{ backgroundColor: "#FFFFFF", borderColor: "#C9D1D9" }}>
       <div className="flex items-center gap-4 mb-5">
-        <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 ring-4" style={{ backgroundColor: accentColor, ringColor: accentColor + "33" }}>
+        <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 ring-4" style={{ backgroundColor: accentColor }}>
           {portfolio.avatar}
         </div>
         <div>

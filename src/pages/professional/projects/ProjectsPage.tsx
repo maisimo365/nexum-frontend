@@ -134,35 +134,36 @@ const ProjectsPage = () => {
                     <ChevronDown size={16} className="absolute right-4 pointer-events-none" />
                   </div>
 
-                  <div className="relative flex items-center bg-gray-100 text-[#1a1a2e] rounded-xl hover:bg-gray-200 transition-colors">
-                    <CalendarDays size={16} className="absolute left-4 pointer-events-none" />
-                    <select
-                      value={sortDate}
-                      onChange={(e) => {
-                        setSortDate(e.target.value as any);
-                        setSortAlpha('NONE'); // Resetear alpha al cambiar fecha
-                      }}
-                      className="appearance-none bg-transparent pl-11 pr-10 py-2 w-full text-[13px] font-bold cursor-pointer focus:outline-none outline-none border-none"
-                    >
-                      <option value="NEWEST">Más recientes</option>
-                      <option value="OLDEST">Más antiguos</option>
-                    </select>
-                    <ChevronDown size={16} className="absolute right-4 pointer-events-none" />
-                  </div>
+                  {/* Toggle fecha: botón único que alterna */}
+                  <button
+                    type="button"
+                    onClick={() => { setSortDate(sortDate === 'NEWEST' ? 'OLDEST' : 'NEWEST'); setSortAlpha('NONE'); }}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-bold transition-all ${sortAlpha === 'NONE'
+                        ? 'bg-gray-100 text-[#003087] hover:bg-gray-200'
+                        : 'bg-gray-100 text-[#5b6472] hover:bg-gray-200'
+                      }`}
+                  >
+                    <CalendarDays size={15} />
+                    {sortDate === 'NEWEST' ? 'Más recientes' : 'Más antiguos'}
+                    <span className="text-[11px] opacity-60">{sortDate === 'NEWEST' ? '↓' : '↑'}</span>
+                  </button>
 
-                  <div className="relative flex items-center bg-gray-100 text-[#1a1a2e] rounded-xl hover:bg-gray-200 transition-colors">
-                    <ArrowDownAZ size={16} className="absolute left-4 pointer-events-none" />
-                    <select
-                      value={sortAlpha}
-                      onChange={(e) => setSortAlpha(e.target.value as any)}
-                      className="appearance-none bg-transparent pl-11 pr-10 py-2 w-full text-[13px] font-bold cursor-pointer focus:outline-none outline-none border-none"
-                    >
-                      <option value="NONE">Orden alfabético</option>
-                      <option value="A-Z">A a Z</option>
-                      <option value="Z-A">Z a A</option>
-                    </select>
-                    <ChevronDown size={16} className="absolute right-4 pointer-events-none" />
-                  </div>
+                  {/* Toggle alfa: botón único que cicla NONE→A-Z→Z-A→NONE */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (sortAlpha === 'NONE') setSortAlpha('A-Z');
+                      else if (sortAlpha === 'A-Z') setSortAlpha('Z-A');
+                      else setSortAlpha('NONE');
+                    }}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-bold transition-all ${sortAlpha !== 'NONE'
+                        ? 'bg-[#eef3f8] text-[#003087] hover:bg-[#e0eaf5]'
+                        : 'bg-gray-100 text-[#5b6472] hover:bg-gray-200'
+                      }`}
+                  >
+                    <ArrowDownAZ size={15} />
+                    {sortAlpha === 'NONE' ? 'A–Z' : sortAlpha === 'A-Z' ? 'A → Z' : 'Z → A'}
+                  </button>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3 mt-1">
