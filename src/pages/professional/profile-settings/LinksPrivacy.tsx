@@ -1,33 +1,31 @@
 import { useState, useEffect } from 'react';
 import Sidebar from '../../admin/components/Sidebar';
 import RightWidgets from '../../../components/ui/RightWidgets';
-import { Globe } from 'lucide-react';
+import { Globe, Loader2 } from 'lucide-react';
 import Toast from '../../../components/ui/Toast';
 import { getLinksPrivacyData, updateLinksPrivacyData } from '../../../services/linksprivacy.service';
 
 const LinkedinIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
-    <rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/>
+    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+    <rect x="2" y="9" width="4" height="12" /><circle cx="4" cy="4" r="2" />
   </svg>
 );
 
 const GithubIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
   </svg>
 );
 
 const Toggle = ({ active, onToggle, disabled }: { active: boolean; onToggle: () => void; disabled?: boolean }) => (
   <div
     onClick={!disabled ? onToggle : undefined}
-    className={`w-11 h-6 rounded-full relative cursor-pointer transition-colors ${
-      active ? 'bg-action' : 'bg-gray-400'
-    } ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
+    className={`w-11 h-6 rounded-full relative cursor-pointer transition-colors ${active ? 'bg-action' : 'bg-gray-400'
+      } ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
   >
-    <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all ${
-      active ? 'left-5' : 'left-0.5'
-    }`} />
+    <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all ${active ? 'left-5' : 'left-0.5'
+      }`} />
   </div>
 );
 
@@ -99,8 +97,19 @@ function LinksPrivacy() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-gray-500 font-medium">Cargando...</p>
+      <div className="min-h-screen bg-background flex flex-col font-sans">
+        <div className="flex flex-1 overflow-hidden relative">
+          <Sidebar activeItem="Enlaces" />
+          <main className="flex-1 flex flex-col lg:flex-row overflow-y-auto">
+            <div className="flex-1 p-4 pl-14 sm:pl-6 md:p-6 flex items-center justify-center">
+              <div className="flex flex-col items-center gap-3 text-gray-400 font-medium">
+                <Loader2 className="animate-spin text-primary" size={32} />
+                <span>Cargando...</span>
+              </div>
+            </div>
+            <RightWidgets type="profile" className="w-full lg:w-64 shrink-0" />
+          </main>
+        </div>
       </div>
     );
   }
@@ -113,10 +122,10 @@ function LinksPrivacy() {
 
         {/* Contenido principal + Panel derecho */}
         <main className="flex-1 flex flex-col lg:flex-row overflow-y-auto">
-          
+
           {/* SECCIÓN IZQUIERDA: Formularios */}
           <div className="flex-1 p-4 pl-14 sm:pl-6 md:p-6">
-            
+
             {/* Header */}
             <div className="mb-6">
               <h1 className="text-xl sm:text-2xl font-bold text-textMain mb-1">
@@ -129,25 +138,25 @@ function LinksPrivacy() {
 
             {/* Grid responsivo: 1 columna en móvil, 2 en desktop */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              
+
               {/* Tarjeta de Redes Profesionales */}
               <div className="bg-white rounded-xl p-6 sm:p-8 shadow-sm border border-gray-100">
                 <h3 className="text-base font-bold text-textMain mb-5">
                   Redes Profesionales
                 </h3>
-                
+
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  
+
                   {/* LinkedIn */}
                   <div>
                     <label className="text-sm font-semibold text-textMain flex items-center gap-2 mb-2">
                       <LinkedinIcon />
                       LinkedIn
                     </label>
-                    <input 
-                      type="text" 
-                      value={linkedin} 
-                      onChange={(e) => setLinkedin(e.target.value)} 
+                    <input
+                      type="text"
+                      value={linkedin}
+                      onChange={(e) => setLinkedin(e.target.value)}
                       placeholder="https://linkedin.com/in/..."
                       disabled={isSaving}
                       className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:border-primary focus:outline-none transition-colors disabled:opacity-60 disabled:cursor-not-allowed bg-white"
@@ -160,10 +169,10 @@ function LinksPrivacy() {
                       <GithubIcon />
                       GitHub
                     </label>
-                    <input 
-                      type="text" 
-                      value={github} 
-                      onChange={(e) => setGithub(e.target.value)} 
+                    <input
+                      type="text"
+                      value={github}
+                      onChange={(e) => setGithub(e.target.value)}
                       placeholder="https://github.com/..."
                       disabled={isSaving}
                       className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:border-primary focus:outline-none transition-colors disabled:opacity-60 disabled:cursor-not-allowed bg-white"
@@ -176,10 +185,10 @@ function LinksPrivacy() {
                       <Globe size={18} />
                       Sitio web
                     </label>
-                    <input 
-                      type="text" 
-                      value={website} 
-                      onChange={(e) => setWebsite(e.target.value)} 
+                    <input
+                      type="text"
+                      value={website}
+                      onChange={(e) => setWebsite(e.target.value)}
                       placeholder="https://tuportafolio.com"
                       disabled={isSaving}
                       className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:border-primary focus:outline-none transition-colors disabled:opacity-60 disabled:cursor-not-allowed bg-white"
@@ -188,8 +197,8 @@ function LinksPrivacy() {
 
                   {/* Botón de guardar */}
                   <div className="flex justify-end pt-4">
-                    <button 
-                      type="submit" 
+                    <button
+                      type="submit"
                       disabled={isSaving}
                       className="px-6 py-2.5 bg-action text-white text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed"
                     >
@@ -204,9 +213,9 @@ function LinksPrivacy() {
                 <h3 className="text-base font-bold text-textMain mb-5">
                   Visibilidad Pública
                 </h3>
-                
+
                 <div className="space-y-4">
-                  
+
                   {/* Switch principal */}
                   <div className="pb-4 border-b border-gray-200">
                     <div className="flex items-center justify-between">
@@ -218,8 +227,8 @@ function LinksPrivacy() {
                           {isPublic ? 'Tu perfil es visible para todos' : 'Tu perfil es privado'}
                         </p>
                       </div>
-                      <Toggle 
-                        active={isPublic} 
+                      <Toggle
+                        active={isPublic}
                         onToggle={handleToggleAll}
                         disabled={isSaving}
                       />
@@ -230,32 +239,32 @@ function LinksPrivacy() {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium text-textMain">Mostrar proyectos</span>
-                      <Toggle 
-                        active={isPublic} 
+                      <Toggle
+                        active={isPublic}
                         onToggle={handleToggleAll}
                         disabled={isSaving || !isPublic}
                       />
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium text-textMain">Mostrar habilidades</span>
-                      <Toggle 
-                        active={isPublic} 
+                      <Toggle
+                        active={isPublic}
                         onToggle={handleToggleAll}
                         disabled={isSaving || !isPublic}
                       />
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium text-textMain">Mostrar experiencia</span>
-                      <Toggle 
-                        active={isPublic} 
+                      <Toggle
+                        active={isPublic}
                         onToggle={handleToggleAll}
                         disabled={isSaving || !isPublic}
                       />
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium text-textMain">Mostrar contacto</span>
-                      <Toggle 
-                        active={isPublic} 
+                      <Toggle
+                        active={isPublic}
                         onToggle={handleToggleAll}
                         disabled={isSaving || !isPublic}
                       />
@@ -282,10 +291,10 @@ function LinksPrivacy() {
 
       {/* Toast de notificación */}
       {toast && (
-        <Toast 
-          message={toast.message} 
-          type={toast.type} 
-          onClose={() => setToast(null)} 
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
         />
       )}
     </div>
