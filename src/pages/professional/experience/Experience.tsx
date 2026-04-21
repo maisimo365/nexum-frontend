@@ -2,8 +2,8 @@ import { useState, useRef } from 'react'
 import Sidebar from '../../admin/components/Sidebar'
 import Calendar from '../../../components/ui/Calendar'
 import {
-  Save, X, ShieldCheck, AlertTriangle,
-  CheckCircle, BookOpen, Settings, FileText, Upload, Plus
+  X, ShieldCheck,
+  BookOpen, Settings, FileText, Upload, Plus
 } from 'lucide-react'
 
 function Experience() {
