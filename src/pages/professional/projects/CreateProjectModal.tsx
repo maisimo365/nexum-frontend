@@ -1,54 +1,3 @@
-import { useState, useEffect } from "react";
-import Modal from "../../../components/ui/Modal";
-import { CheckCircle, FolderOpen } from "lucide-react";
-import {
-  createProject, updateProject,
-  type Skill, type Project,
-} from "../../../services/project.service";
-import { getProjectFiles } from "../../../services/File.service";
-import Step1Form from "./Step1Form";
-import Step2Files, { type UploadedFile } from "./Step2Files";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-interface CreateProjectModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  projectToEdit?: Project | null;
-  onDelete?: (id: number) => void;
-}
-
-// ─── Sub-components ───────────────────────────────────────────────────────────
-
-const SuccessModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
-  if (!isOpen) return null;
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white rounded-xl shadow-2xl p-6 w-full max-w-[340px] mx-4 flex flex-col items-center gap-4" onClick={(e) => e.stopPropagation()}>
-        <div className="w-14 h-14 rounded-full bg-emerald-50 flex items-center justify-center">
-          <CheckCircle size={28} className="text-emerald-500" />
-        </div>
-        <div className="text-center">
-          <h3 className="text-[16px] font-bold text-[#1a1a2e] mb-1">¡Proyecto guardado con éxito!</h3>
-          <p className="text-[13px] text-[#5b6472] leading-relaxed">
-            Tu proyecto ha sido guardado correctamente en tu portafolio.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={onClose}
-          className="w-full h-10 bg-[#003087] text-white text-[13px] font-bold rounded-lg hover:brightness-110 transition-all flex items-center justify-center gap-2"
-        >
-          <FolderOpen size={15} /> Ir a Mis Proyectos
-        </button>
-      </div>
-    </div>
-  );
-};
-
-// ─── Main Component ───────────────────────────────────────────────────────────
-
 const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete }: CreateProjectModalProps) => {
   const [currentStep, setCurrentStep] = useState<1 | 2>(1);
   const [createdProjectId, setCreatedProjectId] = useState<number | null>(null);
@@ -58,7 +7,6 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete }: Create
   const [showConfirmNoFiles, setShowConfirmNoFiles] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  // ── Init ───────────────────────────────────────────────────────────────────
   useEffect(() => {
     if (isOpen) {
       setCurrentStep(1);
@@ -78,7 +26,7 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete }: Create
               name: f.original_name,
               size: 0,
               mimeType: f.type === "pdf" ? "application/pdf" : "image/jpeg",
-              status: "success" as const,
+              status: "success",
               progress: 100,
             }));
             setUploadedFiles(mapped);
@@ -88,7 +36,6 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete }: Create
     }
   }, [isOpen, projectToEdit]);
 
-  // ── Step 1 handler ─────────────────────────────────────────────────────────
   const handleStep1Submit = async (data: {
     title: string;
     description: string;
@@ -98,6 +45,7 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete }: Create
   }) => {
     try {
       setIsSaving(true);
+
       const payload = {
         title: data.title,
         description: data.description,
@@ -107,6 +55,7 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete }: Create
       };
 
       let projectId: number;
+
       if (projectToEdit) {
         await updateProject(projectToEdit.id, payload);
         projectId = projectToEdit.id;
@@ -125,17 +74,18 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete }: Create
     }
   };
 
-  // ── Success modal close handler ────────────────────────────────────────────
   const handleSuccessClose = () => {
     setShowSuccess(false);
     onClose();
   };
 
-  // ─────────────────────────────────────────────────────────────────────────────
-
   return (
     <>
-      <Modal isOpen={isOpen && !showSuccess} onClose={onClose} title={projectToEdit ? "Editar proyecto" : "Nuevo proyecto"}>
+      <Modal
+        isOpen={isOpen && !showSuccess}
+        onClose={onClose}
+        title={projectToEdit ? "Editar proyecto" : "Nuevo proyecto"}
+      >
         <div className="flex flex-col gap-5">
           {currentStep === 1 && (
             <Step1Form
@@ -172,5 +122,3 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete }: Create
     </>
   );
 };
-
-export default CreateProjectModal;
