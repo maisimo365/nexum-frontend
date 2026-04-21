@@ -43,6 +43,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, title, positio
     maxWidth: '550px',
     textAlign: 'left',
     position: 'relative',
+    fontFamily: 'inherit',
   };
 
   if (positioning === 'top-right') {
