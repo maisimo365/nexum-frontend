@@ -2,8 +2,8 @@ import { useState } from 'react'
 import Sidebar from './components/Sidebar'
 import Calendar from '../../components/ui/Calendar'
 import { 
-  Plus, Edit2, Trash2, Search, Download, 
-  RefreshCw, Flag, BellRing, Link2
+  Plus, Edit2, Trash2, Download, 
+  RefreshCw, Flag, BellRing
 } from 'lucide-react'
 
 interface Category {

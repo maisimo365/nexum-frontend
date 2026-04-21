@@ -12,7 +12,7 @@ import AuditPage from "../pages/admin/AuditPage";
 import CategoriesPage from "../pages/admin/CategoriesPage";
 import PersonalData from "../pages/professional/profile-settings/PersonalData";
 import LinksPrivacy from "../pages/professional/profile-settings/LinksPrivacy";
-import HabilidadesPage from "../pages/professional/profile-settings/Habilidades";
+import HabilidadesPage from "../pages/professional/Habilidades";
 import Experience from "../pages/professional/experience/Experience";
 import Certifications from "../pages/professional/certifications/Certifications";
 import ProtectedRoute from "./ProtectedRoute";
@@ -103,16 +103,31 @@ const Breadcrumbs = () => {
   );
 };
 
+// Rutas que NO usan el Navbar/Footer/Breadcrumbs del layout
+// porque tienen sus propios componentes integrados.
 const ROUTES_WITHOUT_LAYOUT = [
   "/",
-  "/login", "/register", "/forgot-password", "/reset-password", "/portfolio",
-  "/habilidades", "/experiencia", "/Home", "/profolio"
+  "/home",
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/reset-password",
+  "/portfolio",
+  "/habilidades",
+  "/experiencia",
+  "/profolio",
 ];
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const { pathname } = useLocation();
+
+  // toLowerCase() para que /Home, /home, /HOME etc. todos hagan match
+  const lowerPath = pathname.toLowerCase();
+
   const hideLayout = ROUTES_WITHOUT_LAYOUT.some((route) =>
-    route === "/" ? pathname === "/" : pathname.startsWith(route)
+    route === "/"
+      ? lowerPath === "/"
+      : lowerPath === route || lowerPath.startsWith(route + "/")
   );
 
   if (hideLayout) return <>{children}</>;
@@ -136,6 +151,7 @@ const AppRouter = () => {
         <Routes>
           {/* ── Página de inicio ─────────────────────────────── */}
           <Route path="/" element={<Home />} />
+          <Route path="/Home" element={<Home />} />  {/* ← AGREGADO: evita el breadcrumb */}
 
           {/* ── Rutas públicas ───────────────────────────────── */}
           <Route path="/register" element={<RegisterPage />} />
@@ -182,11 +198,6 @@ const AppRouter = () => {
           } />
 
           {/* ── Rutas del profesional ────────────────────────── */}
-          <Route path="/portfolio" element={
-            <ProtectedRoute allowedRole="professional">
-              <RolesPage />
-            </ProtectedRoute>
-          } />
           <Route path="/dashboard" element={
             <ProtectedRoute allowedRole="professional">
               <RolesPage />

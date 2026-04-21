@@ -2,7 +2,7 @@ import { useRef } from 'react'
 import Sidebar from '../../admin/components/Sidebar'
 import Calendar from '../../../components/ui/Calendar'
 import { 
-  ShieldCheck, CheckCircle, Settings, FileText, Upload 
+  ShieldCheck, Settings, FileText, Upload 
 } from 'lucide-react'
 
 function Certifications() {
