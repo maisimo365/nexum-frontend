@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import Sidebar from './components/Sidebar'
 import Calendar from '../../components/ui/Calendar'
-import { Plus, Edit2, Flag, BellRing, Download, RefreshCw, Calendar as CalendarIcon, Loader2 } from 'lucide-react'
+import { Plus, Edit2, Flag, BellRing, Calendar as CalendarIcon, Loader2 } from 'lucide-react'
 import { getProjectCategories, createProjectCategory, updateProjectCategory, toggleProjectCategoryStatus } from '../../services/admin.service'
 
 interface Category {

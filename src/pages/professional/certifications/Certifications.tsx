@@ -234,25 +234,25 @@ function Certifications() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] items-center gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] items-start md:items-center gap-4">
                     <label className="text-[13px] font-bold">Fecha:</label>
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full">
                       <input
                         type="text"
                         placeholder="Desde (MM/YYYY) *"
                         value={fechaDesde}
                         onChange={handleFechaDesdeChange}
                         disabled={actionLoading}
-                        className="flex-1 p-2.5 rounded border border-gray-200 bg-white outline-none focus:border-action transition-all text-sm"
+                        className="w-full sm:flex-1 min-w-0 p-2.5 rounded border border-gray-200 bg-white outline-none focus:border-action transition-all text-sm"
                       />
-                      <span className="text-gray-400">-</span>
+                      <span className="text-gray-400 hidden sm:block">-</span>
                       <input
                         type="text"
                         placeholder="Hasta (MM/YYYY)"
                         value={fechaHasta}
                         onChange={handleFechaHastaChange}
                         disabled={actionLoading}
-                        className="flex-1 p-2.5 rounded border border-gray-200 bg-white outline-none focus:border-action transition-all text-sm"
+                        className="w-full sm:flex-1 min-w-0 p-2.5 rounded border border-gray-200 bg-white outline-none focus:border-action transition-all text-sm"
                       />
                     </div>
                   </div>

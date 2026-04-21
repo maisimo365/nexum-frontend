@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import Sidebar from '../../admin/components/Sidebar'
 import Calendar from '../../../components/ui/Calendar'
 import {
-  Briefcase, ShieldAlert, ExternalLink, Loader2, AlertCircle, CheckCircle2, ChevronDown, X, Check, Clock, MapPin, Code
+   ShieldAlert, ExternalLink, Loader2, AlertCircle, CheckCircle2, ChevronDown, X, Check, Clock,
 } from 'lucide-react'
 import { createExperience } from '../../../services/experience.service'
 import { getSkillsCatalog, type Skill } from '../../../services/project.service'
@@ -165,11 +165,12 @@ function Experience() {
 
           <div className="flex-1 p-4 pl-14 sm:pl-6 md:p-8 overflow-y-auto">
             <div className="max-w-4xl mx-auto pt-2">
-              <header className="mb-6">
-                <h1 className="text-2xl font-bold text-textMain">Experienca</h1>
+              <header className="mb-6 flex justify-between items-center">
+                <h1 className="text-2xl font-bold text-textMain">Experiencia</h1>
               </header>
 
-              <div className="bg-white rounded-xl shadow-sm p-6 md:p-10 mb-8 border border-gray-100">
+              <div className="bg-white rounded-xl shadow-sm p-6 md:p-8 mb-8">
+                <h2 className="text-base font-bold text-textMain mb-6">Añadir Experiencia</h2>
 
                 {error && (
                   <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm flex items-center gap-3 animate-slideIn">
@@ -213,25 +214,25 @@ function Experience() {
                   </div>
 
                   {/* Fecha (1) */}
-                  <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] items-center gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] items-start md:items-center gap-4">
                     <label className="text-[13px] font-bold text-gray-700">Fecha:</label>
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full">
                       <input
                         type="text"
                         placeholder="Desde (MM/YYYY)"
                         value={startDate}
                         onChange={handleStartDateChange}
                         disabled={actionLoading}
-                        className="flex-1 p-2.5 rounded border border-gray-200 bg-white outline-none focus:border-action transition-all text-sm placeholder:text-gray-300"
+                        className="w-full sm:flex-1 min-w-0 p-2.5 rounded border border-gray-200 bg-white outline-none focus:border-action transition-all text-sm placeholder:text-gray-300"
                       />
-                      <span className="text-gray-400">-</span>
+                      <span className="text-gray-400 hidden sm:block">-</span>
                       <input
                         type="text"
                         placeholder="Hasta (MM/YYYY)"
                         value={endDate}
                         onChange={handleEndDateChange}
                         disabled={actionLoading}
-                        className="flex-1 p-2.5 rounded border border-gray-200 bg-white outline-none focus:border-action transition-all text-sm placeholder:text-gray-300"
+                        className="w-full sm:flex-1 min-w-0 p-2.5 rounded border border-gray-200 bg-white outline-none focus:border-action transition-all text-sm placeholder:text-gray-300"
                       />
                     </div>
                   </div>
@@ -336,24 +337,24 @@ function Experience() {
                   </div>
                 </div>
 
-                <div className="flex justify-end gap-3 pt-10 mt-6 border-t border-gray-50">
+                <div className="flex justify-end gap-3 pt-8 mt-6">
                   <button
                     type="button"
                     onClick={() => {
                       setPosition(""); setCompany(""); setStartDate(""); setEndDate(""); setLocation(""); setDescription(""); setSelectedSkills([]);
                     }}
                     disabled={actionLoading}
-                    className="px-8 py-2 rounded-lg border border-gray-200 font-bold text-sm text-gray-700 hover:bg-gray-50 transition-all bg-white"
+                    className="px-6 py-2 rounded border border-gray-200 font-medium text-sm text-gray-700 hover:bg-gray-50 transition-all shadow-sm bg-white"
                   >
-                    Cancelar
+                    Limpiar
                   </button>
                   <button
                     type="button"
                     onClick={handleSave}
                     disabled={actionLoading}
-                    className="px-8 py-2 rounded-lg font-bold text-sm text-white bg-action hover:brightness-110 shadow-md transition-all flex items-center gap-2 min-w-[140px] justify-center"
+                    className="px-6 py-2 rounded font-medium text-sm text-white bg-[#dc2626] hover:bg-red-700 shadow-sm transition-all flex items-center gap-2 min-w-[150px] justify-center"
                   >
-                    {actionLoading ? <Loader2 className="animate-spin" size={16} /> : "Guardar"}
+                    {actionLoading ? <Loader2 className="animate-spin" size={16} /> : "Guardar Experiencia"}
                   </button>
                 </div>
               </div>
