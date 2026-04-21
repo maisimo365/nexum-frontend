@@ -69,8 +69,8 @@ function useFeaturedProfiles() {
         );
         if (!res.ok) throw new Error("Error al cargar perfiles");
         const json = await res.json();
-        
-          console.log("Estructura real del backend:", json);
+
+        console.log("Estructura real del backend:", json);
         // Perfiles destacados
         if (Array.isArray(json.data)) setProfiles(json.data);
 

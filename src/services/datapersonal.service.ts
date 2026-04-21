@@ -38,7 +38,7 @@ export const getPersonalData = async () => {
 
 export const updatePersonalData = async (data: PersonalDataUpdate) => {
   const token = getToken()
-  
+
   // Recuperamos datos actuales para no sobrescribir con nulo los campos de otras pestañas
   const currentData = await getPersonalData()
 
@@ -71,7 +71,7 @@ export const updatePersonalData = async (data: PersonalDataUpdate) => {
 }
 
 /**
- * Sube el archivo de imagen al endpoint configurado en el backend 
+ * Sube el archivo de imagen al endpoint configurado en el backend
  */
 export const uploadAvatar = async (file: File) => {
   const token = getToken()
@@ -91,14 +91,17 @@ export const uploadAvatar = async (file: File) => {
   let result
   try {
     result = await response.json()
-  } catch (e) {
+  } catch {
     // Si no se puede parsear como JSON, usar el texto de la respuesta
     const text = await response.text()
     throw new Error(`Error del servidor: ${response.status} - ${text}`)
   }
 
   if (!response.ok) {
-    throw new Error(result.message || `Error del servidor: ${response.status} - ${result.error || 'Error desconocido'}`)
+    throw new Error(
+      result.message ||
+        `Error del servidor: ${response.status} - ${result.error || 'Error desconocido'}`
+    )
   }
 
   return result
