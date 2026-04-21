@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+﻿import React, { useState, useRef, useEffect } from "react";
 import Modal from "../../../components/ui/Modal";
 import { X, ChevronDown, Check } from "lucide-react";
 import { createProject, updateProject, getCategories, getSkillsCatalog, type ProjectCategory, type Skill, type Project } from "../../../services/project.service";
@@ -67,7 +67,7 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete }: Create
 
   const handleProjectUrlBlur = () => {
     if (projectUrl && !isValidGithubUrl(projectUrl)) {
-      setProjectUrlError("Ingresa un enlace válido de GitHub (ej. https://github.com/usuario/repo)");
+      setProjectUrlError("Ingresa un enlace v├ílido de GitHub (ej. https://github.com/usuario/repo)");
     } else {
       setProjectUrlError("");
     }
@@ -76,11 +76,11 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete }: Create
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) {
-      alert("El título del proyecto es obligatorio.");
+      alert("El t├¡tulo del proyecto es obligatorio.");
       return;
     }
     if (!isValidGithubUrl(projectUrl)) {
-      setProjectUrlError("Ingresa un enlace válido de GitHub (ej. https://github.com/usuario/repo)");
+      setProjectUrlError("Ingresa un enlace v├ílido de GitHub (ej. https://github.com/usuario/repo)");
       return;
     }
 
@@ -135,7 +135,7 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete }: Create
         <div className="flex justify-between items-start gap-4">
           <div className="flex flex-col gap-1">
             <p className="text-[14px] text-[#5b6472] leading-relaxed">
-              Completa la información principal para agregar un nuevo proyecto a tu portafolio profesional.
+              Completa la informaci├│n principal para agregar un nuevo proyecto a tu portafolio profesional.
             </p>
           </div>
           <span className="bg-[#eef3f8] text-[#003087] px-3 py-1.5 rounded-md text-[13px] font-bold">
@@ -144,40 +144,40 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete }: Create
         </div>
 
         <form className="flex flex-col gap-5 mt-2" onSubmit={handleSubmit}>
-          {/* Fila 1: Título y Categoría */}
+          {/* Fila 1: T├¡tulo y Categor├¡a */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[13px] font-bold text-[#1a1a2e]">Título del proyecto</label>
+              <label className="text-[13px] font-bold text-[#1a1a2e]">T├¡tulo del proyecto</label>
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 required
                 className="w-full h-10 px-3 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0030871a] focus:border-[#003087] transition-all text-[#1a1a2e]"
-                placeholder="Ej. Sistema de Tutorías Inteligentes"
+                placeholder="Ej. Sistema de Tutor├¡as Inteligentes"
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-[13px] font-bold text-[#1a1a2e]">Categoría</label>
+              <label className="text-[13px] font-bold text-[#1a1a2e]">Categor├¡a</label>
               <select
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value === "" ? "" : Number(e.target.value))}
                 className="w-full h-10 px-3 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0030871a] focus:border-[#003087] transition-all cursor-pointer text-[#1a1a2e]"
               >
-                <option value="" disabled>Selecciona una categoría</option>
+                <option value="" disabled>Selecciona una categor├¡a</option>
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
               </select>
               <p className="text-[11px] text-[#5b6472] mt-0.5 leading-relaxed">
-                Selecciona una categoría para clasificar y facilitar la búsqueda del proyecto.
+                Selecciona una categor├¡a para clasificar y facilitar la b├║squeda del proyecto.
               </p>
             </div>
           </div>
 
-          {/* Fila 2: Descripción */}
+          {/* Fila 2: Descripci├│n */}
           <div className="flex flex-col gap-1.5 -mt-2">
-            <label className="text-[13px] font-bold text-[#1a1a2e]">Descripción</label>
+            <label className="text-[13px] font-bold text-[#1a1a2e]">Descripci├│n</label>
             <textarea
               rows={4}
               value={description}
@@ -206,9 +206,9 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete }: Create
             )}
           </div>
 
-          {/* Fila 4: Tecnologías */}
+          {/* Fila 4: Tecnolog├¡as */}
           <div className="flex flex-col gap-1.5 mt-1" ref={dropdownRef}>
-            <label className="text-[13px] font-bold text-[#1a1a2e]">Tecnologías</label>
+            <label className="text-[13px] font-bold text-[#1a1a2e]">Tecnolog├¡as</label>
 
             <div className="relative">
               {/* Custom Select Trigger */}
