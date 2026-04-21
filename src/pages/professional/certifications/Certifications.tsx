@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import Sidebar from '../../admin/components/Sidebar'
 import Calendar from '../../../components/ui/Calendar'
-import { 
+import {
   ShieldCheck, Settings, FileText, Upload, Loader2, AlertCircle, CheckCircle2
 } from 'lucide-react'
 import { createCertification, updateCertificationImage } from '../../../services/certification.service'
@@ -97,7 +97,7 @@ function Certifications() {
 
     try {
       setActionLoading(true)
-      
+
       const payload = {
         name: titulo,
         description: descripcion || null,
@@ -135,9 +135,6 @@ function Certifications() {
   const RightPanelContent = () => (
     <div className="sticky top-6 space-y-8">
       <div>
-        <h3 className="font-bold text-textMain text-sm mb-4 uppercase tracking-wider">
-          Calendario
-        </h3>
         <Calendar />
       </div>
 
@@ -176,7 +173,7 @@ function Certifications() {
         <Sidebar activeItem="Certificaciones" />
 
         <main className="flex-1 flex flex-col lg:flex-row overflow-y-auto bg-[#cbd5e1]">
-          
+
           <div className="flex-1 p-4 pl-14 sm:pl-6 md:p-8 overflow-y-auto">
             <div className="max-w-4xl mx-auto pt-2">
               <header className="mb-6 flex justify-between items-center">
@@ -203,59 +200,59 @@ function Certifications() {
                 <div className="space-y-6 text-gray-700">
                   <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] items-center gap-4">
                     <label className="text-[13px] font-bold">Título de la Certificación:</label>
-                    <input 
-                      type="text" 
-                      placeholder="Ej. Cisco Certified Network Associate" 
+                    <input
+                      type="text"
+                      placeholder="Ej. Cisco Certified Network Associate"
                       value={titulo}
                       onChange={handleTituloChange}
                       disabled={actionLoading}
-                      className="w-full p-2.5 rounded border border-gray-200 bg-white outline-none focus:border-action transition-all text-sm" 
+                      className="w-full p-2.5 rounded border border-gray-200 bg-white outline-none focus:border-action transition-all text-sm"
                     />
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] items-center gap-4">
                     <label className="text-[13px] font-bold">Descripción (Opcional):</label>
-                    <input 
-                      type="text" 
-                      placeholder="Ej. Redes de computadoras y protocolos" 
+                    <input
+                      type="text"
+                      placeholder="Ej. Redes de computadoras y protocolos"
                       value={descripcion}
                       onChange={handleDescripcionChange}
                       disabled={actionLoading}
-                      className="w-full p-2.5 rounded border border-gray-200 bg-white outline-none focus:border-action transition-all text-sm" 
+                      className="w-full p-2.5 rounded border border-gray-200 bg-white outline-none focus:border-action transition-all text-sm"
                     />
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] items-center gap-4">
                     <label className="text-[13px] font-bold">URL Entidad Emisora:</label>
-                    <input 
-                      type="text" 
-                      placeholder="https://entidad.com/certificado" 
+                    <input
+                      type="text"
+                      placeholder="https://entidad.com/certificado"
                       value={entidad}
                       onChange={handleEntidadChange}
                       disabled={actionLoading}
-                      className="w-full p-2.5 rounded border border-gray-200 bg-white outline-none focus:border-action transition-all text-sm" 
+                      className="w-full p-2.5 rounded border border-gray-200 bg-white outline-none focus:border-action transition-all text-sm"
                     />
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] items-center gap-4">
                     <label className="text-[13px] font-bold">Fecha:</label>
                     <div className="flex items-center gap-3">
-                      <input 
-                        type="text" 
-                        placeholder="Desde (MM/YYYY) *" 
+                      <input
+                        type="text"
+                        placeholder="Desde (MM/YYYY) *"
                         value={fechaDesde}
                         onChange={handleFechaDesdeChange}
                         disabled={actionLoading}
-                        className="flex-1 p-2.5 rounded border border-gray-200 bg-white outline-none focus:border-action transition-all text-sm" 
+                        className="flex-1 p-2.5 rounded border border-gray-200 bg-white outline-none focus:border-action transition-all text-sm"
                       />
                       <span className="text-gray-400">-</span>
-                      <input 
-                        type="text" 
-                        placeholder="Hasta (MM/YYYY)" 
+                      <input
+                        type="text"
+                        placeholder="Hasta (MM/YYYY)"
                         value={fechaHasta}
                         onChange={handleFechaHastaChange}
                         disabled={actionLoading}
-                        className="flex-1 p-2.5 rounded border border-gray-200 bg-white outline-none focus:border-action transition-all text-sm" 
+                        className="flex-1 p-2.5 rounded border border-gray-200 bg-white outline-none focus:border-action transition-all text-sm"
                       />
                     </div>
                   </div>
@@ -265,17 +262,17 @@ function Certifications() {
                     <div className="w-full bg-[#f0f4f8] border border-dashed border-[#d1dce5] rounded-xl p-8 flex flex-col items-center justify-center gap-3">
                       {selectedFile ? (
                         <div className="flex flex-col items-center gap-2">
-                           <img 
-                            src={URL.createObjectURL(selectedFile)} 
-                            alt="Preview" 
+                          <img
+                            src={URL.createObjectURL(selectedFile)}
+                            alt="Preview"
                             className="w-20 h-20 object-cover rounded shadow-md border-2 border-white"
-                           />
-                           <p className="text-xs text-gray-500 font-medium">{selectedFile.name}</p>
-                           <button onClick={() => setSelectedFile(null)} className="text-red-500 text-[10px] hover:underline">Quitar</button>
+                          />
+                          <p className="text-xs text-gray-500 font-medium">{selectedFile.name}</p>
+                          <button onClick={() => setSelectedFile(null)} className="text-red-500 text-[10px] hover:underline">Quitar</button>
                         </div>
                       ) : (
                         <>
-                          <button 
+                          <button
                             onClick={() => fileInputRef.current?.click()}
                             disabled={actionLoading}
                             className="bg-white border text-gray-700 border-gray-200 font-medium text-sm py-2 px-4 rounded-lg shadow-sm hover:bg-gray-50 flex items-center gap-2 transition-all disabled:opacity-50"
@@ -291,8 +288,8 @@ function Certifications() {
                 </div>
 
                 <div className="flex justify-end gap-3 pt-8 mt-6">
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={() => {
                       setTitulo(""); setDescripcion(""); setEntidad(""); setFechaDesde(""); setFechaHasta(""); setSelectedFile(null);
                     }}
@@ -301,8 +298,8 @@ function Certifications() {
                   >
                     Limpiar
                   </button>
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={handleSave}
                     disabled={actionLoading}
                     className="px-6 py-2 rounded font-medium text-sm text-white bg-[#dc2626] hover:bg-red-700 shadow-sm transition-all flex items-center gap-2 min-w-[150px] justify-center"
