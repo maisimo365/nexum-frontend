@@ -23,6 +23,7 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete }: Create
   const [description, setDescription] = useState("");
   const [projectUrl, setProjectUrl] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [projectUrlError, setProjectUrlError] = useState("");
 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -30,6 +31,7 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete }: Create
     if (isOpen) {
       getCategories().then(setCategories).catch(console.error);
       getSkillsCatalog().then(setAvailableSkills).catch(console.error);
+      setProjectUrlError("");
 
       if (projectToEdit) {
         setTitle(projectToEdit.title);
@@ -58,10 +60,27 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete }: Create
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const isValidGithubUrl = (url: string) => {
+    if (!url.trim()) return true; // campo opcional
+    return /^https:\/\/github\.com\/[a-zA-Z0-9_.-]+(\/.+)?$/.test(url.trim());
+  };
+
+  const handleProjectUrlBlur = () => {
+    if (projectUrl && !isValidGithubUrl(projectUrl)) {
+      setProjectUrlError("Ingresa un enlace válido de GitHub (ej. https://github.com/usuario/repo)");
+    } else {
+      setProjectUrlError("");
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) {
       alert("El título del proyecto es obligatorio.");
+      return;
+    }
+    if (!isValidGithubUrl(projectUrl)) {
+      setProjectUrlError("Ingresa un enlace válido de GitHub (ej. https://github.com/usuario/repo)");
       return;
     }
 
@@ -172,12 +191,19 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete }: Create
           <div className="flex flex-col gap-1.5">
             <label className="text-[13px] font-bold text-[#1a1a2e]">Enlace del proyecto</label>
             <input
-              type="url"
+              type="text"
               value={projectUrl}
-              onChange={(e) => setProjectUrl(e.target.value)}
-              className="w-full h-10 px-3 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0030871a] focus:border-[#003087] text-[#1a1a2e]"
-              placeholder="https://github.com/..."
+              onChange={(e) => { setProjectUrl(e.target.value); if (projectUrlError) setProjectUrlError(""); }}
+              onBlur={handleProjectUrlBlur}
+              className={`w-full h-10 px-3 text-sm bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0030871a] transition-all text-[#1a1a2e] ${projectUrlError ? "border-red-400 focus:border-red-400 focus:ring-red-100" : "border-gray-200 focus:border-[#003087]"
+                }`}
+              placeholder="https://github.com/usuario/repositorio"
             />
+            {projectUrlError && (
+              <p className="text-[11px] text-red-500 mt-0.5 leading-relaxed flex items-center gap-1">
+                <span>{projectUrlError}</span>
+              </p>
+            )}
           </div>
 
           {/* Fila 4: Tecnologías */}
