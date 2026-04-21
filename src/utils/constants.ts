@@ -1,1 +1,1 @@
-export const API_BASE_URL = 'https://web-production-916a2.up.railway.app/api/v1'
+export const API_BASE_URL = 'http://localhost:8000/api/v1'
