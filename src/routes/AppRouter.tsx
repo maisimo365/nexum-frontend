@@ -113,6 +113,8 @@ const ROUTES_WITHOUT_LAYOUT = [
   "/forgot-password",
   "/reset-password",
   "/portfolio",
+  "/habilidades",
+  "/experiencia",
   "/profolio",
 ];
 

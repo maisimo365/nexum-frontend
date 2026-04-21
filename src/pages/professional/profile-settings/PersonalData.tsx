@@ -4,6 +4,7 @@ import Sidebar from '../../admin/components/Sidebar'
 import Modal from '../../../components/ui/Modal'
 import Toast from '../../../components/ui/Toast'
 import Calendar from '../../../components/ui/Calendar'
+import ImageCropperModal from '../../../components/ui/ImageCropperModal'
 import {
   getPersonalData,
   updatePersonalData,
@@ -23,7 +24,8 @@ import {
   CheckCircle,
   BookOpen,
   Settings,
-  FileText
+  FileText,
+  Loader2
 } from 'lucide-react'
 
 // Función para comprimir y convertir imagen a WebP
@@ -71,6 +73,11 @@ function PersonalData() {
   const [loading, setLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [showConfirmModal, setShowConfirmModal] = useState(false)
+  
+  // Estados para el Cropper
+  const [isCropperOpen, setIsCropperOpen] = useState(false)
+  const [selectedImageSrc, setSelectedImageSrc] = useState<string>('')
+  const [selectedFileName, setSelectedFileName] = useState<string>('')
 
   const [toast, setToast] = useState<{
     message: string
@@ -177,20 +184,39 @@ function PersonalData() {
     setToast({ message: 'Se han revertido los cambios.', type: 'info' })
   }
 
-  const handleAvatarChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
-      try {
-        const compressedBlob = await compressAndConvertToWebP(file, 0.8)
-        const webpFile = new File([compressedBlob], `${file.name.split('.')[0]}.webp`, {
-          type: 'image/webp'
-        })
-        const result = await uploadAvatar(webpFile)
-        setAvatarUrl(result.data.avatar_url)
-        setToast({ message: 'Foto de perfil actualizada.', type: 'success' })
-      } catch (error: any) {
-        setToast({ message: 'Error al subir la imagen.', type: 'error' })
+      const reader = new FileReader()
+      reader.onload = () => {
+        setSelectedImageSrc(reader.result as string)
+        setSelectedFileName(file.name)
+        setIsCropperOpen(true)
       }
+      reader.readAsDataURL(file)
+      // Resetear el input para que detecte si se selecciona el mismo archivo de nuevo
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
+
+  const handleCropComplete = async (croppedBlob: Blob) => {
+    setIsCropperOpen(false)
+    try {
+      // 1. Convertir el Blob recortado a File para la compresión
+      const fileToCompress = new File([croppedBlob], selectedFileName, { type: 'image/jpeg' })
+      
+      // 2. Comprimir y convertir a WebP
+      const compressedBlob = await compressAndConvertToWebP(fileToCompress, 0.8)
+      const webpFile = new File([compressedBlob], `${selectedFileName.split('.')[0]}.webp`, {
+        type: 'image/webp'
+      })
+      
+      // 3. Subir el WebP
+      const result = await uploadAvatar(webpFile)
+      setAvatarUrl(result.data.avatar_url)
+      setToast({ message: 'Foto de perfil actualizada y comprimida con éxito.', type: 'success' })
+    } catch (error: any) {
+      setToast({ message: 'Error al procesar o subir la imagen.', type: 'error' })
     }
   }
 
@@ -248,8 +274,21 @@ function PersonalData() {
 
   if (loading)
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background text-gray-400 font-medium">
-        Cargando perfil...
+      <div className="min-h-screen bg-background flex flex-col font-sans">
+        <div className="flex flex-1 overflow-hidden relative">
+          <Sidebar activeItem="Datos Personales" />
+          <main className="flex-1 flex flex-col lg:flex-row overflow-y-auto">
+            <div className="flex-1 p-4 pl-14 sm:pl-6 md:p-8 flex items-center justify-center">
+              <div className="flex flex-col items-center gap-3 text-gray-400 font-medium">
+                <Loader2 className="animate-spin text-primary" size={32} />
+                <span>Cargando perfil...</span>
+              </div>
+            </div>
+            <aside className="w-full lg:w-72 p-6 bg-white border-t lg:border-t-0 lg:border-l border-gray-200 shrink-0">
+              <RightPanelContent />
+            </aside>
+          </main>
+        </div>
       </div>
     )
 
@@ -423,10 +462,6 @@ function PersonalData() {
               </div>
             </div>
 
-            {/* COPYRIGHT FOOTER */}
-            <div className="mt-12 text-center pb-6">
-              <p className="text-textMain font-medium text-sm">Copyright © 2026 CODI</p>
-            </div>
           </div>
 
           {/* ASIDE DERECHO (ESTILO DASHBOARD ADMIN) */}
@@ -468,6 +503,15 @@ function PersonalData() {
       </Modal>
 
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+
+      {isCropperOpen && (
+        <ImageCropperModal
+          isOpen={isCropperOpen}
+          onClose={() => setIsCropperOpen(false)}
+          imageSrc={selectedImageSrc}
+          onCropComplete={handleCropComplete}
+        />
+      )}
     </div>
   )
 }
