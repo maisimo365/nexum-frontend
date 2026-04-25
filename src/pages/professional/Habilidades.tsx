@@ -275,7 +275,7 @@ function EditNivelModal({ skill, loading, onSave, onCancel }: {
             <p className="text-xs text-gray-400 mt-0.5">
               <span className="font-semibold text-gray-600">{skill.nombre}</span>
               {" · "}
-              <span className="text-blue-600">{skill.tipo}</span>
+              <span className="text-blue-950">{skill.tipo}</span>
             </p>
           </div>
           <button onClick={onCancel} disabled={loading} className="w-7 h-7 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors disabled:opacity-50">
@@ -288,9 +288,9 @@ function EditNivelModal({ skill, loading, onSave, onCancel }: {
           <svg className="w-3.5 h-3.5 text-gray-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m0 0v2m0-2h2m-2 0H10m2-9a3 3 0 100 6 3 3 0 000-6z" />
           </svg>
-          <p className="text-xs text-gray-500">
-            El nombre y tipo no son editables. Solo el nivel es actualizable.
-          </p>
+            <p className="text-xs text-gray-500">
+            Ten en cuenta que cambiar el nivel refleja tu dominio real. Sé honesto con tu evaluación.
+            </p>
         </div>
         <div className="px-6 py-5">
           <label className="block text-sm font-medium text-gray-700 mb-3">Nivel de dominio</label>
@@ -779,7 +779,7 @@ export default function HabilidadesPage() {
   const blandas  = skillsFiltered.filter(s => s.tipo === "Blanda");
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-background  flex flex-col">
       <div className="flex flex-1 overflow-hidden">
         <Sidebar activeItem="Habilidades" />
         <main className="flex-1 flex flex-col lg:flex-row overflow-y-auto">
@@ -891,7 +891,7 @@ export default function HabilidadesPage() {
                           </div>
                           <p className="text-xs text-gray-400 italic">
                                Las habilidades blandas no tienen nivel de dominio asignado.
-                            <code className="text-xs bg-gray-100 px-1 rounded">StoreSkillRequest</code>.
+                            <code className="text-xs bg-gray-100 px-1 rounded"></code>.
                           </p>
                         </>
                       )}
