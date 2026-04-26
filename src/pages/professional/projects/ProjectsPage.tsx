@@ -4,6 +4,7 @@ import RightWidgets from '../../../components/ui/RightWidgets';
 import CreateProjectModal from './CreateProjectModal';
 import ConfirmDeleteModal from '../../../components/ui/ConfirmDeleteModal';
 import ConfirmEditModal from '../../../components/ui/ConfirmEditModal';
+import Toast from '../../../components/ui/Toast';
 import { getProjects, deleteProject, getCategories, type Project, type ProjectCategory } from '../../../services/project.service';
 import { getPersonalData } from '../../../services/datapersonal.service';
 import {
@@ -22,6 +23,10 @@ const ProjectsPage = () => {
   const [loading, setLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
   const [hasPortfolio, setHasPortfolio] = useState<boolean | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: 'success' | 'error' | 'info';
+  } | null>(null);
 
   // Filter states
   const [searchTerm, setSearchTerm] = useState('');
@@ -98,9 +103,10 @@ const ProjectsPage = () => {
       setProjects(projects.filter(p => p.id !== projectToDelete.id));
       setIsDeleteModalOpen(false);
       setProjectToDelete(null);
+      setToast({ message: 'Proyecto eliminado con éxito.', type: 'success' });
     } catch (error) {
       console.error('Error al eliminar proyecto:', error);
-      alert('No se pudo eliminar el proyecto.');
+      setToast({ message: 'No se pudo eliminar el proyecto.', type: 'error' });
     } finally {
       setIsDeleting(false);
     }
@@ -339,6 +345,7 @@ const ProjectsPage = () => {
           setProjectToEdit(null);
           fetchProjects(); // Recargar tras cerrar modal por si se creó/editó un proyecto
         }}
+        onSuccess={(msg) => setToast({ message: msg, type: 'success' })}
       />
 
       <ConfirmDeleteModal
@@ -361,6 +368,14 @@ const ProjectsPage = () => {
         onConfirm={handleConfirmEdit}
         projectName={projectToConfirmEdit?.title}
       />
+
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 };

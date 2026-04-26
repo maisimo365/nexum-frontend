@@ -10,9 +10,10 @@ interface CreateProjectModalProps {
   onClose: () => void;
   projectToEdit?: Project | null;
   onDelete?: (id: number) => void;
+  onSuccess?: (message: string) => void;
 }
 
-const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete }: CreateProjectModalProps) => {
+const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete, onSuccess }: CreateProjectModalProps) => {
   const [availableSkills, setAvailableSkills] = useState<Skill[]>([]);
   const [categories, setCategories] = useState<ProjectCategory[]>([]);
 
@@ -118,6 +119,9 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete }: Create
       setProjectUrl("");
       setSelectedSkills([]);
       onClose();
+      if (onSuccess) {
+        onSuccess(projectToEdit ? 'Proyecto actualizado con éxito.' : 'Proyecto creado con éxito.');
+      }
     } catch (error: any) {
       console.error(error);
       alert(error.message || "Error al crear el proyecto.");
