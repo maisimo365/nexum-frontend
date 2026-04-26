@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import Modal from "../../../components/ui/Modal";
 import ConfirmCreateModal from "../../../components/ui/ConfirmCreateModal";
-import ConfirmEditModal from "../../../components/ui/ConfirmEditModal";
 import { X, ChevronDown, Check } from "lucide-react";
 import { createProject, updateProject, getCategories, getSkillsCatalog, type ProjectCategory, type Skill, type Project } from "../../../services/project.service";
 
