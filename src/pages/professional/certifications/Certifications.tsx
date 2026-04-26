@@ -172,7 +172,7 @@ function Certifications() {
       <div className="flex flex-1 overflow-hidden relative">
         <Sidebar activeItem="Certificaciones" />
 
-        <main className="flex-1 flex flex-col lg:flex-row overflow-y-auto bg-[#cbd5e1]">
+        <main className="flex-1 flex flex-col lg:flex-row overflow-hidden bg-[#cbd5e1]">
 
           <div className="flex-1 p-4 pl-14 sm:pl-6 md:p-8 overflow-y-auto">
             <div className="max-w-4xl mx-auto pt-2">
@@ -311,7 +311,7 @@ function Certifications() {
             </div>
           </div>
 
-          <aside className="w-full lg:w-72 p-6 bg-white border-t lg:border-t-0 lg:border-l border-gray-200 shrink-0 shadow-lg">
+          <aside className="w-full lg:w-72 p-6 bg-white border-t lg:border-t-0 lg:border-l border-gray-200 shrink-0 shadow-lg overflow-y-auto">
             <RightPanelContent />
           </aside>
         </main>

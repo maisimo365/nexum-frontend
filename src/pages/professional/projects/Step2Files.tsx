@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
-import { Upload, FileImage, FileText, Trash2, AlertCircle, CheckCircle, Loader2, HardDrive, ChevronLeft, Check } from "lucide-react";
+import { Upload, FileImage, FileText, Trash2, AlertCircle, CheckCircle, Loader2, HardDrive, ChevronLeft, Check, Eye, X } from "lucide-react";
 import { uploadProjectFiles, deleteProjectFile } from "../../../services/File.service";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -38,6 +38,7 @@ export interface UploadedFile {
   status: FileStatus;
   progress: number;
   errorMessage?: string;
+  url?: string;
 }
 
 interface Step2FilesProps {
@@ -52,6 +53,7 @@ interface Step2FilesProps {
   showConfirmNoFiles: boolean;
   onConfirmNoFilesConfirm: () => void;
   onConfirmNoFilesCancel: () => void;
+  onToast: (msg: string, type: "success" | "error" | "info") => void;
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -82,7 +84,7 @@ const StorageIndicator = ({ usedBytes }: { usedBytes: number }) => {
   );
 };
 
-const FileItem = ({ file, onRemove, isRemoving }: { file: UploadedFile; onRemove: (f: UploadedFile) => void; isRemoving: boolean }) => (
+const FileItem = ({ file, onRemove, onPreview, isRemoving }: { file: UploadedFile; onRemove: (f: UploadedFile) => void; onPreview: (f: UploadedFile) => void; isRemoving: boolean }) => (
   <div className="flex items-center gap-3 px-3 py-2.5 bg-white border border-gray-100 rounded-lg hover:border-gray-200 transition-all group">
     <div className="flex-shrink-0">{getFileIcon(file.mimeType)}</div>
     <div className="flex-1 min-w-0">
@@ -124,14 +126,25 @@ const FileItem = ({ file, onRemove, isRemoving }: { file: UploadedFile; onRemove
           <AlertCircle size={10} /> Error
         </span>
       )}
+      {file.status === "success" && (
+        <button
+          type="button"
+          onClick={() => onPreview(file)}
+          title="Ver archivo"
+          className="flex items-center justify-center w-7 h-7 rounded-md bg-[#eef3f8] text-[#003087] hover:bg-[#d8e4f2] transition-all shadow-sm"
+        >
+          <Eye size={14} />
+        </button>
+      )}
       {file.status !== "uploading" && (
         <button
           type="button"
           disabled={isRemoving}
           onClick={() => onRemove(file)}
-          className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-50 text-gray-300 hover:text-[#C8102E] transition-all disabled:cursor-not-allowed"
+          title="Eliminar archivo"
+          className="flex items-center justify-center w-7 h-7 rounded-md bg-red-50 text-[#C8102E] hover:bg-red-100 transition-all shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {isRemoving ? <Loader2 size={13} className="animate-spin" /> : <Trash2 size={13} />}
+          {isRemoving ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
         </button>
       )}
     </div>
@@ -201,6 +214,116 @@ const ConfirmNoFilesModal = ({ isOpen, onConfirm, onCancel }: { isOpen: boolean;
   );
 };
 
+const FilePreviewModal = ({ file, onClose }: { file: UploadedFile | null; onClose: () => void }) => {
+  const [blobUrl, setBlobUrl] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!file) return;
+
+    if (file.file) {
+      // Local file
+      setBlobUrl(URL.createObjectURL(file.file));
+      setIsLoading(false);
+    } else if (file.url) {
+      // Backend file: Fetch as blob to strip 'Content-Disposition: attachment' headers
+      setIsLoading(true);
+      fetch(file.url, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token') || sessionStorage.getItem('token')}`
+        }
+      })
+        .then(res => res.blob())
+        .then(blob => {
+          const realBlob = new Blob([blob], { type: file.mimeType || blob.type });
+          setBlobUrl(URL.createObjectURL(realBlob));
+        })
+        .catch(err => {
+          console.error("Error loading preview", err);
+          // Fallback
+          setBlobUrl(file.url!);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
+
+    return () => {
+      // Cleanup
+      if (blobUrl && blobUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(blobUrl);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [file]);
+
+  if (!file) return null;
+
+  const isPdf = file.mimeType === "application/pdf";
+
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-white rounded-xl shadow-2xl flex flex-col w-full max-w-4xl max-h-[90vh] overflow-hidden">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+          <h3 className="text-[14px] font-bold text-[#1a1a2e] truncate pr-4">{file.name}</h3>
+          <button onClick={onClose} className="p-1 text-gray-400 hover:text-[#C8102E] hover:bg-red-50 rounded-lg transition-colors">
+            <X size={18} />
+          </button>
+        </div>
+        <div className="flex-1 overflow-auto bg-[#fafbfc] flex items-center justify-center p-4 min-h-[50vh]">
+          {isLoading ? (
+            <div className="flex flex-col items-center gap-3">
+              <Loader2 size={32} className="animate-spin text-[#003087]" />
+              <p className="text-[13px] font-bold text-[#5b6472]">Cargando vista previa...</p>
+            </div>
+          ) : isPdf ? (
+            <iframe src={blobUrl} className="w-full h-[70vh] rounded border border-gray-200" title={file.name} />
+          ) : (
+            <img src={blobUrl} alt={file.name} className="max-w-full max-h-[70vh] object-contain rounded border border-gray-200" />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ConfirmDeleteFileModal = ({ file, onConfirm, onCancel }: { file: UploadedFile | null; onConfirm: () => void; onCancel: () => void }) => {
+  if (!file) return null;
+  return (
+    <div className="fixed inset-0 z-[70] flex items-center justify-center">
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onCancel} />
+      <div className="relative bg-white rounded-xl shadow-2xl p-6 w-full max-w-[360px] mx-4 flex flex-col items-center gap-4">
+        <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center">
+          <Trash2 size={24} className="text-[#C8102E]" />
+        </div>
+        <div className="text-center">
+          <h3 className="text-[15px] font-bold text-[#1a1a2e] mb-1">¿Eliminar archivo?</h3>
+          <p className="text-[13px] text-[#5b6472] leading-relaxed">
+            Estás a punto de eliminar <span className="font-semibold text-[#1a1a2e]">{file.name}</span>. Esta acción es inmediata y no se puede deshacer.
+          </p>
+        </div>
+        <div className="flex gap-3 w-full">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="flex-1 h-10 bg-white border border-gray-200 text-[#1a1a2e] text-[13px] font-bold rounded-lg hover:bg-gray-50 transition-all"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            className="flex-1 h-10 bg-[#C8102E] text-white text-[13px] font-bold rounded-lg hover:brightness-110 transition-all"
+          >
+            Eliminar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 const Step2Files = ({
@@ -215,9 +338,12 @@ const Step2Files = ({
   showConfirmNoFiles,
   onConfirmNoFilesConfirm,
   onConfirmNoFilesCancel,
+  onToast,
 }: Step2FilesProps) => {
   const [isDragOver, setIsDragOver] = useState(false);
   const [removingId, setRemovingId] = useState<string | null>(null);
+  const [previewFile, setPreviewFile] = useState<UploadedFile | null>(null);
+  const [fileToDelete, setFileToDelete] = useState<UploadedFile | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const filesRef = useRef<UploadedFile[]>(uploadedFiles);
 
@@ -311,24 +437,33 @@ const Step2Files = ({
     }
   };
 
-  const handleRemoveFile = async (file: UploadedFile) => {
-    if (file.backendId) {
+  const requestRemoveFile = (file: UploadedFile) => {
+    setFileToDelete(file);
+  };
+
+  const confirmRemoveFile = async () => {
+    if (!fileToDelete) return;
+    if (fileToDelete.backendId) {
       try {
-        setRemovingId(file.id);
-        await deleteProjectFile(projectId, file.backendId);
+        setRemovingId(fileToDelete.id);
+        await deleteProjectFile(projectId, fileToDelete.backendId);
+        onToast("Archivo eliminado exitosamente.", "success");
       } catch (err: any) {
-        alert(err.message || "Error al eliminar el archivo.");
+        onToast(err.message || "Error al eliminar el archivo.", "error");
+        setRemovingId(null);
+        setFileToDelete(null);
         return;
       } finally {
         setRemovingId(null);
       }
     }
-    onFilesChange(uploadedFiles.filter((f) => f.id !== file.id));
+    onFilesChange(uploadedFiles.filter((f) => f.id !== fileToDelete.id));
+    setFileToDelete(null);
   };
 
   const handleSave = () => {
     if (hasUploading) {
-      alert("Espera a que terminen de subir todos los archivos.");
+      onToast("Espera a que terminen de subir todos los archivos.", "error");
       return;
     }
     if (successFiles.length === 0) {
@@ -341,11 +476,11 @@ const Step2Files = ({
   return (
     <>
       <div className="flex flex-col gap-4 w-full max-w-[520px] max-h-[75vh] overflow-y-auto pr-1">
-        <div className="flex justify-between items-start gap-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start gap-3 sm:gap-4">
           <p className="text-[14px] text-[#5b6472] leading-relaxed">
             Adjunta imágenes o documentos PDF como evidencia digital de tu proyecto.
           </p>
-          <span className="bg-[#eef3f8] text-[#003087] px-3 py-1.5 rounded-md text-[13px] font-bold flex-shrink-0">
+          <span className="bg-[#eef3f8] text-[#003087] px-3 py-1.5 rounded-md text-[13px] font-bold flex-shrink-0 self-start sm:self-auto">
             Archivos
           </span>
         </div>
@@ -365,12 +500,11 @@ const Step2Files = ({
           onDrop={handleDrop}
           onClick={() => !dropZoneDisabled && fileInputRef.current?.click()}
           className={`relative flex flex-col items-center justify-center gap-2 p-6 border-2 border-dashed rounded-xl transition-all
-            ${
-              dropZoneDisabled
-                ? "border-gray-200 bg-gray-50 cursor-not-allowed opacity-60"
-                : isDragOver
-                  ? "border-[#003087] bg-[#eef3f8] cursor-copy"
-                  : "border-gray-200 bg-[#fafbfc] hover:border-[#003087] hover:bg-[#eef3f8] cursor-pointer"
+            ${dropZoneDisabled
+              ? "border-gray-200 bg-gray-50 cursor-not-allowed opacity-60"
+              : isDragOver
+                ? "border-[#003087] bg-[#eef3f8] cursor-copy"
+                : "border-gray-200 bg-[#fafbfc] hover:border-[#003087] hover:bg-[#eef3f8] cursor-pointer"
             }`}
         >
           <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${isDragOver ? "bg-[#003087]" : "bg-[#eef3f8]"}`}>
@@ -403,18 +537,18 @@ const Step2Files = ({
         {uploadedFiles.length > 0 && (
           <div className="flex flex-col gap-2 max-h-[200px] overflow-y-auto pr-0.5">
             {uploadedFiles.map((f) => (
-              <FileItem key={f.id} file={f} onRemove={handleRemoveFile} isRemoving={removingId === f.id} />
+              <FileItem key={f.id} file={f} onRemove={requestRemoveFile} onPreview={setPreviewFile} isRemoving={removingId === f.id} />
             ))}
           </div>
         )}
 
         {usedBytes > 0 && <StorageIndicator usedBytes={usedBytes} />}
 
-        <div className="flex justify-between items-center pt-4 mt-1 border-t border-gray-100">
+        <div className="flex flex-col-reverse sm:flex-row justify-between sm:items-center gap-3 pt-4 mt-1 border-t border-gray-100">
           <button
             type="button"
             onClick={onBack}
-            className="h-10 px-5 text-[14px] font-bold text-[#1a1a2e] bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+            className="w-full sm:w-auto h-10 px-5 text-[14px] font-bold text-[#1a1a2e] bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
           >
             <ChevronLeft size={14} /> Atrás
           </button>
@@ -422,9 +556,8 @@ const Step2Files = ({
             type="button"
             onClick={handleSave}
             disabled={hasUploading}
-            className={`h-10 px-6 text-[14px] font-bold text-white rounded-lg transition-all flex items-center gap-2 ${
-              hasUploading ? "bg-gray-400 cursor-not-allowed" : "bg-[#c8102e] hover:brightness-110"
-            }`}
+            className={`w-full sm:w-auto h-10 px-6 text-[14px] font-bold text-white rounded-lg transition-all flex items-center justify-center gap-2 ${hasUploading ? "bg-gray-400 cursor-not-allowed" : "bg-[#c8102e] hover:brightness-110"
+              }`}
           >
             {hasUploading ? (
               <>
@@ -442,6 +575,12 @@ const Step2Files = ({
         isOpen={showConfirmNoFiles}
         onConfirm={onConfirmNoFilesConfirm}
         onCancel={onConfirmNoFilesCancel}
+      />
+      <FilePreviewModal file={previewFile} onClose={() => setPreviewFile(null)} />
+      <ConfirmDeleteFileModal
+        file={fileToDelete}
+        onConfirm={confirmRemoveFile}
+        onCancel={() => setFileToDelete(null)}
       />
     </>
   );

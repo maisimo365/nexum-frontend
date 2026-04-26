@@ -145,10 +145,10 @@ function CategoriesPage() {
       <div className="flex flex-1 overflow-hidden relative">
         <Sidebar activeItem="Categorías" />
 
-        <main className="flex-1 flex flex-col lg:flex-row overflow-y-auto" style={{ backgroundColor: '#ced6e0' }}>
+        <main className="flex-1 flex flex-col lg:flex-row overflow-hidden" style={{ backgroundColor: '#ced6e0' }}>
           
           {/* MAIN CONTENT AREA */}
-          <div className="flex-1 p-4 md:p-8">
+          <div className="flex-1 p-4 md:p-8 overflow-y-auto">
             <header className="mb-6">
               <h1 className="text-2xl font-bold text-[#1f2937]">Gestión de Categorias</h1>
             </header>
@@ -354,7 +354,7 @@ function CategoriesPage() {
           </div>
 
           {/* ASIDE DERECHO */}
-          <aside className="w-full lg:w-72 p-6 bg-white border-t lg:border-t-0 lg:border-l border-gray-200 shrink-0">
+          <aside className="w-full lg:w-72 p-6 bg-white border-t lg:border-t-0 lg:border-l border-gray-200 shrink-0 overflow-y-auto">
             <RightPanelContent />
           </aside>
         </main>

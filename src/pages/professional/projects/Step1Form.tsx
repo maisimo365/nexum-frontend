@@ -73,11 +73,11 @@ const Step1Form = ({ projectToEdit, onSubmit, onCancel, onDelete, isSaving }: St
 
   return (
     <div className="flex flex-col gap-5 w-full max-w-[520px]">
-      <div className="flex justify-between items-start gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start gap-3 sm:gap-4">
         <p className="text-[14px] text-[#5b6472] leading-relaxed">
           Completa la información principal para agregar un nuevo proyecto a tu portafolio profesional.
         </p>
-        <span className="bg-[#eef3f8] text-[#003087] px-3 py-1.5 rounded-md text-[13px] font-bold flex-shrink-0">
+        <span className="bg-[#eef3f8] text-[#003087] px-3 py-1.5 rounded-md text-[13px] font-bold flex-shrink-0 self-start sm:self-auto">
           {projectToEdit ? "Editar" : "Crear"}
         </span>
       </div>
@@ -187,15 +187,15 @@ const Step1Form = ({ projectToEdit, onSubmit, onCancel, onDelete, isSaving }: St
           </div>
         </div>
 
-        <div className="flex justify-between items-center pt-6 mt-2 border-t border-gray-100">
+        <div className="flex flex-col-reverse sm:flex-row justify-between sm:items-center gap-3 pt-6 mt-2 border-t border-gray-100">
           <button
             type="button"
             onClick={onCancel}
-            className="h-10 px-5 text-[14px] font-bold text-[#1a1a2e] bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            className="w-full sm:w-auto h-10 px-5 text-[14px] font-bold text-[#1a1a2e] bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
           >
             Cancelar
           </button>
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
             {projectToEdit && onDelete && (
               <button
                 type="button"
@@ -203,7 +203,7 @@ const Step1Form = ({ projectToEdit, onSubmit, onCancel, onDelete, isSaving }: St
                   onDelete(projectToEdit.id);
                   onCancel();
                 }}
-                className="h-10 px-6 text-[14px] font-bold text-white bg-[#c8102e] rounded-lg hover:brightness-110 transition-all"
+                className="w-full sm:w-auto h-10 px-6 text-[14px] font-bold text-white bg-[#c8102e] rounded-lg hover:brightness-110 transition-all"
               >
                 Eliminar
               </button>
@@ -211,7 +211,7 @@ const Step1Form = ({ projectToEdit, onSubmit, onCancel, onDelete, isSaving }: St
             <button
               type="submit"
               disabled={isSaving}
-              className={`h-10 px-6 text-[14px] font-bold text-white rounded-lg transition-all flex items-center gap-2 ${
+              className={`w-full sm:w-auto h-10 px-6 text-[14px] font-bold text-white rounded-lg transition-all flex items-center justify-center gap-2 ${
                 isSaving ? "bg-gray-400 cursor-not-allowed" : "bg-[#003087] hover:brightness-110"
               }`}
             >

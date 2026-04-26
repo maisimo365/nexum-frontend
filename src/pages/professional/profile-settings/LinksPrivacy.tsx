@@ -100,8 +100,8 @@ function LinksPrivacy() {
       <div className="min-h-screen bg-background flex flex-col font-sans">
         <div className="flex flex-1 overflow-hidden relative">
           <Sidebar activeItem="Enlaces" />
-          <main className="flex-1 flex flex-col lg:flex-row overflow-y-auto">
-            <div className="flex-1 p-4 pl-14 sm:pl-6 md:p-6 flex items-center justify-center">
+          <main className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+            <div className="flex-1 p-4 pl-14 sm:pl-6 md:p-6 flex items-center justify-center overflow-y-auto">
               <div className="flex flex-col items-center gap-3 text-gray-400 font-medium">
                 <Loader2 className="animate-spin text-primary" size={32} />
                 <span>Cargando...</span>
@@ -121,10 +121,10 @@ function LinksPrivacy() {
         <Sidebar activeItem="Enlaces" />
 
         {/* Contenido principal + Panel derecho */}
-        <main className="flex-1 flex flex-col lg:flex-row overflow-y-auto">
+        <main className="flex-1 flex flex-col lg:flex-row overflow-hidden">
 
           {/* SECCIÓN IZQUIERDA: Formularios */}
-          <div className="flex-1 p-4 pl-14 sm:pl-6 md:p-6">
+          <div className="flex-1 p-4 pl-14 sm:pl-6 md:p-6 overflow-y-auto">
 
             {/* Header */}
             <div className="mb-6">
