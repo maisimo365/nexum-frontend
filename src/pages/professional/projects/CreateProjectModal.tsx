@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import Modal from "../../../components/ui/Modal";
+import ConfirmCreateModal from "../../../components/ui/ConfirmCreateModal";
+import ConfirmEditModal from "../../../components/ui/ConfirmEditModal";
 import { X, ChevronDown, Check } from "lucide-react";
 import { createProject, updateProject, getCategories, getSkillsCatalog, type ProjectCategory, type Skill, type Project } from "../../../services/project.service";
 
@@ -24,6 +26,7 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete }: Create
   const [projectUrl, setProjectUrl] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [projectUrlError, setProjectUrlError] = useState("");
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -72,18 +75,26 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete }: Create
       setProjectUrlError("");
     }
   };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) {
       alert("El título del proyecto es obligatorio.");
       return;
     }
-    if (!isValidGithubUrl(projectUrl)) {
+    if (projectUrl && !isValidGithubUrl(projectUrl)) {
       setProjectUrlError("Ingresa un enlace valido de GitHub (ej. https://github.com/usuario/repo)");
       return;
     }
 
+    if (projectToEdit) {
+      handleActualSubmit();
+    } else {
+      setShowConfirmModal(true);
+    }
+  };
+
+  const handleActualSubmit = async () => {
+    setShowConfirmModal(false);
     try {
       setIsSubmitting(true);
       const data = {
@@ -303,6 +314,14 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete }: Create
           </div>
         </form>
       </div>
+
+      {!projectToEdit && (
+        <ConfirmCreateModal
+          isOpen={showConfirmModal}
+          onClose={() => setShowConfirmModal(false)}
+          onConfirm={handleActualSubmit}
+        />
+      )}
     </Modal>
   );
 };
