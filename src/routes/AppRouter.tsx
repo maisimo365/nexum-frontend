@@ -10,6 +10,7 @@ import Navbar from "../components/ui/Navbar";
 import Footer from "../components/ui/Footer";
 import AuditPage from "../pages/admin/AuditPage";
 import CategoriesPage from "../pages/admin/CategoriesPage";
+import BackupsPage from "../pages/admin/BackupsPage";
 import PersonalData from "../pages/professional/profile-settings/PersonalData";
 import LinksPrivacy from "../pages/professional/profile-settings/LinksPrivacy";
 import HabilidadesPage from "../pages/professional/Habilidades";
@@ -114,7 +115,6 @@ const ROUTES_WITHOUT_LAYOUT = [
   "/reset-password",
   "/portfolio",
   "/habilidades",
-  "/experiencia",
   "/profolio",
 ];
 
@@ -194,6 +194,11 @@ const AppRouter = () => {
           <Route path="/admin/categorias" element={
             <ProtectedRoute allowedRole="admin">
               <CategoriesPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/backups" element={
+            <ProtectedRoute allowedRole="admin">
+              <BackupsPage />
             </ProtectedRoute>
           } />
 

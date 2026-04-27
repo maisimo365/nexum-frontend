@@ -18,8 +18,8 @@ const ConfirmEditModal: React.FC<ConfirmEditModalProps> = ({
   projectName,
 }) => {
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <div className="flex flex-col items-center text-center max-w-[400px]">
+    <Modal isOpen={isOpen} onClose={onClose} maxWidth="max-w-[450px]">
+      <div className="flex flex-col items-center text-center mx-auto">
         {/* Icon with light red background */}
         <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-6">
           <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">

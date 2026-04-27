@@ -131,8 +131,8 @@ const ProjectsPage = () => {
       <div className="flex flex-1 overflow-hidden relative">
         <Sidebar activeItem="Proyectos" />
 
-        <main className="flex-1 flex flex-col lg:flex-row overflow-y-auto">
-          <div className="flex-1 bg-[#C9D1D9] p-4 pl-14 sm:pl-6 md:p-8">
+        <main className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+          <div className="flex-1 bg-[#C9D1D9] p-4 pl-14 sm:pl-6 md:p-8 overflow-y-auto">
             <div className="max-w-[1200px] mx-auto space-y-8">
 
               {/* Header */}
