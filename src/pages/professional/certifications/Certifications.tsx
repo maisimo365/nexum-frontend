@@ -58,13 +58,13 @@ function Certifications() {
     const file = e.target.files?.[0]
     if (file) {
       if (!file.type.startsWith('image/')) {
-        setError("Solo se permiten archivos de imagen (JPG, PNG, WEBP).")
+        setGlobalError("Solo se permiten archivos de imagen (JPG, PNG, WEBP).")
         setSelectedFile(null)
         if (fileInputRef.current) fileInputRef.current.value = ""
         return
       }
       if (file.size > 2 * 1024 * 1024) {
-        setError("limite exedido, por favor seleccione otra imagen")
+        setGlobalError("limite exedido, por favor seleccione otra imagen")
         setSelectedFile(null)
         if (fileInputRef.current) fileInputRef.current.value = ""
         return

@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import Modal from "../../../components/ui/Modal";
-import { CheckCircle, FolderOpen } from "lucide-react";
 import {
   createProject, updateProject, suggestCategory,
   type Skill, type Project,
@@ -8,8 +7,6 @@ import {
 import { getProjectFiles } from "../../../services/File.service";
 import Step1Form from "./Step1Form";
 import Step2Files, { type UploadedFile } from "./Step2Files";
-import { createProject, updateProject, type Project, type Skill } from "../../../services/project.service";
-import { getProjectFiles } from "../../../services/File.service";
 import Toast from "../../../components/ui/Toast";
 import ConfirmCreateModal from "../../../components/ui/ConfirmCreateModal";
 
@@ -22,8 +19,8 @@ interface CreateProjectModalProps {
 }
 
 const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete, onSuccess }: CreateProjectModalProps) => {
-  const [step, setStep] = useState(1);
-  const [currentProjectId, setCurrentProjectId] = useState<number | null>(null);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [createdProjectId, setCreatedProjectId] = useState<number | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [createdProject, setCreatedProject] = useState<Project | null>(null);
 
@@ -43,24 +40,21 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete, onSucces
     setToast({ message, type });
   };
 
-  const [isSaving, setIsSaving] = useState(false);
   const [pendingSuggestion, setPendingSuggestion] = useState<{name: string, justification: string} | null>(null);
 
   // ── Init ───────────────────────────────────────────────────────────────────
   useEffect(() => {
     if (isOpen) {
-      setStep(1);
       setCreatedProject(null);
       setCurrentStep(1);
       setCreatedProjectId(null);
       setUploadedFiles([]);
-      setShowSuccess(false);
       setShowConfirmNoFiles(false);
       setShowFormatError(false);
       setPendingSuggestion(null);
 
       if (projectToEdit) {
-        setCurrentProjectId(projectToEdit.id);
+        setCreatedProjectId(projectToEdit.id);
 
         // Fetch existing files
         getProjectFiles(projectToEdit.id).then(files => {
@@ -81,7 +75,7 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete, onSucces
           setUploadedFiles([]);
         });
       } else {
-        setCurrentProjectId(null);
+        setCreatedProjectId(null);
         setUploadedFiles([]);
       }
     }
@@ -113,19 +107,21 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete, onSucces
         skill_ids: data.selectedSkills.map(s => s.id),
       };
 
+      let projectId: number;
       if (activeProject) {
         // We are updating an existing project (either from edit, or one we just created but went back to step 1)
         await updateProject(activeProject.id, payload);
-        setCurrentProjectId(activeProject.id);
+        projectId = activeProject.id;
         showToast("Proyecto actualizado. Ahora puedes adjuntar archivos.", "success");
       } else {
         const created = await createProject(payload);
         projectId = created.id;
+        setCreatedProject(created);
       }
 
       if (pendingSuggestion) {
         try {
-          await suggestCategory(projectId, pendingSuggestion);
+          await suggestCategory(pendingSuggestion);
           setPendingSuggestion(null); // Clear after success
         } catch (err: any) {
           console.error("Error sending category suggestion:", err);
@@ -155,13 +151,9 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete, onSucces
     }, 1500);
   };
 
-  const handleStep2Back = () => {
-    setStep(1);
-  };
-
   return (
     <>
-      <Modal isOpen={isOpen && !showSuccess} onClose={onClose} title={projectToEdit ? "Editar proyecto" : "Nuevo proyecto"}>
+      <Modal isOpen={isOpen} onClose={onClose} title={projectToEdit ? "Editar proyecto" : "Nuevo proyecto"}>
         <div className="flex flex-col gap-5">
           {currentStep === 1 && (
             <Step1Form
@@ -180,16 +172,17 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete, onSucces
               uploadedFiles={uploadedFiles}
               onFilesChange={setUploadedFiles}
               onBack={() => setCurrentStep(1)}
-              onSave={() => setShowSuccess(true)}
+              onSave={handleStep2Save}
               showFormatError={showFormatError}
               onShowFormatError={() => setShowFormatError(true)}
               onFormatErrorClose={() => setShowFormatError(false)}
               showConfirmNoFiles={showConfirmNoFiles}
               onConfirmNoFilesConfirm={() => {
                 setShowConfirmNoFiles(false);
-                setShowSuccess(true);
+                handleStep2Save();
               }}
               onConfirmNoFilesCancel={() => setShowConfirmNoFiles(false)}
+              onToast={showToast}
             />
           )}
         </div>
