@@ -17,8 +17,10 @@ function Certifications() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
   const [actionLoading, setActionLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({})
+  const [globalError, setGlobalError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
 
   const handleTituloChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -68,7 +70,7 @@ function Certifications() {
         return
       }
       setSelectedFile(file)
-      setError(null)
+      setGlobalError(null)
     }
   }
 
@@ -82,18 +84,31 @@ function Certifications() {
   }
 
   const handleSave = async () => {
-    setError(null)
+    setGlobalError(null)
     setSuccess(null)
+    const errors: {[key: string]: string} = {}
 
-    if (!titulo || !entidad || !fechaDesde) {
-      setError("Por favor completa los campos obligatorios.")
+    if (!titulo.trim()) errors.titulo = "Este campo es obligatorio"
+    if (!entidad.trim()) {
+      errors.entidad = "Este campo es obligatorio"
+    } else if (!isValidUrl(entidad)) {
+      errors.entidad = "URL inválida (ej: https://entidad.com/certificado)"
+    }
+    if (!fechaDesde) errors.fechaDesde = "Este campo es obligatorio"
+
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors)
       return
     }
 
-    if (!isValidUrl(entidad)) {
-      setError("La entidad emisora debe ser una URL válida (ej: https://udemy.com/...)")
-      return
-    }
+    setValidationErrors({})
+    setShowConfirmModal(true)
+  }
+
+  const confirmSave = async () => {
+    setShowConfirmModal(false)
+    setGlobalError(null)
+    setSuccess(null)
 
     try {
       setActionLoading(true)
@@ -120,12 +135,14 @@ function Certifications() {
       setFechaHasta("")
       setSelectedFile(null)
       if (fileInputRef.current) fileInputRef.current.value = ""
+      if (fileInputRef.current) fileInputRef.current.value = ""
+      setValidationErrors({})
     } catch (err: any) {
       if (err.errors) {
         const firstErr = Object.values(err.errors)[0] as string[]
-        setError(firstErr[0])
+        setGlobalError(firstErr[0])
       } else {
-        setError(err.message || "Ocurrió un error al guardar.")
+        setGlobalError(err.message || "Ocurrió un error al guardar.")
       }
     } finally {
       setActionLoading(false)
@@ -183,10 +200,10 @@ function Certifications() {
               <div className="bg-white rounded-xl shadow-sm p-6 md:p-8 mb-8">
                 <h2 className="text-base font-bold text-textMain mb-6">Añadir Certificación</h2>
 
-                {error && (
+                {globalError && (
                   <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm flex items-center gap-3 animate-slideIn">
                     <AlertCircle size={18} />
-                    {error}
+                    {globalError}
                   </div>
                 )}
 
@@ -198,62 +215,84 @@ function Certifications() {
                 )}
 
                 <div className="space-y-6 text-gray-700">
-                  <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] items-center gap-4">
-                    <label className="text-[13px] font-bold">Título de la Certificación:</label>
-                    <input
-                      type="text"
-                      placeholder="Ej. Cisco Certified Network Associate"
-                      value={titulo}
-                      onChange={handleTituloChange}
-                      disabled={actionLoading}
-                      className="w-full p-2.5 rounded border border-gray-200 bg-white outline-none focus:border-action transition-all text-sm"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] items-center gap-4">
-                    <label className="text-[13px] font-bold">Descripción (Opcional):</label>
-                    <input
-                      type="text"
-                      placeholder="Ej. Redes de computadoras y protocolos"
-                      value={descripcion}
-                      onChange={handleDescripcionChange}
-                      disabled={actionLoading}
-                      className="w-full p-2.5 rounded border border-gray-200 bg-white outline-none focus:border-action transition-all text-sm"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] items-center gap-4">
-                    <label className="text-[13px] font-bold">URL Entidad Emisora:</label>
-                    <input
-                      type="text"
-                      placeholder="https://entidad.com/certificado"
-                      value={entidad}
-                      onChange={handleEntidadChange}
-                      disabled={actionLoading}
-                      className="w-full p-2.5 rounded border border-gray-200 bg-white outline-none focus:border-action transition-all text-sm"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] items-start md:items-center gap-4">
-                    <label className="text-[13px] font-bold">Fecha:</label>
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full">
+                  <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] items-start gap-4">
+                    <label className="text-[13px] font-bold mt-2">Título de la Certificación: <span className="text-red-500">*</span></label>
+                    <div className="flex flex-col w-full">
                       <input
                         type="text"
-                        placeholder="Desde (MM/YYYY) *"
-                        value={fechaDesde}
-                        onChange={handleFechaDesdeChange}
+                        placeholder="Ej. Cisco Certified Network Associate"
+                        value={titulo}
+                        onChange={(e) => {
+                          handleTituloChange(e)
+                          if (validationErrors.titulo) setValidationErrors({...validationErrors, titulo: ""})
+                        }}
                         disabled={actionLoading}
-                        className="w-full sm:flex-1 min-w-0 p-2.5 rounded border border-gray-200 bg-white outline-none focus:border-action transition-all text-sm"
+                        className={`w-full p-2.5 rounded border bg-white outline-none focus:border-action transition-all text-sm ${validationErrors.titulo ? 'border-red-500 ring-1 ring-red-500/20' : 'border-gray-200'}`}
                       />
-                      <span className="text-gray-400 hidden sm:block">-</span>
+                      {validationErrors.titulo && <span className="text-red-500 text-[11px] mt-1">{validationErrors.titulo}</span>}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] items-start gap-4">
+                    <label className="text-[13px] font-bold mt-2">Descripción (Opcional):</label>
+                    <div className="flex flex-col w-full">
                       <input
                         type="text"
-                        placeholder="Hasta (MM/YYYY)"
-                        value={fechaHasta}
-                        onChange={handleFechaHastaChange}
+                        placeholder="Ej. Redes de computadoras y protocolos"
+                        value={descripcion}
+                        onChange={(e) => {
+                          handleDescripcionChange(e)
+                        }}
                         disabled={actionLoading}
-                        className="w-full sm:flex-1 min-w-0 p-2.5 rounded border border-gray-200 bg-white outline-none focus:border-action transition-all text-sm"
+                        className="w-full p-2.5 rounded border border-gray-200 bg-white outline-none focus:border-action transition-all text-sm"
                       />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] items-start gap-4">
+                    <label className="text-[13px] font-bold mt-2">URL Entidad Emisora: <span className="text-red-500">*</span></label>
+                    <div className="flex flex-col w-full">
+                      <input
+                        type="text"
+                        placeholder="https://entidad.com/certificado"
+                        value={entidad}
+                        onChange={(e) => {
+                          handleEntidadChange(e)
+                          if (validationErrors.entidad) setValidationErrors({...validationErrors, entidad: ""})
+                        }}
+                        disabled={actionLoading}
+                        className={`w-full p-2.5 rounded border bg-white outline-none focus:border-action transition-all text-sm ${validationErrors.entidad ? 'border-red-500 ring-1 ring-red-500/20' : 'border-gray-200'}`}
+                      />
+                      {validationErrors.entidad && <span className="text-red-500 text-[11px] mt-1">{validationErrors.entidad}</span>}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] items-start gap-4">
+                    <label className="text-[13px] font-bold mt-2">Fecha: <span className="text-red-500">*</span></label>
+                    <div className="flex flex-col w-full">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full">
+                        <input
+                          type="text"
+                          placeholder="Desde (MM/YYYY) *"
+                          value={fechaDesde}
+                          onChange={(e) => {
+                            handleFechaDesdeChange(e)
+                            if (validationErrors.fechaDesde) setValidationErrors({...validationErrors, fechaDesde: ""})
+                          }}
+                          disabled={actionLoading}
+                          className={`w-full sm:flex-1 min-w-0 p-2.5 rounded border bg-white outline-none focus:border-action transition-all text-sm ${validationErrors.fechaDesde ? 'border-red-500 ring-1 ring-red-500/20' : 'border-gray-200'}`}
+                        />
+                        <span className="text-gray-400 hidden sm:block">-</span>
+                        <input
+                          type="text"
+                          placeholder="Hasta (MM/YYYY)"
+                          value={fechaHasta}
+                          onChange={handleFechaHastaChange}
+                          disabled={actionLoading}
+                          className="w-full sm:flex-1 min-w-0 p-2.5 rounded border border-gray-200 bg-white outline-none focus:border-action transition-all text-sm"
+                        />
+                      </div>
+                      {validationErrors.fechaDesde && <span className="text-red-500 text-[11px] mt-1">{validationErrors.fechaDesde}</span>}
                     </div>
                   </div>
 
@@ -291,7 +330,7 @@ function Certifications() {
                   <button
                     type="button"
                     onClick={() => {
-                      setTitulo(""); setDescripcion(""); setEntidad(""); setFechaDesde(""); setFechaHasta(""); setSelectedFile(null);
+                      setTitulo(""); setDescripcion(""); setEntidad(""); setFechaDesde(""); setFechaHasta(""); setSelectedFile(null); setValidationErrors({});
                     }}
                     disabled={actionLoading}
                     className="px-6 py-2 rounded border border-gray-200 font-medium text-sm text-gray-700 hover:bg-gray-50 transition-all shadow-sm bg-white"
@@ -304,7 +343,7 @@ function Certifications() {
                     disabled={actionLoading}
                     className="px-6 py-2 rounded font-medium text-sm text-white bg-[#dc2626] hover:bg-red-700 shadow-sm transition-all flex items-center gap-2 min-w-[150px] justify-center"
                   >
-                    {actionLoading ? <Loader2 className="animate-spin" size={16} /> : "Guardar Certificación"}
+                    {actionLoading ? <Loader2 className="animate-spin" size={16} /> : "Guardar"}
                   </button>
                 </div>
               </div>
@@ -315,6 +354,36 @@ function Certifications() {
             <RightPanelContent />
           </aside>
         </main>
+
+        {/* Confirm Save Modal */}
+        {showConfirmModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowConfirmModal(false)} />
+            <div className="relative bg-white rounded-xl shadow-2xl p-6 w-full max-w-[340px] mx-4 flex flex-col items-center gap-4 text-center">
+              <h3 className="text-[16px] font-bold text-[#1a1a2e] mb-1">Confirmar Acción</h3>
+              <p className="text-[13px] text-[#5b6472] leading-relaxed">¿Desea guardar la certificación?</p>
+              <div className="flex justify-center gap-3 w-full mt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmModal(false)}
+                  disabled={actionLoading}
+                  className="flex-1 h-10 px-4 text-[13px] font-bold text-[#1a1a2e] bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={confirmSave}
+                  disabled={actionLoading}
+                  className="flex-1 h-10 px-4 text-[13px] font-bold text-white bg-[#dc2626] rounded-lg hover:bg-red-700 transition-all flex items-center justify-center gap-2 disabled:bg-red-700/60"
+                >
+                  {actionLoading ? <Loader2 size={14} className="animate-spin" /> : "Confirmar"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   )

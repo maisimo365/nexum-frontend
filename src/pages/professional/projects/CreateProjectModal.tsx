@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import Modal from "../../../components/ui/Modal";
 import { CheckCircle, FolderOpen } from "lucide-react";
 import {
-  createProject, updateProject,
+  createProject, updateProject, suggestCategory,
   type Skill, type Project,
 } from "../../../services/project.service";
 import { getProjectFiles } from "../../../services/File.service";
@@ -57,6 +57,7 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete }: Create
   const [showSuccess, setShowSuccess] = useState(false);
   const [showConfirmNoFiles, setShowConfirmNoFiles] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [pendingSuggestion, setPendingSuggestion] = useState<{name: string, justification: string} | null>(null);
 
   // ── Init ───────────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -67,6 +68,7 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete }: Create
       setShowSuccess(false);
       setShowConfirmNoFiles(false);
       setShowFormatError(false);
+      setPendingSuggestion(null);
 
       if (projectToEdit) {
         getProjectFiles(projectToEdit.id)
@@ -115,6 +117,16 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete }: Create
         projectId = created.id;
       }
 
+      if (pendingSuggestion) {
+        try {
+          await suggestCategory(projectId, pendingSuggestion);
+          setPendingSuggestion(null); // Clear after success
+        } catch (err: any) {
+          console.error("Error sending category suggestion:", err);
+          alert("El proyecto se guardó, pero la sugerencia de categoría falló: " + (err.message || "Error desconocido"));
+        }
+      }
+
       setCreatedProjectId(projectId);
       setCurrentStep(2);
     } catch (error: any) {
@@ -144,6 +156,7 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete }: Create
               onCancel={onClose}
               onDelete={onDelete}
               isSaving={isSaving}
+              onSuggestCategory={(name, justification) => setPendingSuggestion({name, justification})}
             />
           )}
 
