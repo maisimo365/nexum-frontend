@@ -2,17 +2,31 @@ import { useState, useEffect, useMemo } from 'react';
 import Sidebar from '../../admin/components/Sidebar';
 import RightWidgets from '../../../components/ui/RightWidgets';
 import CreateProjectModal from './CreateProjectModal';
+import ConfirmDeleteModal from '../../../components/ui/ConfirmDeleteModal';
+import ConfirmEditModal from '../../../components/ui/ConfirmEditModal';
+import Toast from '../../../components/ui/Toast';
 import { getProjects, deleteProject, getCategories, type Project, type ProjectCategory } from '../../../services/project.service';
+import { getPersonalData } from '../../../services/datapersonal.service';
 import {
-  FolderOpen, ChevronDown, Search, ArrowDownAZ, CalendarDays, Loader2
+  FolderOpen, ChevronDown, Search, ArrowDownAZ, CalendarDays, Loader2, AlertCircle
 } from 'lucide-react';
 
 const ProjectsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [projectToEdit, setProjectToEdit] = useState<Project | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
+  const [isEditConfirmModalOpen, setIsEditConfirmModalOpen] = useState(false);
+  const [projectToConfirmEdit, setProjectToConfirmEdit] = useState<Project | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [categories, setCategories] = useState<ProjectCategory[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [hasPortfolio, setHasPortfolio] = useState<boolean | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: 'success' | 'error' | 'info';
+  } | null>(null);
 
   // Filter states
   const [searchTerm, setSearchTerm] = useState('');
@@ -33,6 +47,7 @@ const ProjectsPage = () => {
   };
 
   useEffect(() => {
+    getPersonalData().then(data => setHasPortfolio(!!data)).catch(() => setHasPortfolio(false));
     getCategories().then(setCategories).catch(console.error);
     fetchProjects();
   }, []);
@@ -71,14 +86,43 @@ const ProjectsPage = () => {
       });
   }, [projects, selectedCategory, searchTerm, sortDate, sortAlpha]);
 
-  const handleDelete = async (id: number) => {
-    if (!window.confirm('¿Estás seguro de que deseas eliminar este proyecto?')) return;
+  const handleDelete = (id: number) => {
+    const project = projects.find(p => p.id === id);
+    if (project) {
+      setProjectToDelete(project);
+      setIsDeleteModalOpen(true);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!projectToDelete) return;
+
     try {
-      await deleteProject(id);
-      setProjects(projects.filter(p => p.id !== id));
+      setIsDeleting(true);
+      await deleteProject(projectToDelete.id);
+      setProjects(projects.filter(p => p.id !== projectToDelete.id));
+      setIsDeleteModalOpen(false);
+      setProjectToDelete(null);
+      setToast({ message: 'Proyecto eliminado con éxito.', type: 'success' });
     } catch (error) {
       console.error('Error al eliminar proyecto:', error);
-      alert('No se pudo eliminar el proyecto.');
+      setToast({ message: 'No se pudo eliminar el proyecto.', type: 'error' });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleEditClick = (project: Project) => {
+    setProjectToConfirmEdit(project);
+    setIsEditConfirmModalOpen(true);
+  };
+
+  const handleConfirmEdit = () => {
+    if (projectToConfirmEdit) {
+      setProjectToEdit(projectToConfirmEdit);
+      setIsModalOpen(true);
+      setIsEditConfirmModalOpen(false);
+      setProjectToConfirmEdit(null);
     }
   };
 
@@ -105,7 +149,11 @@ const ProjectsPage = () => {
                     setProjectToEdit(null);
                     setIsModalOpen(true);
                   }}
-                  className="bg-[#c8102e] hover:brightness-110 text-white font-bold px-6 py-2.5 rounded-lg shadow-sm transition-all text-[14px]"
+                  disabled={hasPortfolio === false}
+                  className={`${hasPortfolio === false
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-[#c8102e] hover:brightness-110'
+                    } text-white font-bold px-6 py-2.5 rounded-lg shadow-sm transition-all text-[14px]`}
                 >
                   Nuevo proyecto
                 </button>
@@ -139,8 +187,8 @@ const ProjectsPage = () => {
                     type="button"
                     onClick={() => { setSortDate(sortDate === 'NEWEST' ? 'OLDEST' : 'NEWEST'); setSortAlpha('NONE'); }}
                     className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-bold transition-all ${sortAlpha === 'NONE'
-                        ? 'bg-gray-100 text-[#003087] hover:bg-gray-200'
-                        : 'bg-gray-100 text-[#5b6472] hover:bg-gray-200'
+                      ? 'bg-gray-100 text-[#003087] hover:bg-gray-200'
+                      : 'bg-gray-100 text-[#5b6472] hover:bg-gray-200'
                       }`}
                   >
                     <CalendarDays size={15} />
@@ -157,8 +205,8 @@ const ProjectsPage = () => {
                       else setSortAlpha('NONE');
                     }}
                     className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-bold transition-all ${sortAlpha !== 'NONE'
-                        ? 'bg-[#eef3f8] text-[#003087] hover:bg-[#e0eaf5]'
-                        : 'bg-gray-100 text-[#5b6472] hover:bg-gray-200'
+                      ? 'bg-[#eef3f8] text-[#003087] hover:bg-[#e0eaf5]'
+                      : 'bg-gray-100 text-[#5b6472] hover:bg-gray-200'
                       }`}
                   >
                     <ArrowDownAZ size={15} />
@@ -184,6 +232,27 @@ const ProjectsPage = () => {
                   )}
                 </div>
               </div>
+
+              {/* Advertencia de Portafolio Faltante */}
+              {hasPortfolio === false && (
+                <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 flex flex-col sm:flex-row items-center gap-4 animate-fadeIn">
+                  <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center shrink-0">
+                    <AlertCircle className="text-amber-600" size={24} />
+                  </div>
+                  <div className="flex-1 text-center sm:text-left">
+                    <h3 className="text-[16px] font-bold text-amber-900 mb-1">Información de portafolio requerida</h3>
+                    <p className="text-[14px] text-amber-700 leading-relaxed">
+                      Para añadir proyectos a tu portafolio, primero debes completar tus <span className="font-bold">Datos Personales</span>. Esto permitirá que tus proyectos estén vinculados a tu perfil profesional.
+                    </p>
+                  </div>
+                  <a
+                    href="/profile/personal-data"
+                    className="bg-amber-600 hover:bg-amber-700 text-white font-bold px-6 py-2.5 rounded-lg shadow-sm transition-all text-[13px] whitespace-nowrap"
+                  >
+                    Completar perfil
+                  </a>
+                </div>
+              )}
 
               {/* Tabla de Proyectos */}
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -241,10 +310,7 @@ const ProjectsPage = () => {
                             <td className="p-4 pr-6">
                               <div className="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <button
-                                  onClick={() => {
-                                    setProjectToEdit(project);
-                                    setIsModalOpen(true);
-                                  }}
+                                  onClick={() => handleEditClick(project)}
                                   className="px-4 py-1.5 text-[13px] font-bold text-[#1a1a2e] bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
                                 >
                                   Editar
@@ -279,7 +345,37 @@ const ProjectsPage = () => {
           setProjectToEdit(null);
           fetchProjects(); // Recargar tras cerrar modal por si se creó/editó un proyecto
         }}
+        onSuccess={(msg) => setToast({ message: msg, type: 'success' })}
       />
+
+      <ConfirmDeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setProjectToDelete(null);
+        }}
+        onConfirm={handleConfirmDelete}
+        projectName={projectToDelete?.title}
+        loading={isDeleting}
+      />
+
+      <ConfirmEditModal
+        isOpen={isEditConfirmModalOpen}
+        onClose={() => {
+          setIsEditConfirmModalOpen(false);
+          setProjectToConfirmEdit(null);
+        }}
+        onConfirm={handleConfirmEdit}
+        projectName={projectToConfirmEdit?.title}
+      />
+
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 };
