@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { loginService } from "../../services/auth.service";
+import Toast from "../../components/ui/Toast";
 import logoUmss from "../../assets/logoUmss.png";
 import prueba11 from "../../assets/prueba12.png";
 import prueba09 from "../../assets/prueba09.png";
@@ -14,14 +15,45 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
+  const [errorEmail, setErrorEmail] = useState("");
+  const [errorPassword, setErrorPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [toast, setToast] = useState<{ mensaje: string; tipo: "success" | "error" | "info" } | null>(null);
+  const handleCloseToast = useCallback(() => setToast(null), []);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorEmail("");
+    setErrorPassword("");
+    setError("");
 
-    if (!email || !password) {
-      setError("Por favor completa todos los campos.");
+    // Validaciones campo por campo
+    if (!email && !password) {
+      setErrorEmail("El correo electrónico es obligatorio.");
+      setErrorPassword("La contraseña es obligatoria.");
+      setToast({ mensaje: "Por favor completa todos los campos.", tipo: "error" });
+      return;
+    }
+    if (!email) {
+      setErrorEmail("El correo electrónico es obligatorio.");
+      setToast({ mensaje: "Ingresa tu correo electrónico.", tipo: "error" });
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setErrorEmail("Ingresa un correo electrónico válido.");
+      setToast({ mensaje: "El formato del correo no es válido.", tipo: "error" });
+      return;
+    }
+    if (!password) {
+      setErrorPassword("La contraseña es obligatoria.");
+      setToast({ mensaje: "Ingresa tu contraseña.", tipo: "error" });
+      return;
+    }
+    if (password.length < 6) {
+      setErrorPassword("La contraseña debe tener al menos 6 caracteres.");
+      setToast({ mensaje: "La contraseña es demasiado corta.", tipo: "error" });
       return;
     }
 
@@ -37,25 +69,46 @@ const LoginPage = () => {
         sessionStorage.setItem("token", data.token);
         sessionStorage.setItem("user", JSON.stringify(data.user));
       }
+
+      setToast({ mensaje: `¡Bienvenido/a, ${data.user.first_name || "usuario"}! Iniciando sesión...`, tipo: "success" });
+
       setEmail("");
       setPassword("");
       setRememberMe(false);
 
-      if (data.user.role === "admin") {
-        navigate("/admin");
-      } else {
-        navigate("/home");
-      }
+      // Redirigir tras un breve delay para que el toast se vea
+      setTimeout(() => {
+        if (data.user.role === "admin") {
+          navigate("/admin");
+        } else {
+          navigate("/home");
+        }
+      }, 1200);
     } catch (err: any) {
-      const rawMessage = err?.message || "Credenciales inválidas. Verifica tus datos e inténtalo nuevamente.";
-      const adminContact = "admin@nexum.com";
-      const isDeactivated = /desactivad/i.test(rawMessage);
+      let rawMessage = err?.message || "Credenciales inválidas. Verifica tus datos e inténtalo nuevamente.";
+      
+      // Traducción de errores comunes del backend
+      if (rawMessage.includes("credentials are incorrect") || rawMessage.includes("Invalid login")) {
+        rawMessage = "Credenciales inválidas. Verifica tu correo y contraseña.";
+      } else if (rawMessage.includes("Too many attempts")) {
+        rawMessage = "Demasiados intentos. Por favor, intenta más tarde.";
+      }
 
-      setError(
-        isDeactivated
-          ? `Tu cuenta fue desactivada. Contactá al administrador: ${adminContact}`
-          : rawMessage
-      );
+      const adminContact = "admin@nexum.com";
+      const isDeactivated = /desactivad|deactivated|disabled/i.test(rawMessage);
+      const isNetwork = /fetch|network|failed/i.test(rawMessage);
+
+      let errorMsg: string;
+      if (isDeactivated) {
+        errorMsg = `Tu cuenta fue desactivada. Contacta al administrador: ${adminContact}`;
+      } else if (isNetwork) {
+        errorMsg = "No se pudo conectar con el servidor. Verifica tu conexión a internet.";
+      } else {
+        errorMsg = rawMessage;
+      }
+
+      setError(errorMsg);
+      setToast({ mensaje: errorMsg, tipo: "error" });
     } finally {
       setLoading(false);
     }
@@ -190,10 +243,14 @@ const LoginPage = () => {
                       onChange={(e) => {
                         setEmail(e.target.value);
                         setError("");
+                        setErrorEmail("");
                       }}
                       className="flex-1 outline-none text-sm text-textMain bg-transparent min-w-0"
                     />
                   </div>
+                  {errorEmail && (
+                    <p className="text-action text-xs mt-1">{errorEmail}</p>
+                  )}
                 </div>
 
                 {/* Contraseña */}
@@ -210,6 +267,7 @@ const LoginPage = () => {
                       onChange={(e) => {
                         setPassword(e.target.value);
                         setError("");
+                        setErrorPassword("");
                       }}
                       className="flex-1 outline-none text-sm text-textMain bg-transparent min-w-0"
                     />
@@ -221,6 +279,10 @@ const LoginPage = () => {
                       {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
                   </div>
+
+                  {errorPassword && (
+                    <p className="text-action text-xs mt-1">{errorPassword}</p>
+                  )}
 
                   {/* Error */}
                   {error && (
@@ -277,6 +339,8 @@ const LoginPage = () => {
       <footer className="text-center text-sm rounded-2xl text-gray-800 py-4 bg-white">
         Copyright © 2026 CODI
       </footer>
+
+      {toast && <Toast message={toast.mensaje} type={toast.tipo} onClose={handleCloseToast} />}
     </div>
   );
 };

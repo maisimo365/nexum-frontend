@@ -77,10 +77,10 @@ const AccountsPage = () => {
         <Sidebar activeItem="Gestión Usuarios" />
 
         {/* Layout Principal: Columna en móvil, Fila en Desktop (lg) */}
-        <main className="flex-1 flex flex-col lg:flex-row overflow-x-hidden">
+        <main className="flex-1 flex flex-col lg:flex-row overflow-hidden">
           
           {/* SECCIÓN IZQUIERDA: Listado y Tabla */}
-          <div className="flex-1 p-4 pl-14 sm:pl-6 md:p-6">
+          <div className="flex-1 p-4 pl-14 sm:pl-6 md:p-6 overflow-y-auto">
             
             {/* Header: Título y Filtros apilables */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
@@ -183,7 +183,7 @@ const AccountsPage = () => {
           </div>
 
           {/* PANEL DERECHO: w-full en móvil, w-64 en Desktop */}
-          <aside className="w-full lg:w-64 p-6 bg-white border-t lg:border-t-0 lg:border-l border-gray-200 shrink-0">
+          <aside className="w-full lg:w-64 p-6 bg-white border-t lg:border-t-0 lg:border-l border-gray-200 shrink-0 overflow-y-auto">
             <div className="sticky top-6">
               <Calendar />
               

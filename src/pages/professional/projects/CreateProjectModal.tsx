@@ -8,60 +8,49 @@ import {
 import { getProjectFiles } from "../../../services/File.service";
 import Step1Form from "./Step1Form";
 import Step2Files, { type UploadedFile } from "./Step2Files";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
+import { createProject, updateProject, type Project, type Skill } from "../../../services/project.service";
+import { getProjectFiles } from "../../../services/File.service";
+import Toast from "../../../components/ui/Toast";
+import ConfirmCreateModal from "../../../components/ui/ConfirmCreateModal";
 
 interface CreateProjectModalProps {
   isOpen: boolean;
   onClose: () => void;
   projectToEdit?: Project | null;
   onDelete?: (id: number) => void;
+  onSuccess?: (message: string) => void;
 }
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
+const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete, onSuccess }: CreateProjectModalProps) => {
+  const [step, setStep] = useState(1);
+  const [currentProjectId, setCurrentProjectId] = useState<number | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [createdProject, setCreatedProject] = useState<Project | null>(null);
 
-const SuccessModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
-  if (!isOpen) return null;
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white rounded-xl shadow-2xl p-6 w-full max-w-[340px] mx-4 flex flex-col items-center gap-4" onClick={(e) => e.stopPropagation()}>
-        <div className="w-14 h-14 rounded-full bg-emerald-50 flex items-center justify-center">
-          <CheckCircle size={28} className="text-emerald-500" />
-        </div>
-        <div className="text-center">
-          <h3 className="text-[16px] font-bold text-[#1a1a2e] mb-1">¡Proyecto guardado con éxito!</h3>
-          <p className="text-[13px] text-[#5b6472] leading-relaxed">
-            Tu proyecto ha sido guardado correctamente en tu portafolio.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={onClose}
-          className="w-full h-10 bg-[#003087] text-white text-[13px] font-bold rounded-lg hover:brightness-110 transition-all flex items-center justify-center gap-2"
-        >
-          <FolderOpen size={15} /> Ir a Mis Proyectos
-        </button>
-      </div>
-    </div>
-  );
-};
+  // Form data for step 1, temporarily saved for the confirmation modal
+  const [pendingStep1Data, setPendingStep1Data] = useState<{ title: string; description: string; projectUrl: string; categoryId: number | ""; selectedSkills: Skill[] } | null>(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
-// ─── Main Component ───────────────────────────────────────────────────────────
-
-const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete }: CreateProjectModalProps) => {
-  const [currentStep, setCurrentStep] = useState<1 | 2>(1);
-  const [createdProjectId, setCreatedProjectId] = useState<number | null>(null);
+  // File states for step 2
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [showFormatError, setShowFormatError] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
   const [showConfirmNoFiles, setShowConfirmNoFiles] = useState(false);
+
+  // Toast state
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
+
+  const showToast = (message: string, type: "success" | "error" | "info") => {
+    setToast({ message, type });
+  };
+
   const [isSaving, setIsSaving] = useState(false);
   const [pendingSuggestion, setPendingSuggestion] = useState<{name: string, justification: string} | null>(null);
 
   // ── Init ───────────────────────────────────────────────────────────────────
   useEffect(() => {
     if (isOpen) {
+      setStep(1);
+      setCreatedProject(null);
       setCurrentStep(1);
       setCreatedProjectId(null);
       setUploadedFiles([]);
@@ -71,33 +60,49 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete }: Create
       setPendingSuggestion(null);
 
       if (projectToEdit) {
-        getProjectFiles(projectToEdit.id)
-          .then((files) => {
-            const mapped: UploadedFile[] = files.map((f) => ({
-              id: `existing-${f.id}`,
-              backendId: f.id,
-              file: new File([], f.original_name),
-              name: f.original_name,
-              size: 0,
-              mimeType: f.type === "pdf" ? "application/pdf" : "image/jpeg",
-              status: "success" as const,
-              progress: 100,
-            }));
-            setUploadedFiles(mapped);
-          })
-          .catch(console.error);
+        setCurrentProjectId(projectToEdit.id);
+
+        // Fetch existing files
+        getProjectFiles(projectToEdit.id).then(files => {
+          const mapped: UploadedFile[] = files.map(f => ({
+            id: `server-${f.id}`,
+            backendId: f.id,
+            file: null as any,
+            name: f.original_name,
+            size: 0,
+            mimeType: f.type === 'pdf' ? 'application/pdf' : 'image/jpeg',
+            status: 'success' as const,
+            progress: 100,
+            url: f.url
+          }));
+          setUploadedFiles(mapped);
+        }).catch(err => {
+          console.error("Error cargando archivos del proyecto:", err);
+          setUploadedFiles([]);
+        });
+      } else {
+        setCurrentProjectId(null);
+        setUploadedFiles([]);
       }
     }
   }, [isOpen, projectToEdit]);
 
-  // ── Step 1 handler ─────────────────────────────────────────────────────────
-  const handleStep1Submit = async (data: {
-    title: string;
-    description: string;
-    projectUrl: string;
-    categoryId: number | "";
-    selectedSkills: Skill[];
-  }) => {
+  const activeProject = projectToEdit || createdProject;
+
+  const handleStep1Submit = async (data: { title: string; description: string; projectUrl: string; categoryId: number | ""; selectedSkills: Skill[] }) => {
+    if (activeProject) {
+      await handleActualSubmit(data);
+    } else {
+      setPendingStep1Data(data);
+      setShowConfirmModal(true);
+    }
+  };
+
+  const handleActualSubmit = async (dataOverride?: { title: string; description: string; projectUrl: string; categoryId: number | ""; selectedSkills: Skill[] }) => {
+    const data = dataOverride || pendingStep1Data;
+    if (!data) return;
+
+    setShowConfirmModal(false);
     try {
       setIsSaving(true);
       const payload = {
@@ -105,13 +110,14 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete }: Create
         description: data.description,
         project_url: data.projectUrl,
         category_id: data.categoryId === "" ? null : data.categoryId,
-        skill_ids: data.selectedSkills.map((s) => s.id),
+        skill_ids: data.selectedSkills.map(s => s.id),
       };
 
-      let projectId: number;
-      if (projectToEdit) {
-        await updateProject(projectToEdit.id, payload);
-        projectId = projectToEdit.id;
+      if (activeProject) {
+        // We are updating an existing project (either from edit, or one we just created but went back to step 1)
+        await updateProject(activeProject.id, payload);
+        setCurrentProjectId(activeProject.id);
+        showToast("Proyecto actualizado. Ahora puedes adjuntar archivos.", "success");
       } else {
         const created = await createProject(payload);
         projectId = created.id;
@@ -131,19 +137,27 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete }: Create
       setCurrentStep(2);
     } catch (error: any) {
       console.error(error);
-      alert(error.message || "Error al guardar la información del proyecto.");
+      showToast(error.message || "Error al guardar el proyecto.", "error");
     } finally {
       setIsSaving(false);
+      setPendingStep1Data(null);
     }
   };
 
-  // ── Success modal close handler ────────────────────────────────────────────
-  const handleSuccessClose = () => {
-    setShowSuccess(false);
-    onClose();
+  const handleStep2Save = () => {
+    showToast("¡Proyecto guardado completamente!", "success");
+    if (onSuccess) {
+      onSuccess(projectToEdit ? 'Proyecto actualizado con éxito.' : 'Proyecto creado con éxito.');
+    }
+    // Esperamos un momento para que el usuario lea el mensaje de éxito antes de cerrar
+    setTimeout(() => {
+      onClose();
+    }, 1500);
   };
 
-  // ─────────────────────────────────────────────────────────────────────────────
+  const handleStep2Back = () => {
+    setStep(1);
+  };
 
   return (
     <>
@@ -181,7 +195,15 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete }: Create
         </div>
       </Modal>
 
-      <SuccessModal isOpen={showSuccess} onClose={handleSuccessClose} />
+      {!activeProject && (
+        <ConfirmCreateModal
+          isOpen={showConfirmModal}
+          onClose={() => setShowConfirmModal(false)}
+          onConfirm={() => handleActualSubmit()}
+        />
+      )}
+
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </>
   );
 };
