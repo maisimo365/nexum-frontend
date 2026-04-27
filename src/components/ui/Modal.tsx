@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 interface ModalProps {
   isOpen: boolean;
@@ -6,9 +7,10 @@ interface ModalProps {
   children: React.ReactNode;
   title?: string;
   positioning?: 'center' | 'top-right' | 'right';
+  maxWidth?: string;
 }
 
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, title, positioning = 'center' }) => {
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, title, positioning = 'center', maxWidth = 'max-w-[550px]' }) => {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -33,10 +35,10 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, title, positio
     containerClasses += "rounded-l-2xl p-6 sm:p-10 w-full max-w-[520px] h-full overflow-y-auto";
   } else {
     overlayClasses += "justify-center items-center p-4 sm:p-6";
-    containerClasses += "rounded-2xl p-5 sm:p-8 w-full max-w-[550px] max-h-[90vh] overflow-y-auto";
+    containerClasses += `rounded-2xl p-5 sm:p-8 w-full ${maxWidth} max-h-[90vh] overflow-y-auto`;
   }
 
-  return (
+  const modalContent = (
     <div className={overlayClasses} onClick={onClose}>
       <div className={containerClasses} onClick={(e) => e.stopPropagation()}>
         <button
@@ -54,6 +56,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, title, positio
       </div>
     </div>
   );
+
+  return typeof document !== 'undefined' ? createPortal(modalContent, document.body) : modalContent;
 };
 
 export default Modal;
