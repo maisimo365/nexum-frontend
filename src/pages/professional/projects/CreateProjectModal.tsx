@@ -121,7 +121,7 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete, onSucces
 
       if (pendingSuggestion) {
         try {
-          await suggestCategory(pendingSuggestion);
+          await suggestCategory(projectId, pendingSuggestion);
           setPendingSuggestion(null); // Clear after success
         } catch (err: any) {
           console.error("Error sending category suggestion:", err);

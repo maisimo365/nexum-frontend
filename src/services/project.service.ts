@@ -162,9 +162,9 @@ export const getSkillsCatalog = async (): Promise<Skill[]> => {
   return skills.sort((a, b) => a.name.localeCompare(b.name))
 }
 
-export const suggestCategory = async (data: { name: string; justification: string }): Promise<void> => {
+export const suggestCategory = async (projectId: number, data: { name: string; justification: string }): Promise<void> => {
   const token = getToken();
-  const response = await fetch(`${API_BASE_URL}/category-suggestions`, {
+  const response = await fetch(`${API_BASE_URL}/projects/${projectId}/category-suggestions`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${token}`,
