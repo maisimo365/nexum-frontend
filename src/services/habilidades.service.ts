@@ -1,5 +1,5 @@
 /// habilidades.service.ts
-const API_BASE = 'http://localhost:8000/api/v1'
+import { API_BASE_URL } from "../utils/constants";
 
 function getAuthToken(): string {
   const token = localStorage.getItem('token') || sessionStorage.getItem('token')
@@ -7,7 +7,7 @@ function getAuthToken(): string {
 }
 
 async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, {
+  const res = await fetch(`${API_BASE_URL}${path}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
