@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import Sidebar from '../../admin/components/Sidebar'
 import Calendar from '../../../components/ui/Calendar'
 import {
-   ShieldAlert, ExternalLink, Loader2, AlertCircle, CheckCircle2, ChevronDown, X, Check, Clock,
+  ShieldAlert, ExternalLink, Loader2, AlertCircle, CheckCircle2, ChevronDown, X, Check, Clock, Calendar as CalendarIcon,
 } from 'lucide-react'
 import { createExperience } from '../../../services/experience.service'
 import { getSkillsCatalog, type Skill } from '../../../services/project.service'
@@ -24,7 +24,7 @@ function Experience() {
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   const [actionLoading, setActionLoading] = useState(false)
-  const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({})
+  const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({})
   const [globalError, setGlobalError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
 
@@ -42,33 +42,43 @@ function Experience() {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
-  const formatMonthYear = (val: string) => {
-    let curr = val.replace(/\D/g, "");
-    if (curr.length > 6) curr = curr.slice(0, 6);
-    if (curr.length >= 3) {
-      return curr.slice(0, 2) + "/" + curr.slice(2);
-    }
-    return curr;
-  }
+  const formatToLongDate = (val: string) => {
+    if (!val) return "";
+    const [y, m] = val.split("-");
+    const months = [
+      "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+      "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+    ];
+    return `${months[parseInt(m) - 1]} de ${y}`;
+  };
 
   const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setStartDate(formatMonthYear(e.target.value))
+    setStartDate(e.target.value)
   }
 
   const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEndDate(formatMonthYear(e.target.value))
+    setEndDate(e.target.value)
   }
 
   const handleSave = async () => {
     setGlobalError(null)
     setSuccess(null)
-    const errors: {[key: string]: string} = {}
+    const errors: { [key: string]: string } = {}
 
     if (!position.trim()) errors.position = "Este campo es obligatorio"
     if (!company.trim()) errors.company = "Este campo es obligatorio"
-    if (!startDate) errors.startDate = "Este campo es obligatorio"
+    if (!startDate) {
+      errors.startDate = "Este campo es obligatorio"
+    } else {
+      const currentMonth = new Date().toISOString().slice(0, 7)
+      if (startDate > currentMonth) {
+        errors.startDate = "La fecha de inicio no puede ser una fecha futura"
+      }
+    }
+    if (startDate && endDate && endDate < startDate) {
+      errors.endDate = "La fecha de fin debe ser posterior a la de inicio"
+    }
     if (!employmentType) errors.employmentType = "Este campo es obligatorio"
-    if (!location.trim()) errors.location = "Este campo es obligatorio"
     if (!description.trim()) errors.description = "Este campo es obligatorio"
     if (selectedSkills.length === 0) errors.skills = "Debe seleccionar al menos una tecnología"
 
@@ -90,11 +100,10 @@ function Experience() {
     setGlobalError(null)
     setSuccess(null)
 
-    // Convert MM/YYYY to YYYY-MM
+    // Native month input returns YYYY-MM
     const formatToBackend = (val: string) => {
-      if (!val || val.length < 7) return null;
-      const [m, y] = val.split("/");
-      return `${y}-${m}`;
+      if (!val) return null;
+      return val;
     }
 
     try {
@@ -224,8 +233,11 @@ function Experience() {
                         placeholder="Ej. Desarrollador Frontend"
                         value={position}
                         onChange={(e) => {
-                          setPosition(e.target.value)
-                          if (validationErrors.position) setValidationErrors({...validationErrors, position: ""})
+                          const val = e.target.value;
+                          if (/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/.test(val)) {
+                            setPosition(val)
+                            if (validationErrors.position) setValidationErrors({ ...validationErrors, position: "" })
+                          }
                         }}
                         disabled={actionLoading}
                         className={`w-full p-2.5 rounded border bg-white outline-none focus:border-action transition-all text-sm placeholder:text-gray-300 ${validationErrors.position ? 'border-red-500 ring-1 ring-red-500/20' : 'border-gray-200'}`}
@@ -246,13 +258,35 @@ function Experience() {
                           const val = e.target.value;
                           if (/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]*$/.test(val)) {
                             setCompany(val);
-                            if (validationErrors.company) setValidationErrors({...validationErrors, company: ""})
+                            if (validationErrors.company) setValidationErrors({ ...validationErrors, company: "" })
                           }
                         }}
                         disabled={actionLoading}
                         className={`w-full p-2.5 rounded border bg-white outline-none focus:border-action transition-all text-sm placeholder:text-gray-300 ${validationErrors.company ? 'border-red-500 ring-1 ring-red-500/20' : 'border-gray-200'}`}
                       />
                       {validationErrors.company && <span className="text-red-500 text-[11px] mt-1">{validationErrors.company}</span>}
+                    </div>
+                  </div>
+
+                  {/* Ubicación de la empresa */}
+                  <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] items-start gap-4">
+                    <label className="text-[13px] font-bold mt-2">Ubicación de la empresa:</label>
+                    <div className="flex flex-col w-full">
+                      <input
+                        type="text"
+                        placeholder="Av. Villazon"
+                        value={location}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]*$/.test(val)) {
+                            setLocation(val)
+                            if (validationErrors.location) setValidationErrors({ ...validationErrors, location: "" })
+                          }
+                        }}
+                        disabled={actionLoading}
+                        className={`w-full p-2.5 rounded border bg-white outline-none focus:border-action transition-all text-sm placeholder:text-gray-300 ${validationErrors.location ? 'border-red-500 ring-1 ring-red-500/20' : 'border-gray-200'}`}
+                      />
+                      {validationErrors.location && <span className="text-red-500 text-[11px] mt-1">{validationErrors.location}</span>}
                     </div>
                   </div>
 
@@ -266,7 +300,7 @@ function Experience() {
                         value={verificationUrl}
                         onChange={(e) => {
                           setVerificationUrl(e.target.value)
-                          if (validationErrors.verificationUrl) setValidationErrors({...validationErrors, verificationUrl: ""})
+                          if (validationErrors.verificationUrl) setValidationErrors({ ...validationErrors, verificationUrl: "" })
                         }}
                         disabled={actionLoading}
                         className={`w-full p-2.5 rounded border bg-white outline-none focus:border-action transition-all text-sm placeholder:text-gray-300 ${validationErrors.verificationUrl ? 'border-red-500 ring-1 ring-red-500/20' : 'border-gray-200'}`}
@@ -279,29 +313,48 @@ function Experience() {
                   <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] items-start gap-4">
                     <label className="text-[13px] font-bold text-gray-700 mt-2">Fecha: <span className="text-red-500">*</span></label>
                     <div className="flex flex-col w-full">
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full">
-                        <input
-                          type="text"
-                          placeholder="Desde (MM/YYYY)"
-                          value={startDate}
-                          onChange={(e) => {
-                            handleStartDateChange(e)
-                            if (validationErrors.startDate) setValidationErrors({...validationErrors, startDate: ""})
-                          }}
-                          disabled={actionLoading}
-                          className={`w-full sm:flex-1 min-w-0 p-2.5 rounded border bg-white outline-none focus:border-action transition-all text-sm placeholder:text-gray-300 ${validationErrors.startDate ? 'border-red-500 ring-1 ring-red-500/20' : 'border-gray-200'}`}
-                        />
-                        <span className="text-gray-400 hidden sm:block">-</span>
-                        <input
-                          type="text"
-                          placeholder="Hasta (MM/YYYY)"
-                          value={endDate}
-                          onChange={handleEndDateChange}
-                          disabled={actionLoading}
-                          className="w-full sm:flex-1 min-w-0 p-2.5 rounded border border-gray-200 bg-white outline-none focus:border-action transition-all text-sm placeholder:text-gray-300"
-                        />
+                      <div className="flex flex-col sm:flex-row items-start gap-3 w-full">
+                        {/* Fecha Inicio */}
+                        <div className="relative w-full sm:flex-1 min-w-0 group">
+                          <input
+                            type="month"
+                            value={startDate}
+                            onChange={(e) => {
+                              handleStartDateChange(e)
+                              if (validationErrors.startDate) setValidationErrors({ ...validationErrors, startDate: "" })
+                            }}
+                            disabled={actionLoading}
+                            className={`absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10 ${actionLoading ? 'pointer-events-none' : ''}`}
+                          />
+                          <div className={`w-full p-2.5 rounded border bg-white flex items-center justify-between text-sm transition-all ${validationErrors.startDate ? 'border-red-500 ring-1 ring-red-500/20' : 'border-gray-200 group-hover:border-action'}`}>
+                            <span className={startDate ? 'text-textMain' : 'text-gray-400'}>
+                              {startDate ? formatToLongDate(startDate) : "Mes de año"}
+                            </span>
+                            <CalendarIcon size={14} className="text-gray-400" />
+                          </div>
+                          {validationErrors.startDate && <span className="text-red-500 text-[11px] mt-1 block text-center w-full">{validationErrors.startDate}</span>}
+                        </div>
+
+                        <span className="text-gray-400 hidden sm:block mt-3">-</span>
+
+                        {/* Fecha Fin */}
+                        <div className="relative w-full sm:flex-1 min-w-0 group">
+                          <input
+                            type="month"
+                            value={endDate}
+                            onChange={handleEndDateChange}
+                            disabled={actionLoading}
+                            className={`absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10 ${actionLoading ? 'pointer-events-none' : ''}`}
+                          />
+                          <div className="w-full p-2.5 rounded border border-gray-200 bg-white flex items-center justify-between text-sm transition-all group-hover:border-action">
+                            <span className={endDate ? 'text-textMain' : 'text-gray-400'}>
+                              {endDate ? formatToLongDate(endDate) : "Mes de año"}
+                            </span>
+                            <CalendarIcon size={14} className="text-gray-400" />
+                          </div>
+                          {validationErrors.endDate && <span className="text-red-500 text-[11px] mt-1 block text-center w-full">{validationErrors.endDate}</span>}
+                        </div>
                       </div>
-                      {validationErrors.startDate && <span className="text-red-500 text-[11px] mt-1">{validationErrors.startDate}</span>}
                     </div>
                   </div>
 
@@ -314,7 +367,7 @@ function Experience() {
                           value={employmentType}
                           onChange={(e) => {
                             setEmploymentType(e.target.value)
-                            if (validationErrors.employmentType) setValidationErrors({...validationErrors, employmentType: ""})
+                            if (validationErrors.employmentType) setValidationErrors({ ...validationErrors, employmentType: "" })
                           }}
                           disabled={actionLoading}
                           className={`w-full p-2.5 rounded border bg-white outline-none focus:border-action transition-all text-sm appearance-none cursor-pointer ${validationErrors.employmentType ? 'border-red-500 ring-1 ring-red-500/20' : 'border-gray-200'}`}
@@ -330,24 +383,6 @@ function Experience() {
                     </div>
                   </div>
 
-                  {/* Ubicacion */}
-                  <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] items-start gap-4">
-                    <label className="text-[13px] font-bold mt-2">Ubicacion <span className="text-red-500">*</span></label>
-                    <div className="flex flex-col w-full">
-                      <input
-                        type="text"
-                        placeholder="Av. Villazon"
-                        value={location}
-                        onChange={(e) => {
-                          setLocation(e.target.value)
-                          if (validationErrors.location) setValidationErrors({...validationErrors, location: ""})
-                        }}
-                        disabled={actionLoading}
-                        className={`w-full p-2.5 rounded border bg-white outline-none focus:border-action transition-all text-sm placeholder:text-gray-300 ${validationErrors.location ? 'border-red-500 ring-1 ring-red-500/20' : 'border-gray-200'}`}
-                      />
-                      {validationErrors.location && <span className="text-red-500 text-[11px] mt-1">{validationErrors.location}</span>}
-                    </div>
-                  </div>
 
 
                   {/* Descripcion */}
@@ -360,9 +395,9 @@ function Experience() {
                         value={description}
                         onChange={(e) => {
                           const val = e.target.value;
-                          if (/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/.test(val)) {
+                          if (/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s.,;:-]*$/.test(val)) {
                             setDescription(val)
-                            if (validationErrors.description) setValidationErrors({...validationErrors, description: ""})
+                            if (validationErrors.description) setValidationErrors({ ...validationErrors, description: "" })
                           }
                         }}
                         disabled={actionLoading}
@@ -378,9 +413,8 @@ function Experience() {
                     <div className="flex flex-col w-full">
                       <div className="relative">
                         <div
-                          className={`min-h-[42px] w-full px-3 py-2 text-sm bg-white border rounded transition-all cursor-pointer flex items-center justify-between gap-2 ${
-                            validationErrors.skills ? "border-red-500 ring-1 ring-red-500/20" : isTechDropdownOpen ? "border-action ring-1 ring-action/10" : "border-gray-200"
-                          }`}
+                          className={`min-h-[42px] w-full px-3 py-2 text-sm bg-white border rounded transition-all cursor-pointer flex items-center justify-between gap-2 ${validationErrors.skills ? "border-red-500 ring-1 ring-red-500/20" : isTechDropdownOpen ? "border-action ring-1 ring-action/10" : "border-gray-200"
+                            }`}
                           onClick={() => setIsTechDropdownOpen(!isTechDropdownOpen)}
                         >
                           <div className="flex flex-wrap gap-1.5 flex-1">
@@ -416,7 +450,7 @@ function Experience() {
                                   className="px-3 py-2 text-sm cursor-pointer hover:bg-gray-50 flex items-center justify-between transition-colors"
                                   onClick={() => {
                                     toggleSkill(skill)
-                                    if (validationErrors.skills) setValidationErrors({...validationErrors, skills: ""})
+                                    if (validationErrors.skills) setValidationErrors({ ...validationErrors, skills: "" })
                                   }}
                                 >
                                   <span className={isSelected ? "font-bold text-primary" : "text-[#1a1a2e]"}>
