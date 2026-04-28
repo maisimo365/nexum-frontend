@@ -6,7 +6,9 @@ import Calendar from "../../components/ui/Calendar";
 import Toast from "../../components/ui/Toast";
 import { getUsers, getActivityLogs } from "../../services/admin.service";
 
-const API_BASE = "http://localhost:8000/api/v1";
+import { API_BASE_URL } from "../../utils/constants";
+
+const API_BASE = API_BASE_URL;
 
 function getAuthToken(): string {
   return localStorage.getItem("token") || sessionStorage.getItem("token") || "";
@@ -438,7 +440,7 @@ const DashboardAdmin = () => {
       // Pending suggestions count
       try {
         const token = localStorage.getItem("token") || sessionStorage.getItem("token") || "";
-        const res = await fetch("http://localhost:8000/api/v1/admin/skill-suggestions?status=pending&per_page=1", {
+        const res = await fetch(`${API_BASE_URL}/admin/skill-suggestions?status=pending&per_page=1`, {
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
@@ -461,7 +463,7 @@ const DashboardAdmin = () => {
       // Pending category suggestions count
       try {
         const token = localStorage.getItem("token") || sessionStorage.getItem("token") || "";
-        const res = await fetch("http://localhost:8000/api/v1/admin/category-suggestions?status=pending&per_page=1", {
+        const res = await fetch(`${API_BASE_URL}/admin/category-suggestions?status=pending&per_page=1`, {
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",

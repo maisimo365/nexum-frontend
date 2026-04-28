@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import { getProjects } from "../../services/project.service";
 import { getPortfolioSkills } from "../../services/habilidades.service";
 import { getExperiences } from "../../services/experience.service";
+import { API_BASE_URL } from "../../utils/constants";
 
 const DashboardProfessional = () => {
   const [viewsCount, setViewsCount] = useState(0);
@@ -26,7 +27,7 @@ const DashboardProfessional = () => {
 
       // Portfolio views
       try {
-        const response = await fetch("http://localhost:8000/api/v1/portfolio", {
+        const response = await fetch(`${API_BASE_URL}/portfolio`, {
           headers: {
             Authorization: `Bearer ${storedToken}`,
             Accept: "application/json",
