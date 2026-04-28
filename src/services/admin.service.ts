@@ -128,6 +128,7 @@ export const getActivityLogs = async (params: { user_id?: number; per_page?: num
         }),
         detail: formatLogDetail(log),
         raw_date: log.created_at,
+        properties: log.properties,
       };
     }),
 

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Search, Calendar as CalendarIcon, Download, ShieldCheck } from "lucide-react";
+import { Search, Calendar as CalendarIcon, Download, ShieldCheck, Eye, X, ArrowRight } from "lucide-react";
 import Sidebar from "./components/Sidebar";
 import Calendar from "../../components/ui/Calendar";
 import { getActivityLogs } from "../../services/admin.service";
@@ -13,6 +13,10 @@ interface AuditLog {
   timestamp: string;
   detail: string;
   raw_date: string;
+  properties?: {
+    attributes?: Record<string, any>;
+    old?: Record<string, any>;
+  };
 }
 
 const AuditPage = () => {
@@ -22,6 +26,7 @@ const AuditPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
 
   // Referencias para disparar los inputs de fecha ocultos
   const dateFromRef = useRef<HTMLInputElement>(null);
@@ -118,10 +123,124 @@ const AuditPage = () => {
     }
   };
 
+  const translateEventName = (event: string) => {
+    switch (event.toLowerCase()) {
+      case 'created': return 'Creado';
+      case 'updated': return 'Actualizado';
+      case 'deleted': return 'Eliminado';
+      case 'update_role': return 'Rol Actualizado';
+      case 'login_failed': return 'Acceso Fallido';
+      case 'login': return 'Login Exitoso';
+      case 'logout': return 'Cierre Sesión';
+      case 'profile_updated': return 'Perfil Modificado';
+      case 'portfolio_edit': return 'Portafolio Editado';
+      default: return event.replace(/_/g, ' ');
+    }
+  };
+
   const formatDateDisplay = (dateStr: string) => {
     if (!dateStr) return "DD/MM/AA";
     const [y, m, d] = dateStr.split("-");
     return `${d}/${m}/${y.slice(-2)}`;
+  };
+
+  const translateKey = (key: string) => {
+    const map: Record<string, string> = {
+      first_name: "Nombre",
+      last_name: "Apellido",
+      email: "Email",
+      role: "Rol",
+      is_active: "Estado",
+      password: "Contraseña",
+      biography: "Biografía",
+      phone: "Teléfono",
+      location: "Ubicación",
+      github_url: "GitHub",
+      linkedin_url: "LinkedIn",
+      global_privacy: "Privacidad",
+      name: "Nombre del Proyecto",
+      description: "Descripción"
+    };
+    return map[key] || key;
+  };
+
+  const renderChangesTable = (log: AuditLog) => {
+    const props = log.properties;
+    if (!props || (!props.attributes && !props.old)) {
+      return (
+        <div className="p-8 text-center text-gray-500 bg-gray-50/50 rounded-2xl border border-dashed border-gray-200">
+          No hay detalles adicionales estructurados para este evento.
+        </div>
+      );
+    }
+
+    const attributes = props.attributes || {};
+    const old = props.old || {};
+
+    const isUpdate = log.event === 'updated' || log.event === 'profile_updated' || log.event === 'portfolio_edit' || Object.keys(old).length > 0;
+
+    if (isUpdate) {
+      const keys = Array.from(new Set([...Object.keys(attributes), ...Object.keys(old)]))
+        .filter(k => k !== 'updated_at' && k !== 'created_at' && k !== 'id');
+        
+      if (keys.length === 0) return <p className="text-sm text-gray-500 text-center py-4 bg-gray-50 rounded-xl">Sin cambios detectables.</p>;
+
+      return (
+        <div className="rounded-2xl border border-gray-200 overflow-hidden shadow-sm bg-white">
+          <table className="w-full text-sm text-left">
+            <thead className="bg-gray-50/80 border-b border-gray-200 text-xs uppercase tracking-wider text-gray-500">
+              <tr>
+                <th className="px-5 py-4 font-bold w-1/3">Campo Modificado</th>
+                <th className="px-5 py-4 font-bold text-red-600 bg-red-50/50 w-1/3">Valor Anterior</th>
+                <th className="px-5 py-4 font-bold text-green-600 bg-green-50/50 w-1/3">Nuevo Valor</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {keys.map((key) => {
+                const oldVal = old[key] !== undefined && old[key] !== null ? String(old[key]) : "Ø";
+                const newVal = attributes[key] !== undefined && attributes[key] !== null ? String(attributes[key]) : "Ø";
+                const isChanged = oldVal !== newVal;
+                return (
+                  <tr key={key} className={`transition-colors hover:bg-gray-50 ${isChanged ? 'bg-white' : 'opacity-60 bg-gray-50'}`}>
+                    <td className="px-5 py-4 font-medium text-gray-900 border-r border-gray-100/50">{translateKey(key)}</td>
+                    <td className="px-5 py-4 text-red-900 bg-red-50/20 font-mono text-xs break-all 
+                                   line-through decoration-red-300/80 opacity-80">{oldVal}</td>
+                    <td className="px-5 py-4 text-green-900 bg-green-50/20 font-mono text-xs break-all font-medium flex items-center gap-2">
+                       {isChanged && <span className="text-green-500"><ArrowRight size={14}/></span>}
+                       {newVal}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      );
+    } 
+
+    const keys = Object.keys(attributes).filter(k => k !== 'created_at' && k !== 'updated_at' && k !== 'id');
+    if (keys.length === 0) return null;
+
+    return (
+      <div className="rounded-2xl border border-gray-200 overflow-hidden shadow-sm bg-white">
+        <table className="w-full text-sm text-left">
+          <thead className="bg-blue-50/50 border-b border-blue-100 text-xs uppercase tracking-wider text-blue-700">
+            <tr>
+              <th className="px-5 py-4 font-bold w-1/3">Dato Registrado</th>
+              <th className="px-5 py-4 font-bold">Valor</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {keys.map((key) => (
+              <tr key={key} className="bg-white hover:bg-blue-50/30 transition-colors">
+                <td className="px-5 py-4 font-medium text-gray-900 border-r border-gray-50 bg-gray-50/10">{translateKey(key)}</td>
+                <td className="px-5 py-4 text-blue-900 font-mono text-xs break-all bg-blue-50/10">{String(attributes[key])}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
   };
 
   const RightPanelContent = () => (
@@ -237,7 +356,7 @@ const AuditPage = () => {
                     <th className="text-left px-6 py-4 font-bold">Usuario</th>
                     <th className="text-center px-6 py-4 font-bold">Evento</th>
                     <th className="text-left px-6 py-4 font-bold">Fecha/Hora</th>
-                    <th className="text-left px-6 py-4 font-bold">Detalle de actividad</th>
+                    <th className="text-left px-6 py-4 font-bold text-center">Detalles</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
@@ -251,11 +370,21 @@ const AuditPage = () => {
                         <td className="px-6 py-4 text-textMain font-normal ">{log.user_name}</td>
                         <td className="px-6 py-4 text-center">
                           <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${getEventBadgeClass(log.event)}`}>
-                            {log.event.replace('_', ' ')}
+                            {translateEventName(log.event)}
                           </span>
                         </td>
                         <td className="px-6 py-4 text-gray-500 font-mono text-xs">{log.timestamp}</td>
-                        <td className="px-6 py-4 text-gray-600 leading-relaxed text-xs max-w-sm">{log.detail}</td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center justify-center">
+                            <button
+                              onClick={() => setSelectedLog(log)}
+                              className="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white rounded-lg transition-all shadow-sm flex shrink-0 items-center justify-center border border-blue-100 hover:border-blue-600 group tooltip-trigger relative"
+                              title="Ver detalles profundos"
+                            >
+                              <Eye size={18} className="group-hover:scale-110 transition-transform" />
+                            </button>
+                          </div>
+                        </td>
                       </tr>
                     ))
                   ) : (
@@ -273,6 +402,68 @@ const AuditPage = () => {
         </aside>
 
       </main>
+
+      {/* MODAL DETALLES DE ACTIVIDAD */}
+      {selectedLog && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-4xl overflow-hidden border border-gray-100 flex flex-col max-h-[90vh] sm:max-h-[85vh] animate-in zoom-in-95 duration-200">
+            <div className="px-6 py-5 sm:px-8 border-b border-gray-100 flex justify-between items-center bg-white">
+              <div>
+                <h3 className="text-xl font-bold text-gray-900 tracking-tight">Detalles de Actividad</h3>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-xs text-gray-500 font-mono bg-gray-100 px-2 py-0.5 rounded-md">ID: {selectedLog.id}</span>
+                  <span className="text-xs text-gray-400">•</span>
+                  <span className="text-xs text-gray-500 flex items-center gap-1">
+                    <CalendarIcon size={12} />
+                    {selectedLog.timestamp}
+                  </span>
+                </div>
+              </div>
+              <button 
+                onClick={() => setSelectedLog(null)} 
+                className="p-2.5 text-gray-400 bg-gray-50 hover:bg-red-50 hover:text-red-500 rounded-full transition-all"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="p-6 sm:p-8 overflow-y-auto flex-1 bg-gray-50/30">
+              
+              <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center gap-4 p-5 bg-white rounded-2xl border border-gray-200 shadow-sm">
+                <div className={`p-4 rounded-xl shrink-0 shadow-inner ${getEventBadgeClass(selectedLog.event)}`}>
+                  <ShieldCheck size={28} />
+                </div>
+                <div className="flex-1">
+                  <p className="text-xs text-gray-400 font-medium uppercase tracking-wider mb-1">Usuario Responsable</p>
+                  <p className="font-bold text-gray-900 text-lg">{selectedLog.user_name}</p>
+                </div>
+                <div className="mt-4 sm:mt-0 sm:ml-auto sm:text-right shrink-0">
+                  <span className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest border ${getEventBadgeClass(selectedLog.event)} border-current/20`}>
+                    {translateEventName(selectedLog.event)}
+                  </span>
+                </div>
+              </div>
+
+              <div className="mb-4">
+                 <h4 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2 uppercase tracking-wide">
+                    Datos y Estados
+                 </h4>
+                 {renderChangesTable(selectedLog)}
+              </div>
+            </div>
+
+            <div className="px-6 py-5 sm:px-8 border-t border-gray-100 bg-white flex justify-end">
+              <button 
+                onClick={() => setSelectedLog(null)} 
+                className="px-8 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-xl hover:bg-gray-800 transition-colors shadow-md hover:shadow-lg focus:ring-4 focus:ring-gray-200"
+              >
+                Cerrar Detalles
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
 import Modal from "../../../components/ui/Modal";
+import {
+  createProject, updateProject, suggestCategory,
+  type Skill, type Project,
+} from "../../../services/project.service";
+import { getProjectFiles } from "../../../services/File.service";
 import Step1Form from "./Step1Form";
 import Step2Files, { type UploadedFile } from "./Step2Files";
-import { createProject, updateProject, type Project, type Skill } from "../../../services/project.service";
-import { getProjectFiles } from "../../../services/File.service";
 import Toast from "../../../components/ui/Toast";
 import ConfirmCreateModal from "../../../components/ui/ConfirmCreateModal";
 
@@ -16,8 +19,8 @@ interface CreateProjectModalProps {
 }
 
 const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete, onSuccess }: CreateProjectModalProps) => {
-  const [step, setStep] = useState(1);
-  const [currentProjectId, setCurrentProjectId] = useState<number | null>(null);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [createdProjectId, setCreatedProjectId] = useState<number | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [createdProject, setCreatedProject] = useState<Project | null>(null);
 
@@ -37,12 +40,21 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete, onSucces
     setToast({ message, type });
   };
 
+  const [pendingSuggestion, setPendingSuggestion] = useState<{name: string, justification: string} | null>(null);
+
+  // ── Init ───────────────────────────────────────────────────────────────────
   useEffect(() => {
     if (isOpen) {
-      setStep(1);
       setCreatedProject(null);
+      setCurrentStep(1);
+      setCreatedProjectId(null);
+      setUploadedFiles([]);
+      setShowConfirmNoFiles(false);
+      setShowFormatError(false);
+      setPendingSuggestion(null);
+
       if (projectToEdit) {
-        setCurrentProjectId(projectToEdit.id);
+        setCreatedProjectId(projectToEdit.id);
 
         // Fetch existing files
         getProjectFiles(projectToEdit.id).then(files => {
@@ -63,7 +75,7 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete, onSucces
           setUploadedFiles([]);
         });
       } else {
-        setCurrentProjectId(null);
+        setCreatedProjectId(null);
         setUploadedFiles([]);
       }
     }
@@ -95,19 +107,30 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete, onSucces
         skill_ids: data.selectedSkills.map(s => s.id),
       };
 
+      let projectId: number;
       if (activeProject) {
         // We are updating an existing project (either from edit, or one we just created but went back to step 1)
         await updateProject(activeProject.id, payload);
-        setCurrentProjectId(activeProject.id);
+        projectId = activeProject.id;
         showToast("Proyecto actualizado. Ahora puedes adjuntar archivos.", "success");
       } else {
-        // Creating a new one
-        const res = await createProject(payload);
-        setCurrentProjectId(res.id);
-        setCreatedProject(res); // Store it so if we go back we edit it instead of creating duplicates
-        showToast("Proyecto creado con éxito. Ahora sube tus evidencias.", "success");
+        const created = await createProject(payload);
+        projectId = created.id;
+        setCreatedProject(created);
       }
-      setStep(2);
+
+      if (pendingSuggestion) {
+        try {
+          await suggestCategory(projectId, pendingSuggestion);
+          setPendingSuggestion(null); // Clear after success
+        } catch (err: any) {
+          console.error("Error sending category suggestion:", err);
+          alert("El proyecto se guardó, pero la sugerencia de categoría falló: " + (err.message || "Error desconocido"));
+        }
+      }
+
+      setCreatedProjectId(projectId);
+      setCurrentStep(2);
     } catch (error: any) {
       console.error(error);
       showToast(error.message || "Error al guardar el proyecto.", "error");
@@ -128,40 +151,41 @@ const CreateProjectModal = ({ isOpen, onClose, projectToEdit, onDelete, onSucces
     }, 1500);
   };
 
-  const handleStep2Back = () => {
-    setStep(1);
-  };
-
   return (
     <>
-      <Modal isOpen={isOpen} onClose={onClose} title={activeProject ? "Editar proyecto" : "Nuevo proyecto"}>
-        {step === 1 ? (
-          <Step1Form
-            projectToEdit={activeProject}
-            onSubmit={handleStep1Submit}
-            onCancel={onClose}
-            onDelete={onDelete}
-            isSaving={isSaving}
-          />
-        ) : (
-          <Step2Files
-            projectId={currentProjectId!}
-            uploadedFiles={uploadedFiles}
-            onFilesChange={setUploadedFiles}
-            onBack={handleStep2Back}
-            onSave={handleStep2Save}
-            showFormatError={showFormatError}
-            onShowFormatError={() => setShowFormatError(true)}
-            onFormatErrorClose={() => setShowFormatError(false)}
-            showConfirmNoFiles={showConfirmNoFiles}
-            onConfirmNoFilesConfirm={() => {
-              setShowConfirmNoFiles(false);
-              handleStep2Save();
-            }}
-            onConfirmNoFilesCancel={() => setShowConfirmNoFiles(false)}
-            onToast={showToast}
-          />
-        )}
+      <Modal isOpen={isOpen} onClose={onClose} title={projectToEdit ? "Editar proyecto" : "Nuevo proyecto"}>
+        <div className="flex flex-col gap-5">
+          {currentStep === 1 && (
+            <Step1Form
+              projectToEdit={projectToEdit}
+              onSubmit={handleStep1Submit}
+              onCancel={onClose}
+              onDelete={onDelete}
+              isSaving={isSaving}
+              onSuggestCategory={(name, justification) => setPendingSuggestion({name, justification})}
+            />
+          )}
+
+          {currentStep === 2 && createdProjectId !== null && (
+            <Step2Files
+              projectId={createdProjectId}
+              uploadedFiles={uploadedFiles}
+              onFilesChange={setUploadedFiles}
+              onBack={() => setCurrentStep(1)}
+              onSave={handleStep2Save}
+              showFormatError={showFormatError}
+              onShowFormatError={() => setShowFormatError(true)}
+              onFormatErrorClose={() => setShowFormatError(false)}
+              showConfirmNoFiles={showConfirmNoFiles}
+              onConfirmNoFilesConfirm={() => {
+                setShowConfirmNoFiles(false);
+                handleStep2Save();
+              }}
+              onConfirmNoFilesCancel={() => setShowConfirmNoFiles(false)}
+              onToast={showToast}
+            />
+          )}
+        </div>
       </Modal>
 
       {!activeProject && (

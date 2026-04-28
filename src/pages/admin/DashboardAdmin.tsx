@@ -50,6 +50,24 @@ interface SuggestionsResponse {
   meta: { current_page: number; last_page: number; per_page: number; total: number };
 }
 
+interface CategorySuggestion {
+  id: number;
+  name: string;
+  justification: string | null;
+  status: "pending" | "approved" | "rejected";
+  reviewed_at: string | null;
+  reviewed_by: { id: number; name: string } | null;
+  category_id: number | null;
+  project: { id: number; title: string };
+  user: { id: number; name: string; email: string };
+  created_at: string;
+}
+
+interface CategorySuggestionsResponse {
+  data: CategorySuggestion[];
+  meta: { current_page: number; last_page: number; per_page: number; total: number };
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const NIVEL_LABEL: Record<string, string> = {
   basico: "Básico", intermedio: "Intermedio", avanzado: "Avanzado",
@@ -237,11 +255,173 @@ function SkillSuggestionsModal({
   );
 }
 
+// ─── Modal de revisión de sugerencias de CATEGORÍAS ──────────────────────────
+function CategorySuggestionsModal({
+  onClose,
+  onCountChange,
+}: {
+  onClose: () => void;
+  onCountChange: (n: number) => void;
+}) {
+  const [suggestions, setSuggestions] = useState<CategorySuggestion[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [actionId, setActionId] = useState<number | null>(null);
+  const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      try {
+        const res = await apiFetch<CategorySuggestionsResponse>("/admin/category-suggestions?status=pending");
+        setSuggestions(res.data);
+        onCountChange(res.meta.total);
+      } catch {
+        setToast({ msg: "No se pudieron cargar las sugerencias de categorías.", ok: false });
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  const handleAction = async (id: number, action: "approve" | "reject") => {
+    setActionId(id);
+    try {
+      await apiFetch(`/admin/category-suggestions/${id}/${action}`, { method: "PATCH" });
+      setSuggestions(prev => prev.filter(s => s.id !== id));
+      onCountChange(suggestions.length - 1);
+      setToast({ msg: action === "approve" ? "Sugerencia aprobada." : "Sugerencia rechazada.", ok: action === "approve" });
+    } catch {
+      setToast({ msg: "Error al procesar la acción.", ok: false });
+    } finally {
+      setActionId(null);
+    }
+  };
+
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 3000);
+    return () => clearTimeout(t);
+  }, [toast]);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl flex flex-col max-h-[85vh]">
+
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 flex-shrink-0">
+          <div>
+            <h2 className="text-base font-semibold text-gray-900">Sugerencias de Categorías</h2>
+            <p className="text-xs text-gray-400 mt-0.5">Revisa y aprueba o rechaza las sugerencias de nuevas categorías.</p>
+          </div>
+          <button onClick={onClose} className="w-7 h-7 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Contenido */}
+        <div className="flex-1 overflow-y-auto px-6 py-4">
+          {loading ? (
+            <div className="flex items-center justify-center gap-2 py-12 text-sm text-gray-400">
+              <IconSpinner className="w-5 h-5 text-gray-400" /> Cargando sugerencias...
+            </div>
+          ) : suggestions.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-14 gap-3 text-center">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <CheckCircle size={24} className="text-primary" />
+              </div>
+              <p className="text-sm font-semibold text-gray-700">Sin sugerencias pendientes</p>
+              <p className="text-xs text-gray-400">Todas las sugerencias han sido revisadas.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {suggestions.map(s => (
+                <div key={s.id} className="border border-gray-200 rounded-xl p-4 hover:border-gray-300 transition-colors">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap mb-1">
+                        <span className="text-sm font-semibold text-gray-900">{s.name}</span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border bg-primary/10 text-primary border-primary/20">
+                          Nueva Categoría
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-400 mb-1">
+                        <span className="font-medium text-gray-500">Proyecto:</span> {s.project.title}
+                      </p>
+                      <p className="text-xs text-gray-400 mb-1">
+                        <span className="font-medium text-gray-500">Usuario:</span> {s.user.name}{" "}
+                        <span className="text-gray-300">·</span> {s.user.email}
+                      </p>
+                      {s.justification && (
+                        <p className="text-xs text-gray-500 mt-2 bg-gray-50 rounded-lg px-3 py-2 border border-gray-100 italic">
+                          "{s.justification}"
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col gap-2 flex-shrink-0">
+                      <button
+                        onClick={() => handleAction(s.id, "approve")}
+                        disabled={actionId === s.id}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-primary rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-60"
+                      >
+                        {actionId === s.id ? <IconSpinner className="w-3.5 h-3.5" /> : (
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                        )}
+                        Aprobar
+                      </button>
+                      <button
+                        onClick={() => handleAction(s.id, "reject")}
+                        disabled={actionId === s.id}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-action rounded-lg hover:bg-action/90 transition-colors disabled:opacity-60"
+                      >
+                        {actionId === s.id ? <IconSpinner className="w-3.5 h-3.5" /> : (
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        )}
+                        Rechazar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="px-6 py-3 border-t border-gray-100 flex-shrink-0 flex items-center justify-between">
+          <p className="text-xs text-gray-400">
+            {suggestions.length} sugerencia{suggestions.length !== 1 ? "s" : ""} pendiente{suggestions.length !== 1 ? "s" : ""}
+          </p>
+          <button onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            Cerrar
+          </button>
+        </div>
+
+        {toast && (
+          <div className={`absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 px-4 py-2.5 rounded-xl shadow-lg text-sm font-medium text-white ${toast.ok ? "bg-primary" : "bg-action"}`}>
+            {toast.ok ? <CheckCircle size={15} /> : <AlertTriangle size={15} />}
+            {toast.msg}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── Dashboard principal ──────────────────────────────────────────────────────
 const DashboardAdmin = () => {
   const [modalSugerencias, setModalSugerencias] = useState(false);
   const [pendingCount, setPendingCount] = useState<number | null>(null);
   const [loadingCount, setLoadingCount] = useState(true);
+
+  const [modalCategorias, setModalCategorias] = useState(false);
+  const [pendingCategoryCount, setPendingCategoryCount] = useState<number | null>(null);
+  const [loadingCategoryCount, setLoadingCategoryCount] = useState(true);
 
   // Stats dinámicos
   const [totalUsers, setTotalUsers] = useState<number | null>(null);
@@ -276,6 +456,28 @@ const DashboardAdmin = () => {
         setToast({ mensaje: "No se pudieron cargar las sugerencias pendientes.", tipo: "error" });
       } finally {
         setLoadingCount(false);
+      }
+
+      // Pending category suggestions count
+      try {
+        const token = localStorage.getItem("token") || sessionStorage.getItem("token") || "";
+        const res = await fetch("http://localhost:8000/api/v1/admin/category-suggestions?status=pending&per_page=1", {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setPendingCategoryCount(data.meta?.total ?? 0);
+        } else {
+          setPendingCategoryCount(0);
+        }
+      } catch {
+        setPendingCategoryCount(0);
+      } finally {
+        setLoadingCategoryCount(false);
       }
 
       // Users stats
@@ -347,6 +549,16 @@ const DashboardAdmin = () => {
             >
               <BookOpen size={14} className="text-action shrink-0" />
               <span>{pendingCount} sugerencia{pendingCount !== 1 ? "s" : ""} de habilidades pendiente{pendingCount !== 1 ? "s" : ""}.</span>
+            </div>
+          )}
+          {/* Notificación dinámica de categorías */}
+          {!loadingCategoryCount && !!pendingCategoryCount && pendingCategoryCount > 0 && (
+            <div
+              onClick={() => setModalCategorias(true)}
+              className="flex items-start gap-2 text-[11px] text-action leading-tight cursor-pointer hover:underline"
+            >
+              <BookOpen size={14} className="text-action shrink-0" />
+              <span>{pendingCategoryCount} sugerencia{pendingCategoryCount !== 1 ? "s" : ""} de categorías pendiente{pendingCategoryCount !== 1 ? "s" : ""}.</span>
             </div>
           )}
         </div>
@@ -498,6 +710,45 @@ const DashboardAdmin = () => {
                   </div>
                 </div>
               </div>
+
+              {/* ── NUEVA CARD: Sugerencias de Categorías ── */}
+              <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 sm:col-span-2">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <BookOpen size={18} className="text-textMain" />
+                      <h2 className="font-semibold text-textMain">Sugerencias de Categorías</h2>
+                    </div>
+                    <p className="text-sm text-gray-500 mb-3 leading-relaxed">
+                      Revisa las categorías propuestas por los usuarios para organizar mejor los proyectos.
+                    </p>
+                    {loadingCategoryCount ? (
+                      <div className="bg-gray-50 text-gray-400 text-[11px] px-3 py-1.5 rounded-lg mb-4 inline-flex items-center gap-1.5 border border-gray-100">
+                        <IconSpinner className="w-3 h-3" /> Cargando...
+                      </div>
+                    ) : pendingCategoryCount === 0 ? (
+                      <div className="bg-primary/5 text-primary text-[11px] px-3 py-1.5 rounded-lg mb-4 inline-flex items-center gap-1.5 font-medium border border-primary/20">
+                        <CheckCircle size={12} /> Sin sugerencias pendientes.
+                      </div>
+                    ) : (
+                      <div className="bg-action/5 text-action text-[11px] px-3 py-1.5 rounded-lg mb-4 inline-flex items-center gap-1.5 font-medium border border-action/20">
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        {pendingCategoryCount} sugerencia{pendingCategoryCount !== 1 ? "s" : ""} pendiente{pendingCategoryCount !== 1 ? "s" : ""} de revisión.
+                      </div>
+                    )}
+                    <br />
+                    <button
+                      onClick={() => setModalCategorias(true)}
+                      className="bg-primary text-white text-sm px-4 py-2 rounded-lg hover:opacity-90 transition-all shadow-sm inline-flex items-center gap-2"
+                    >
+                      <BookOpen size={14} />
+                      Revisar categorías
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Control de acceso por roles */}
@@ -550,6 +801,14 @@ const DashboardAdmin = () => {
         <SkillSuggestionsModal
           onClose={() => setModalSugerencias(false)}
           onCountChange={setPendingCount}
+        />
+      )}
+
+      {/* Modal de sugerencias de categorías */}
+      {modalCategorias && (
+        <CategorySuggestionsModal
+          onClose={() => setModalCategorias(false)}
+          onCountChange={setPendingCategoryCount}
         />
       )}
 

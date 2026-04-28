@@ -15,6 +15,7 @@ function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([])
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editFormData, setEditFormData] = useState<Category | null>(null)
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
   
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState(false)
@@ -239,7 +240,12 @@ function CategoriesPage() {
                               <input 
                                 type="text"
                                 value={editFormData.name}
-                                onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  if (/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/.test(val)) {
+                                    setEditFormData({ ...editFormData, name: val });
+                                  }
+                                }}
                                 placeholder="Nombre de categoría"
                                 className="w-full p-2 border border-gray-300 rounded outline-none text-sm bg-white focus:border-[#00388c]"
                                 disabled={actionLoading}
@@ -249,7 +255,12 @@ function CategoriesPage() {
                               <input 
                                 type="text"
                                 value={editFormData.description || ''}
-                                onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  if (/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]*$/.test(val)) {
+                                    setEditFormData({ ...editFormData, description: val });
+                                  }
+                                }}
                                 placeholder="Breve descripción..."
                                 className="w-full p-2 border border-gray-200 rounded outline-none text-sm bg-white"
                                 disabled={actionLoading}
@@ -274,7 +285,7 @@ function CategoriesPage() {
                             <td className="py-3 px-6">
                               <div className="flex items-center justify-end gap-2 text-xs">
                                 <button 
-                                  onClick={handleSaveEdit}
+                                  onClick={() => setShowConfirmModal(true)}
                                   disabled={actionLoading || !editFormData.name.trim() || !editFormData.description.trim()}
                                   className="bg-[#00388c] text-white px-3 py-1.5 rounded disabled:bg-[#00388c]/60 font-medium hover:brightness-110 transition-all flex items-center justify-center gap-1 min-w-[70px]"
                                 >
@@ -358,6 +369,39 @@ function CategoriesPage() {
             <RightPanelContent />
           </aside>
         </main>
+
+        {/* Modal de confirmación para guardar */}
+        {showConfirmModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => !actionLoading && setShowConfirmModal(false)} />
+            <div className="relative bg-white rounded-xl shadow-2xl p-6 w-full max-w-[340px] mx-4 flex flex-col items-center gap-4 text-center">
+              <h3 className="text-[16px] font-bold text-[#1a1a2e] mb-1">Confirmar Acción</h3>
+              <p className="text-[13px] text-[#5b6472] leading-relaxed">¿Desea guardar la categoría?</p>
+              <div className="flex justify-center gap-3 w-full mt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmModal(false)}
+                  disabled={actionLoading}
+                  className="flex-1 h-10 px-4 text-[13px] font-bold text-[#1a1a2e] bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await handleSaveEdit();
+                    setShowConfirmModal(false);
+                  }}
+                  disabled={actionLoading}
+                  className="flex-1 h-10 px-4 text-[13px] font-bold text-white bg-[#00388c] rounded-lg hover:brightness-110 transition-all flex items-center justify-center gap-2 disabled:bg-[#00388c]/60 disabled:cursor-not-allowed"
+                >
+                  {actionLoading ? <Loader2 size={14} className="animate-spin" /> : "Confirmar"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   )
