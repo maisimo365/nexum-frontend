@@ -1,6 +1,5 @@
 import { API_BASE_URL } from '../utils/constants'
 
-// Definimos una interfaz para los datos que vienen del formulario
 interface PersonalDataUpdate {
   nombre: string
   apellido: string
@@ -8,6 +7,8 @@ interface PersonalDataUpdate {
   telefono: string
   ubicacion: string
   biografia: string
+  linkedin?: string
+  github?: string
 }
 
 const getToken = () => localStorage.getItem('token') || sessionStorage.getItem('token')
@@ -35,14 +36,10 @@ export const getPersonalData = async () => {
   return result.data
 }
 
-/**
- * Función para guardar cambios de Datos Personales
- * Recupera datos actuales y los fusiona para preservar campos de otros formularios
- */
 export const updatePersonalData = async (data: PersonalDataUpdate) => {
   const token = getToken()
 
-  // Recuperar datos actuales para preservar enlaces y privacidad
+  // Recuperamos datos actuales para no sobrescribir con nulo los campos de otras pestañas
   const currentData = await getPersonalData()
 
   const response = await fetch(`${API_BASE_URL}/portfolio`, {
@@ -59,7 +56,6 @@ export const updatePersonalData = async (data: PersonalDataUpdate) => {
       phone: data.telefono,
       location: data.ubicacion,
       biography: data.biografia,
-      // Preservar datos de enlaces que ya existen
       linkedin_url: currentData?.linkedin_url,
       github_url: currentData?.github_url,
       global_privacy: currentData?.global_privacy
@@ -72,4 +68,41 @@ export const updatePersonalData = async (data: PersonalDataUpdate) => {
   }
 
   return await response.json()
+}
+
+/**
+ * Sube el archivo de imagen al endpoint configurado en el backend
+ */
+export const uploadAvatar = async (file: File) => {
+  const token = getToken()
+
+  const formData = new FormData()
+  formData.append('avatar', file)
+
+  const response = await fetch(`${API_BASE_URL}/portfolio/avatar`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json'
+    },
+    body: formData
+  })
+
+  let result
+  try {
+    result = await response.json()
+  } catch {
+    // Si no se puede parsear como JSON, usar el texto de la respuesta
+    const text = await response.text()
+    throw new Error(`Error del servidor: ${response.status} - ${text}`)
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      result.message ||
+        `Error del servidor: ${response.status} - ${result.error || 'Error desconocido'}`
+    )
+  }
+
+  return result
 }

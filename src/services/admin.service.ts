@@ -128,6 +128,7 @@ export const getActivityLogs = async (params: { user_id?: number; per_page?: num
         }),
         detail: formatLogDetail(log),
         raw_date: log.created_at,
+        properties: log.properties,
       };
     }),
 
@@ -202,4 +203,107 @@ const translateKey = (key: string) => {
   };
   return map[key] || key;
 };
-
+
+export const getProjectCategories = async (params: { search?: string; status?: string; page?: number } = {}) => {
+  const token = getToken();
+  const queryParams = new URLSearchParams();
+  if (params.search) queryParams.append("search", params.search);
+  if (params.status) {
+    if (params.status === 'ACTIVO') queryParams.append("status", "active");
+    else if (params.status === 'INACTIVO') queryParams.append("status", "inactive");
+  }
+  if (params.page) queryParams.append("page", params.page.toString());
+  
+  const response = await fetch(`${API_BASE_URL}/admin/project-categories?${queryParams.toString()}`, {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  
+  if (response.status === 401) {
+    handleUnauthorized();
+    return { data: [], meta: { current_page: 1, last_page: 1, total: 0 } };
+  }
+
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.message || "Error al obtener categorías.");
+  
+  // Debug log para verificar que el backend sí envía las descripciones
+  console.log("Categories API Response Data:", data.data);
+
+  return {
+    data: data.data.map((cat: any) => ({
+      id: cat.id.toString(),
+      name: cat.name,
+      description: cat.description || '', // Fallback a string vacío si es null
+      status: cat.status === 'active' || cat.status === 'ACTIVO' ? 'ACTIVO' : 'INACTIVO'
+    })),
+    meta: data.meta
+  };
+};
+
+export const createProjectCategory = async (payload: { name: string, description: string }) => {
+  const token = getToken();
+  const response = await fetch(`${API_BASE_URL}/admin/project-categories`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (response.status === 401) {
+    handleUnauthorized();
+    return;
+  }
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.message || "Error al crear la categoría.");
+  return data;
+};
+
+export const updateProjectCategory = async (id: string, payload: { name: string, description: string }) => {
+  const token = getToken();
+  // Solamente enviamos name y description
+  const response = await fetch(`${API_BASE_URL}/admin/project-categories/${id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (response.status === 401) {
+    handleUnauthorized();
+    return;
+  }
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.message || "Error al actualizar la categoría.");
+  return data;
+};
+
+export const toggleProjectCategoryStatus = async (id: string) => {
+  const token = getToken();
+  const response = await fetch(`${API_BASE_URL}/admin/project-categories/${id}/toggle-status`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    }
+  });
+
+  if (response.status === 401) {
+    handleUnauthorized();
+    return;
+  }
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.message || "Error al cambiar el estado.");
+  return data;
+};
+
